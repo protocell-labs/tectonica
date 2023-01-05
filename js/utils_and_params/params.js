@@ -256,12 +256,15 @@ function get_transformation_index(transformation_type) {
 }
 
 const cylinder_params = {
-  'standard' : [0.5, 0.5, 1, 6, 1] 
+  'standard' : [0.5, 0.5, 1, 6, 1],
+  'square beam' : [0.5, 0.5, 1, 4, 1]
 };
 
 // how much is thickness of the member scaled for every stage
 const thickness_scale_per_stage = {
-  'getting_thinner' : [1.2, 1.1, 1.0, 0.9, 0.8, 0.7, 0.6, 0.6, 0.6]
+  'getting_thinner' : [1.2, 1.1, 1.0, 0.9, 0.8, 0.7, 0.6, 0.6, 0.6],
+  'moderate_constant' : [5, 5, 5, 5, 5, 5, 5, 5, 5],
+  'thick_constant' : [20, 20, 20, 20, 20, 20, 20, 20, 20]
 };
 
 
@@ -503,6 +506,73 @@ function generate_frame_params(stage, frame_type, position) {
 
   return lattice_params
 }
+
+
+
+
+
+
+
+
+
+// all input parameters are optional, they will be chosen at random if not passed into the function
+function generate_module_params(position) {
+
+  var start_bounds = 100;
+  var primitive = 'hexahedron';
+  var deform_type = [1, 1, 1];
+  if (position == undefined) {var position = new THREE.Vector3(0, 0, 0);}
+  var stage = 1;
+  var double_sided = 'false';
+  var start_rot = 0;
+  var sub_rules = [1, 1, 1, 1, 1, 1, 1, 1];
+  var mod_rules = [1, 1, 1, 1, 1, 1, 1, 1]; // we only draw symmetrical lattices so mod_rules are fixed
+  var extrude_face = [-10, -10, -10, -10, -10, -10, -10, -10];
+  var extrude_face0 = extrude_face;
+  var contract_middle = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1];
+  var leave_middle = ['true', 'true', 'true', 'true', 'true', 'true', 'true', 'true'];
+
+  var steps = get_steps(stage);
+  var transformation_type = gene_weighted_choice(allel_transformation);
+  var transformation_index = get_transformation_index(transformation_type);
+
+  // this object will hold all of our lattice parameters which we can unpack when we need them
+  var module_params = {
+    start_bounds: start_bounds,
+    primitive: primitive,
+    deform_type: deform_type,
+    position: position,
+    stage: stage,
+    double_sided: double_sided,
+    start_rot: start_rot,
+    sub_rules: sub_rules,
+    mod_rules: mod_rules,
+    extrude_face: extrude_face,
+    extrude_face0, extrude_face0,
+    contract_middle: contract_middle,
+    leave_middle: leave_middle,
+    steps: steps,
+    transformation_type: transformation_type,
+    transformation_index: transformation_index
+  }
+
+  return module_params
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //////ANIMATION SETTINGS CHOOSING//////
 const light_frame_speed_param = {

@@ -1,14 +1,18 @@
 /*
 
-     ██████╗  ██████╗  ███████╗  ██████╗ ██╗   ██╗ ██████╗  ██╗   ██╗ ███╗   ███╗
-    ██╔═══██╗ ██╔══██╗ ██╔════╝ ██╔════╝ ██║   ██║ ██╔══██╗ ██║   ██║ ████╗ ████║
-    ██║   ██║ ██████╔╝ ███████╗ ██║      ██║   ██║ ██████╔╝ ██║   ██║ ██╔████╔██║
-    ██║   ██║ ██╔══██╗ ╚════██║ ██║      ╚██╗ ██╔╝ ██╔══██╗ ╚██╗ ██╔╝ ██║╚██╔╝██║
-    ╚██████╔╝ ██████╔╝ ███████║ ╚██████╗  ╚████╔╝  ██║  ██║  ╚████╔╝  ██║ ╚═╝ ██║
-     ╚═════╝  ╚═════╝  ╚══════╝  ╚═════╝   ╚═══╝   ╚═╝  ╚═╝   ╚═══╝   ╚═╝     ╚═╝
-                                            
-     
-          O B S C V R V M  |  { p r o t o c e l l : l a b s }  |  2 0 2 2
+
+________/\\\\\\\\\_______/\\\\\_______/\\\______________/\\\______________/\\\\\\\\\\\\\\\________/\\\\\\\\\__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\_______/\\\\\_______/\\\\\_____/\\\_____________/\\\\\\\\\\\\\\\_         
+ _____/\\\////////______/\\\///\\\____\/\\\_____________\/\\\_____________\/\\\///////////______/\\\////////__\///////\\\/////__\/////\\\///______/\\\///\\\____\/\\\\\\___\/\\\____________\/\\\///////////__        
+  ___/\\\/_____________/\\\/__\///\\\__\/\\\_____________\/\\\_____________\/\\\_______________/\\\/_________________\/\\\___________\/\\\_______/\\\/__\///\\\__\/\\\/\\\__\/\\\____________\/\\\_____________       
+   __/\\\______________/\\\______\//\\\_\/\\\_____________\/\\\_____________\/\\\\\\\\\\\______/\\\___________________\/\\\___________\/\\\______/\\\______\//\\\_\/\\\//\\\_\/\\\____________\/\\\\\\\\\\\\_____     
+    _\/\\\_____________\/\\\_______\/\\\_\/\\\_____________\/\\\_____________\/\\\///////______\/\\\___________________\/\\\___________\/\\\_____\/\\\_______\/\\\_\/\\\\//\\\\/\\\____________\////////////\\\___    
+     _\//\\\____________\//\\\______/\\\__\/\\\_____________\/\\\_____________\/\\\_____________\//\\\__________________\/\\\___________\/\\\_____\//\\\______/\\\__\/\\\_\//\\\/\\\_______________________\//\\\__   
+      __\///\\\___________\///\\\__/\\\____\/\\\_____________\/\\\_____________\/\\\______________\///\\\________________\/\\\___________\/\\\______\///\\\__/\\\____\/\\\__\//\\\\\\____________/\\\________\/\\\__  
+       ____\////\\\\\\\\\____\///\\\\\/_____\/\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\____\////\\\\\\\\\_______\/\\\________/\\\\\\\\\\\____\///\\\\\/_____\/\\\___\//\\\\\___________\//\\\\\\\\\\\\\/___ 
+        _______\/////////_______\/////_______\///////////////__\///////////////__\///////////////________\/////////________\///________\///////////_______\/////_______\///_____\/////_____________\/////////////_____
+
+
+          C O L L E C T I O N F I V E  |  { p r o t o c e l l : l a b s }  |  2 0 2 2
 */
 
 
@@ -23,7 +27,52 @@ composition_params = generate_composition_params(); // all input parameters are 
 
 var { aspect_ratio, frame_type, center_piece_type, center_piece_factor, explosion_type, light_source_type, explosion_center_a, explosion_center_b, celestial_object_types, feature_dimension, feature_frame, feature_primitive, feature_state, feature_celestial } = composition_params; // unpacking parameters we need in main.js and turning them into globals
 
+aspect_ratio = '0.75'; ////OVERRIDE////
+explosion_type = 0; ////OVERRIDE////
+
+
+
+var global_rot_x = -Math.PI/16; //gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
+var global_rot_y = Math.PI/16; //gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
+//var global_rot_x = gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
+//var global_rot_y = gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
+
+
+// MODULE GRID
+
+var grid_module_nr_x = 3;
+var grid_module_nr_y = 3;
+var grid_module_nr_z = 3;
+
+var grid_module_size = 110;
+var module_center_pos;
+var module_center_offset = new THREE.Vector3(-0.5 * grid_module_size * grid_module_nr_x, -0.5 * grid_module_size * grid_module_nr_y, 0.5 * grid_module_size * grid_module_nr_z);
+//var module_center_offset = new THREE.Vector3(-0.5 * 110 * 3, -0.5 * 110 * 3, 0.5 * 110 * 3);
+
+for (var nx = 0; nx < grid_module_nr_x; nx++) {
+  for (var ny = 0; ny < grid_module_nr_y; ny++) {
+    for (var nz = 0; nz < grid_module_nr_z; nz++) {
+
+      module_center_pos = new THREE.Vector3(grid_module_size * nx, grid_module_size * ny, grid_module_size * nz);
+      module_center_pos.add(module_center_offset); // offset the whole grid so it's in the center of the scene
+      module_params = generate_module_params(position = module_center_pos); // all input parameters are optional, they will be chosen at random if not passed into the function
+      gData = generate_lattice(module_params);
+      gDatas.push(gData);
+      
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
 // LATTICE 1 - FRAME, plane primitive, full size
+/*
 if (frame_type == 'narrow') {
   lattice_params = generate_frame_params(6, 'narrow'); // all input parameters are optional, they will be chosen at random if not passed into the function
   gData = generate_lattice(lattice_params);
@@ -40,8 +89,10 @@ if (frame_type == 'narrow') {
 } else if (frame_type == 'none') {
   // in this case we are not drawing a frame at all
 }
+*/
 
 // LATTICE 2 - CENTER, random primitive, smaller size
+/*
 if (center_piece_type != 'none') {
   lattice_params = generate_lattice_params(center_piece_type); // all input parameters are optional, they will be chosen at random if not passed into the function
   lattice_params['start_bounds'] = lattice_params['start_bounds'] * center_piece_factor;
@@ -58,6 +109,7 @@ if (center_piece_type != 'none') {
 } else if (center_piece_type == 'none') {
   // in this case we are not drawing a center piece at all
 }
+*/
 
 var nDatas = [];
 var nData;
@@ -196,7 +248,7 @@ function View(viewArea) {
   composer.setSize(window.innerWidth, window.innerHeight)
 
   // change scene background to solid color
-  scene.background = new THREE.Color( 0x000000 ); //0xffffff, 0x000000
+  scene.background = new THREE.Color('#f9f0de'); //0xffffff, 0x000000
 
   const color = 0xffffff; //0xffffff
   const intensity = 0.0; //0-1, zero works great for shadows with strong contrast
@@ -277,10 +329,84 @@ function View(viewArea) {
   this.composer.addPass(bloomPass)
 }
 
+
+
+View.prototype.addDenseMatter = function  () {
+
+  var c_type = 'square beam';
+  //var c_xy_scale = thickness_scale_per_stage['moderate_constant']; // how much is thickness of the member scaled for every stage
+  var c_xy_scale = 5;
+  var c_length = 50;
+  var grid_nr_x = 10;
+  var grid_nr_y = 5;
+  var grid_nr_z = 10;
+  var y_gap = 5;
+
+  const allel_discrete_colors = [
+    ['#ffffff', 10],
+    ['#ff0000', 0],
+    ['#0000ff', 0],
+    ['#ff00ff', 0],
+    ['#00ffff', 0],
+    ['#ffff00', 1],
+    ['#000000', 2],
+    ['#111111', 1],
+    ['#666666', 1],
+    ['#aaaaaa', 0],
+  ];
+
+  const allel_dessau = [
+    ['#f9f0de', 1],
+    ['#e51531', 1],
+    ['#2a70ae', 1],
+    ['#fab511', 1],
+    ['#080808', 1]
+  ];
+
+  for (var n = 0; n < 300; n++) { //for (var n = 0; n < gDatas.length; n++)
+    var geometry_color = new THREE.Color(gene_weighted_choice(allel_dessau));
+    var dummy = new THREE.Object3D()
+    var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
+    var material = new THREE.MeshPhongMaterial( {color: geometry_color, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
+    var imesh = new THREE.InstancedMesh(geometry, material, 10);
+    var axis = new THREE.Vector3(0, 0, 1); //(0, 0, 1)
+    imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
+
+    for (var i = 0; i < 10; i++) { //for (var i = 0; i < gData.links.length; i++)
+      var vector = new THREE.Vector3(0, 0, 1);
+      dummy.scale.set(c_xy_scale, c_length, c_xy_scale);
+      dummy.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
+      dummy.position.set(generateRandomInt(-grid_nr_x, grid_nr_x) * c_xy_scale, generateRandomInt(-grid_nr_y, grid_nr_y) * (c_length + y_gap), generateRandomInt(-grid_nr_z, grid_nr_z) * c_xy_scale);
+      
+      //rotate member around its axis to align with the grid
+      dummy.rotateY(Math.PI * 0.28);
+
+      dummy.updateMatrix();
+      imesh.setMatrixAt( i, dummy.matrix );
+    }
+
+    // global rotation of the lattice
+    imesh.rotateX(global_rot_x);
+    imesh.rotateY(global_rot_y);
+
+    imesh.instanceMatrix.needsUpdate = true
+
+    imesh.castShadow = true;
+    imesh.receiveShadow = true;
+
+    this.scene.add(imesh);
+
+  }
+
+}
+
+
+
+
 View.prototype.addInstances = function  () {
 
-  var c_type = "standard";
-  var c_xy_scale = thickness_scale_per_stage['getting_thinner']; // how much is thickness of the member scaled for every stage
+  var c_type = 'square beam';
+  var c_xy_scale = thickness_scale_per_stage['moderate_constant']; // how much is thickness of the member scaled for every stage
 
   var cull_dist_bands; // culling of members happens at different rates at each of these distance bands
   var cull_precentage_bands; // culling precentages per distance bands (first one is 100%, all members get removed)
@@ -311,9 +437,9 @@ View.prototype.addInstances = function  () {
   for (var n = 0; n < gDatas.length; n++) {
     var gData = gDatas[n];
     var dummy = new THREE.Object3D()
-    var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], true );
-    var material = new THREE.MeshPhongMaterial( {color: 0xffffff} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
-    var imesh = new THREE.InstancedMesh( geometry, material, gData.links.length )
+    var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
+    var material = new THREE.MeshPhongMaterial( {color: 0xff00ff, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
+    var imesh = new THREE.InstancedMesh( geometry, material, gData.links.length );
     var axis = new THREE.Vector3(0, 1, 0);
     imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
     var c = new THREE.Color()
@@ -329,21 +455,6 @@ View.prototype.addInstances = function  () {
       dummy.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
       dummy.position.set((gData.nodes[source_index].x+gData.nodes[target_index].x)/2, (gData.nodes[source_index].y+gData.nodes[target_index].y)/2, (gData.nodes[source_index].z+gData.nodes[target_index].z)/2)
       dummy.updateMatrix();
-
-      
-      // cull members according to their proximity to the axis
-      // var cull_member_x_axis = (Math.abs((gData.nodes[source_index].x + gData.nodes[target_index].x) / 2) < cull_band_width) || (Math.abs(gData.nodes[source_index].x) < cull_band_min) || (Math.abs(gData.nodes[target_index].x) < cull_band_min); //(gene() < 0.95)
-      // var cull_member_y_axis = (Math.abs((gData.nodes[source_index].y + gData.nodes[target_index].y) / 2) < cull_band_width) || (Math.abs(gData.nodes[source_index].y) < cull_band_min) || (Math.abs(gData.nodes[target_index].y) < cull_band_min); //(gene() < 0.95)
-
-      // !cull_member_x_axis - cull members along x-axis
-      // !cull_member_y_axis - cull members along y-axis
-      // !(cull_member_x_axis || cull_member_y_axis) - cull members along x-axis and y-axis
-
-      /*if (cull_member_y_axis) {
-        if ( gene() < 0.05 ) { //5/(Math.abs((gData.nodes[source_index].y + gData.nodes[target_index].y) / 2))
-          cull_member_y_axis = false;
-        }
-      }*/
 
       // EXPLODING LATTICE MEMBERS
 
@@ -479,6 +590,10 @@ View.prototype.addInstances = function  () {
       }
 
     }
+
+    // global rotation of the lattice
+    imesh.rotateX(global_rot_x);
+    imesh.rotateY(global_rot_y);
 
     imesh.instanceMatrix.needsUpdate = true
 
@@ -841,7 +956,7 @@ View.prototype.addCelestialObject = function (celestial_object_type)
   
   // place dark disk behind the celestial objects but in front of the stars so they are covered
   if (celestial_object_type == 'eclipse' || celestial_object_type == 'ultra eclipse' || celestial_object_type == 'moon' || celestial_object_type == 'planet' || celestial_object_type == 'orbit' || celestial_object_type == 'rapture') {
-    const dark_disc_geo = new THREE.CircleGeometry(radius_x, 16);
+    const dark_disc_geo = new THREE.CircleGeometry(radius_x, 64);
     const dark_disc_material = new THREE.MeshBasicMaterial({color: 0x000000});
     const dark_disc_mesh = new THREE.Mesh(dark_disc_geo, dark_disc_material);
     dark_disc_mesh.position.set(cent_x, cent_y, celestial_plane_distance - 100);
@@ -1316,7 +1431,10 @@ function Controller(viewArea) {
     }, parallex_framerate);
   }, parallex_delay)
 
-  view.addInstances();
+  
+  view.addDenseMatter();
+
+  //view.addInstances();
   view.addStarsOrdered(); // ordered stars based on lattice nodes from nDatas
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
 
@@ -1435,7 +1553,7 @@ function capturer_custom_save() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `OBSCVRVM_${parseInt(Math.random()*10000000)}.gif`;
+      a.download = `collectionfive_${parseInt(Math.random()*10000000)}.gif`;
       a.click();
       URL.revokeObjectURL(url);
       });
@@ -1568,7 +1686,7 @@ const capture = (contx) => {
     const urlBase64 = renderer.domElement.toDataURL('img/png'); 
     const a = document.createElement("a");
     a.href = urlBase64;
-    a.download = `OBSCVRVM_${parseInt(Math.random()*10000000)}.png`;
+    a.download = `collectionfive_${parseInt(Math.random()*10000000)}.png`;
     a.click();
     URL.revokeObjectURL(urlBase64);
   }  
