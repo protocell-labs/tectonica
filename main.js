@@ -248,7 +248,7 @@ function View(viewArea) {
   composer.setSize(window.innerWidth, window.innerHeight)
 
   // change scene background to solid color
-  scene.background = new THREE.Color('#f9f0de'); //0xffffff, 0x000000
+  scene.background = new THREE.Color('#080808'); //0xffffff, 0x000000
 
   const color = 0xffffff; //0xffffff
   const intensity = 0.0; //0-1, zero works great for shadows with strong contrast
@@ -337,10 +337,13 @@ View.prototype.addDenseMatter = function  () {
   //var c_xy_scale = thickness_scale_per_stage['moderate_constant']; // how much is thickness of the member scaled for every stage
   var c_xy_scale = 5;
   var c_length = 50;
-  var grid_nr_x = 10;
-  var grid_nr_y = 5;
-  var grid_nr_z = 10;
+  var grid_nr_x = 20;
+  var grid_nr_y = 10;
+  var grid_nr_z = 20;
   var y_gap = 5;
+  var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
+  var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
+  var grid_offset_z = -(grid_nr_z * c_xy_scale) / 2.0;
 
   const allel_discrete_colors = [
     ['#ffffff', 10],
@@ -363,20 +366,118 @@ View.prototype.addDenseMatter = function  () {
     ['#080808', 1]
   ];
 
-  for (var n = 0; n < 300; n++) { //for (var n = 0; n < gDatas.length; n++)
-    var geometry_color = new THREE.Color(gene_weighted_choice(allel_dessau));
-    var dummy = new THREE.Object3D()
+  
+  var dense_matter_object = {}; // coordinates are the key, dense matter data is the value
+  var elements_per_palette_object = {}; // color is the key, nr of elements is the value
+  var imesh_index_tracker = {}; // color is the key, index nr is the value
+  var imeshes_object = {}; // color is the key, imesh is the value
+
+  // use elements_per_palette objects to count nr of elements for each color - we need to know this nr when we create instanced mesh
+  for (i in allel_dessau) {
+    elements_per_palette_object[allel_dessau[i][0]] = 0; // for each color we set nr of elements to zero
+    imesh_index_tracker[allel_dessau[i][0]] = 0; // for each color we set the starting index to zero
+  }
+
+  // fill dense_matter_object with positions and attributes of elements - we iterate through every point on the grid to decide if the element is placed there
+  for (var i = 0; i < grid_nr_x; i++) {
+    for (var j = 0; j < grid_nr_y; j++) {
+      for (var k = 0; k < grid_nr_z; k++) {
+        var element_position = new THREE.Vector3(i * c_xy_scale + grid_offset_x, j * (c_length + y_gap) + grid_offset_y, k * c_xy_scale + grid_offset_z);
+        var element_position_str = element_position.x.toString() + ' ' + element_position.y.toString() + ' ' + element_position.z.toString();
+        var element_color = gene_weighted_choice(allel_dessau);
+
+        // this data will be later used to create instanced meshes with all the elements
+        var dense_matter_element = {exists: true,
+                                    position: element_position, 
+                                    color: element_color};
+        dense_matter_object[element_position_str] = dense_matter_element;
+
+        elements_per_palette_object[element_color] += 1; // add one to the count of elements for this color - we need to know this nr when we create instanced mesh
+      }
+    }
+  }
+
+  // fill up imeshes_object with {color: imesh} pairs, each imesh will have its own color
+  for (const [element_color, elements_per_palette] of Object.entries(elements_per_palette_object)) {
+    var geometry_color = new THREE.Color(element_color);
     var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
     var material = new THREE.MeshPhongMaterial( {color: geometry_color, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
-    var imesh = new THREE.InstancedMesh(geometry, material, 10);
+    var imesh = new THREE.InstancedMesh(geometry, material, elements_per_palette);
+    imeshes_object[element_color] = imesh;
+  }
+
+  console.log(dense_matter_object);
+  console.log(elements_per_palette_object);
+  console.log(imeshes_object);
+
+  // iterate through dense_matter_object's keys and values and build instanced meshes for each color
+  for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
+    //console.log(key, dense_matter_element);
+    var dummy = new THREE.Object3D();
+    var imesh = imeshes_object[dense_matter_element['color']];
+    var axis = new THREE.Vector3(0, 0, 1);
+    imesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
+
+    var vector = new THREE.Vector3(0, 0, 1);
+    var element_position = dense_matter_element['position'];
+    dummy.scale.set(c_xy_scale, c_length, c_xy_scale);
+    dummy.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
+    dummy.position.set(element_position.x, element_position.y, element_position.z);
+    dummy.rotateY(Math.PI * 0.28); //rotate member around its axis to align with the grid
+
+    dummy.updateMatrix();
+    imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix);
+
+    // add one to the index tracker for the imesh of that color
+    imesh_index_tracker[dense_matter_element['color']] += 1;
+
+  }
+
+  // add instance meshes to the scene
+  for (const [element_color, imesh] of Object.entries(imeshes_object)) {
+      // global rotation of the instanced mesh
+      imesh.rotateX(global_rot_x);
+      imesh.rotateY(global_rot_y);
+  
+      imesh.instanceMatrix.needsUpdate = true
+      imesh.castShadow = true;
+      imesh.receiveShadow = true;
+  
+      this.scene.add(imesh);
+  }
+
+
+
+
+  /*
+  var element_positions_object = {};
+
+  for (var n = 0; n < nr_of_imeshes; n++) {
+    var geometry_color = new THREE.Color(gene_weighted_choice(allel_dessau));
+    var dummy = new THREE.Object3D();
+    var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
+    var material = new THREE.MeshPhongMaterial( {color: geometry_color, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
+    var imesh = new THREE.InstancedMesh(geometry, material, elements_per_imesh);
     var axis = new THREE.Vector3(0, 0, 1); //(0, 0, 1)
     imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
 
-    for (var i = 0; i < 10; i++) { //for (var i = 0; i < gData.links.length; i++)
+    for (var i = 0; i < elements_per_imesh; i++) {
       var vector = new THREE.Vector3(0, 0, 1);
       dummy.scale.set(c_xy_scale, c_length, c_xy_scale);
       dummy.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
-      dummy.position.set(generateRandomInt(-grid_nr_x, grid_nr_x) * c_xy_scale, generateRandomInt(-grid_nr_y, grid_nr_y) * (c_length + y_gap), generateRandomInt(-grid_nr_z, grid_nr_z) * c_xy_scale);
+
+      var element_position = new THREE.Vector3(generateRandomInt(-grid_nr_x, grid_nr_x) * c_xy_scale, generateRandomInt(-grid_nr_y, grid_nr_y) * (c_length + y_gap), generateRandomInt(-grid_nr_z, grid_nr_z) * c_xy_scale);
+      var element_position_str = element_position.x.toString() + ' ' + element_position.y.toString() + ' ' + element_position.z.toString();
+      //console.log(element_position_str);
+
+      // if we selected a point which was already used before (collision) we can skip placing an element there
+      if (element_position_str in element_positions_object) {
+        console.log('element already exists');
+        continue; // this skips the current for loop interation and continues with the next one
+      }
+
+      element_positions_object[element_position_str] = element_position;
+      dummy.position.set(element_position.x, element_position.y, element_position.z);
       
       //rotate member around its axis to align with the grid
       dummy.rotateY(Math.PI * 0.28);
@@ -396,7 +497,14 @@ View.prototype.addDenseMatter = function  () {
 
     this.scene.add(imesh);
 
+
   }
+
+  console.log(element_positions_object);
+  console.log(Object.keys(element_positions_object).length);
+  */
+
+
 
 }
 
