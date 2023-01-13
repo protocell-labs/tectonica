@@ -64,9 +64,9 @@ const allel_explosion_type = [
 
 const allel_light_source_type = [
   ['west', 1],
-  ['east', 1],
-  ['north', 1],
-  ['south', 1]
+  ['east', 0],
+  ['north', 0],
+  ['south', 0]
 ];
 
 // all celestial types - 'none', 'comet', 'eclipse', 'ultra eclipse', 'moon', 'planet', 'orbit', 'meteor shower', 'quasar', 'nova', 'rapture', 'nebula', 'constellation'

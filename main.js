@@ -16,6 +16,26 @@ ________/\\\\\\\\\_______/\\\\\_______/\\\______________/\\\______________/\\\\\
 */
 
 
+
+var dense_matter_object = {}; // grid coordinates are the key, dense matter data is the value
+var elements_per_palette_object = {}; // color is the key, nr of elements is the value
+var imesh_index_tracker = {}; // color is the key, index nr is the value
+var imeshes_object = {}; // color is the key, imesh is the value
+
+var c_type = 'square beam';
+var c_xy_scale = 5; //5
+var c_length = 50; //50
+var grid_nr_x = 60;
+var grid_nr_y = 10;
+var grid_nr_z = 30;
+var y_gap = 1; //5
+var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
+var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
+var grid_offset_z = -(grid_nr_z * c_xy_scale) / 2.0;
+
+
+
+
 //////LATTICE GENERATION//////
 
 var gDatas = [];
@@ -251,7 +271,7 @@ function View(viewArea) {
   scene.background = new THREE.Color('#080808'); //0xffffff, 0x000000
 
   const color = 0xffffff; //0xffffff
-  const intensity = 0.0; //0-1, zero works great for shadows with strong contrast
+  const intensity = 0.1; //0-1, zero works great for shadows with strong contrast
 
   // ADD LIGHTING
   var light = new THREE.PointLight(0xffffff);
@@ -333,66 +353,91 @@ function View(viewArea) {
 
 View.prototype.addDenseMatter = function  () {
 
-  var c_type = 'square beam';
-  //var c_xy_scale = thickness_scale_per_stage['moderate_constant']; // how much is thickness of the member scaled for every stage
-  var c_xy_scale = 5;
-  var c_length = 50;
-  var grid_nr_x = 20;
-  var grid_nr_y = 10;
-  var grid_nr_z = 20;
-  var y_gap = 5;
-  var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
-  var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
-  var grid_offset_z = -(grid_nr_z * c_xy_scale) / 2.0;
-
-  const allel_discrete_colors = [
-    ['#ffffff', 10],
-    ['#ff0000', 0],
-    ['#0000ff', 0],
-    ['#ff00ff', 0],
-    ['#00ffff', 0],
-    ['#ffff00', 1],
-    ['#000000', 2],
-    ['#111111', 1],
-    ['#666666', 1],
-    ['#aaaaaa', 0],
-  ];
-
   const allel_dessau = [
-    ['#f9f0de', 1],
-    ['#e51531', 1],
-    ['#2a70ae', 1],
-    ['#fab511', 1],
-    ['#080808', 1]
+    ['#f9f0de', 1], // white
+    ['#e51531', 1], // red
+    ['#2a70ae', 1], // blue
+    ['#fab511', 1], // yellow
+    ['#080808', 1]  // black
   ];
 
-  
-  var dense_matter_object = {}; // coordinates are the key, dense matter data is the value
-  var elements_per_palette_object = {}; // color is the key, nr of elements is the value
-  var imesh_index_tracker = {}; // color is the key, index nr is the value
-  var imeshes_object = {}; // color is the key, imesh is the value
+
+
+  const palettes = {
+    "Dessau": [ "#f9f0de", // white
+                "#e51531", // red
+                "#2a70ae", // blue
+                "#fab511", // yellow
+                "#080808"],// black
+
+    "Dessau light": [ "#f9f0de", // white
+                      "#e51531", // red
+                      "#2a70ae", // blue
+                      "#fab511"], // yellow
+
+    "Edo":    [ "#f9f0de", // white
+                "#e51531", // red
+                "#080808"] // black
+  }
+
+  var palette_name = "Dessau"; // chosen palette name
+
+  var chosen_palette = palettes[palette_name].slice(0); // make a copy of the chosen color palette
+  shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
+  console.log(palette_name, chosen_palette);
 
   // use elements_per_palette objects to count nr of elements for each color - we need to know this nr when we create instanced mesh
-  for (i in allel_dessau) {
-    elements_per_palette_object[allel_dessau[i][0]] = 0; // for each color we set nr of elements to zero
-    imesh_index_tracker[allel_dessau[i][0]] = 0; // for each color we set the starting index to zero
+  for (i in chosen_palette) {
+    elements_per_palette_object[chosen_palette[i]] = 0; // for each color we set nr of elements to zero
+    imesh_index_tracker[chosen_palette[i]] = 0; // for each color we set the starting index to zero
   }
+
 
   // fill dense_matter_object with positions and attributes of elements - we iterate through every point on the grid to decide if the element is placed there
   for (var i = 0; i < grid_nr_x; i++) {
     for (var j = 0; j < grid_nr_y; j++) {
       for (var k = 0; k < grid_nr_z; k++) {
+        var element_exists = gene() < 0.75 ? true : false; //(1.0 - k * 0.05)
+
         var element_position = new THREE.Vector3(i * c_xy_scale + grid_offset_x, j * (c_length + y_gap) + grid_offset_y, k * c_xy_scale + grid_offset_z);
-        var element_position_str = element_position.x.toString() + ' ' + element_position.y.toString() + ' ' + element_position.z.toString();
-        var element_color = gene_weighted_choice(allel_dessau);
+        var element_grid_position = new THREE.Vector3(i, j, k);
+        var element_grid_position_str = element_grid_position.x.toString() + ' ' + element_grid_position.y.toString() + ' ' + element_grid_position.z.toString();
 
+
+        var ascending_param = j;
+        var descending_param = grid_nr_y - j;
+        var min_param = 1;
+        ///var zero_param = 0;
+
+        // probabilities for each palette color, if there are more probabilities than there are colors these will be ignored
+        // we can keep this order the same as the colors in chosen_palette are already shuffled
+        var palette_probs = [ascending_param, descending_param, min_param, min_param, min_param, min_param, min_param, min_param];
+
+        // constructing a dynamic color palette with varying number of colors to which probabilities are assigned
+        var allel_palette_dynamic = [];
+        for (var n = 0; n < chosen_palette.length; n++) {
+          allel_palette_dynamic.push([chosen_palette[n], palette_probs[n]]); // [palette color, probability]
+        }
+
+        // exceptions in case the element does not exist at this grid point
+        if (element_exists == true) {
+          var element_color = gene_weighted_choice(allel_palette_dynamic);
+          var imesh_idx = elements_per_palette_object[element_color]; // imesh index for this element so we can find it later when accessing transform matrices for that element
+          elements_per_palette_object[element_color] += 1; // add one to the count of elements for this color - we need to know this nr when we create instanced mesh
+        }
+        else {
+          var element_color = undefined;
+          var imesh_idx = undefined;
+        }
+        
         // this data will be later used to create instanced meshes with all the elements
-        var dense_matter_element = {exists: true,
+        var dense_matter_element = {exists: element_exists,
                                     position: element_position, 
-                                    color: element_color};
-        dense_matter_object[element_position_str] = dense_matter_element;
+                                    grid_pos: element_grid_position,
+                                    color: element_color,
+                                    imesh_idx: imesh_idx};
+        dense_matter_object[element_grid_position_str] = dense_matter_element;
 
-        elements_per_palette_object[element_color] += 1; // add one to the count of elements for this color - we need to know this nr when we create instanced mesh
       }
     }
   }
@@ -412,6 +457,8 @@ View.prototype.addDenseMatter = function  () {
 
   // iterate through dense_matter_object's keys and values and build instanced meshes for each color
   for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
+    if (dense_matter_element['exists'] == false) {continue;} // early exit - if the element doesn't exist, don't add it to the imesh
+
     //console.log(key, dense_matter_element);
     var dummy = new THREE.Object3D();
     var imesh = imeshes_object[dense_matter_element['color']];
@@ -430,7 +477,6 @@ View.prototype.addDenseMatter = function  () {
 
     // add one to the index tracker for the imesh of that color
     imesh_index_tracker[dense_matter_element['color']] += 1;
-
   }
 
   // add instance meshes to the scene
@@ -1482,6 +1528,47 @@ function Controller(viewArea) {
   var lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate);
 
 
+  // DENSE MATTER COMPUTATION
+
+ 
+  function update_dense_matter () {
+    var rand_grid_pos_str = generateRandomInt(0, grid_nr_x).toString() + " " + generateRandomInt(0, grid_nr_y).toString() + " " + generateRandomInt(0, grid_nr_z).toString();
+    //console.log(rand_grid_pos_str, dense_matter_object[rand_grid_pos_str]['position'], dense_matter_object[rand_grid_pos_str]['exists']); 
+
+    var dummy = new THREE.Object3D()
+    var mat4 = new THREE.Matrix4();
+
+    var elementCount = elements_per_palette_object['#fab511'];
+    var axis = new THREE.Vector3(0, 1, 0);
+    var rot_axis = new THREE.Vector3(1, 0, 0);
+    var distance = 0.5;
+    
+    for (let i = 0; i < elementCount; i++) {
+      imeshes_object['#fab511'].getMatrixAt(i, mat4); // mat4 will contain the current transform matrix of the instance
+      mat4.decompose(dummy.position, dummy.quaternion, dummy.scale); // map mat4 matrix onto our dummy object
+
+      // START all element transformations here
+      dummy.translateOnAxis(axis, distance);
+      //dummy.rotateOnWorldAxis(rot_axis, Math.PI/50);
+
+      // END element transformations here
+
+      dummy.updateMatrix();
+      imeshes_object['#fab511'].setMatrixAt(i, dummy.matrix);
+    }
+    imeshes_object['#fab511'].instanceMatrix.needsUpdate = true;
+
+
+  }
+
+  // run for animation
+  //var denseMatterIntervallInstance = setInterval(function () {update_dense_matter()}, 50);
+
+
+
+
+
+
   setTimeout(function ()  {
     setInterval(function () {
       start_timer = new Date().getTime()
@@ -1540,7 +1627,7 @@ function Controller(viewArea) {
   }, parallex_delay)
 
   
-  view.addDenseMatter();
+  view.addDenseMatter(); // dense grid of colored elements
 
   //view.addInstances();
   view.addStarsOrdered(); // ordered stars based on lattice nodes from nDatas
