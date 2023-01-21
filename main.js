@@ -25,13 +25,18 @@ var imeshes_object = {}; // color is the key, imesh is the value
 var c_type = 'square beam';
 var c_xy_scale = 5; //5
 var c_length = 50; //50
-var grid_nr_x = 60;
-var grid_nr_y = 10;
-var grid_nr_z = 30;
+var grid_nr_x = 110;
+var grid_nr_y = 15;
+var grid_nr_z = 40;
 var y_gap = 1; //5
 var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
 var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
 var grid_offset_z = -(grid_nr_z * c_xy_scale) / 2.0;
+
+
+
+//var palette_name = "Chloroplast"; // OVERRIDE - choose palette name
+var palette_name = gene_pick_key(palettes); // choose palette name at random
 
 
 
@@ -353,34 +358,7 @@ function View(viewArea) {
 
 View.prototype.addDenseMatter = function  () {
 
-  const allel_dessau = [
-    ['#f9f0de', 1], // white
-    ['#e51531', 1], // red
-    ['#2a70ae', 1], // blue
-    ['#fab511', 1], // yellow
-    ['#080808', 1]  // black
-  ];
-
-
-
-  const palettes = {
-    "Dessau": [ "#f9f0de", // white
-                "#e51531", // red
-                "#2a70ae", // blue
-                "#fab511", // yellow
-                "#080808"],// black
-
-    "Dessau light": [ "#f9f0de", // white
-                      "#e51531", // red
-                      "#2a70ae", // blue
-                      "#fab511"], // yellow
-
-    "Edo":    [ "#f9f0de", // white
-                "#e51531", // red
-                "#080808"] // black
-  }
-
-  var palette_name = "Dessau"; // chosen palette name
+  console.log("Number of palettes:", Object.keys(palettes).length); // show the total number of palettes
 
   var chosen_palette = palettes[palette_name].slice(0); // make a copy of the chosen color palette
   shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
@@ -397,12 +375,12 @@ View.prototype.addDenseMatter = function  () {
   for (var i = 0; i < grid_nr_x; i++) {
     for (var j = 0; j < grid_nr_y; j++) {
       for (var k = 0; k < grid_nr_z; k++) {
-        var element_exists = gene() < 0.75 ? true : false; //(1.0 - k * 0.05)
+
+        var element_exists = gene() < (0.25 + j * 0.05) ? true : false; //(1.0 - k * 0.05) , 0.75
 
         var element_position = new THREE.Vector3(i * c_xy_scale + grid_offset_x, j * (c_length + y_gap) + grid_offset_y, k * c_xy_scale + grid_offset_z);
         var element_grid_position = new THREE.Vector3(i, j, k);
         var element_grid_position_str = element_grid_position.x.toString() + ' ' + element_grid_position.y.toString() + ' ' + element_grid_position.z.toString();
-
 
         var ascending_param = j;
         var descending_param = grid_nr_y - j;
@@ -411,7 +389,7 @@ View.prototype.addDenseMatter = function  () {
 
         // probabilities for each palette color, if there are more probabilities than there are colors these will be ignored
         // we can keep this order the same as the colors in chosen_palette are already shuffled
-        var palette_probs = [ascending_param, descending_param, min_param, min_param, min_param, min_param, min_param, min_param];
+        var palette_probs = [ascending_param, descending_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param];
 
         // constructing a dynamic color palette with varying number of colors to which probabilities are assigned
         var allel_palette_dynamic = [];
@@ -491,64 +469,6 @@ View.prototype.addDenseMatter = function  () {
   
       this.scene.add(imesh);
   }
-
-
-
-
-  /*
-  var element_positions_object = {};
-
-  for (var n = 0; n < nr_of_imeshes; n++) {
-    var geometry_color = new THREE.Color(gene_weighted_choice(allel_dessau));
-    var dummy = new THREE.Object3D();
-    var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
-    var material = new THREE.MeshPhongMaterial( {color: geometry_color, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
-    var imesh = new THREE.InstancedMesh(geometry, material, elements_per_imesh);
-    var axis = new THREE.Vector3(0, 0, 1); //(0, 0, 1)
-    imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
-
-    for (var i = 0; i < elements_per_imesh; i++) {
-      var vector = new THREE.Vector3(0, 0, 1);
-      dummy.scale.set(c_xy_scale, c_length, c_xy_scale);
-      dummy.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
-
-      var element_position = new THREE.Vector3(generateRandomInt(-grid_nr_x, grid_nr_x) * c_xy_scale, generateRandomInt(-grid_nr_y, grid_nr_y) * (c_length + y_gap), generateRandomInt(-grid_nr_z, grid_nr_z) * c_xy_scale);
-      var element_position_str = element_position.x.toString() + ' ' + element_position.y.toString() + ' ' + element_position.z.toString();
-      //console.log(element_position_str);
-
-      // if we selected a point which was already used before (collision) we can skip placing an element there
-      if (element_position_str in element_positions_object) {
-        console.log('element already exists');
-        continue; // this skips the current for loop interation and continues with the next one
-      }
-
-      element_positions_object[element_position_str] = element_position;
-      dummy.position.set(element_position.x, element_position.y, element_position.z);
-      
-      //rotate member around its axis to align with the grid
-      dummy.rotateY(Math.PI * 0.28);
-
-      dummy.updateMatrix();
-      imesh.setMatrixAt( i, dummy.matrix );
-    }
-
-    // global rotation of the lattice
-    imesh.rotateX(global_rot_x);
-    imesh.rotateY(global_rot_y);
-
-    imesh.instanceMatrix.needsUpdate = true
-
-    imesh.castShadow = true;
-    imesh.receiveShadow = true;
-
-    this.scene.add(imesh);
-
-
-  }
-
-  console.log(element_positions_object);
-  console.log(Object.keys(element_positions_object).length);
-  */
 
 
 
@@ -1488,7 +1408,7 @@ function Controller(viewArea) {
   // LIGHT TRAVEL PARAMETERS
   var light_framerate = 50; 
   light_framerate_change = 50; //Needs to be the same
-  var base_light_angle = Math.PI/3; // starting angle, angle 0 is straight behind the camera
+  var base_light_angle = 0.75 * Math.PI/3; // starting angle, angle 0 is straight behind the camera - Math.PI/3
   base_light_angle_step = 0.0005; //0.05
   //var light_angle;
   var light_angle_step;
@@ -1529,8 +1449,6 @@ function Controller(viewArea) {
 
 
   // DENSE MATTER COMPUTATION
-
- 
   function update_dense_matter () {
     var rand_grid_pos_str = generateRandomInt(0, grid_nr_x).toString() + " " + generateRandomInt(0, grid_nr_y).toString() + " " + generateRandomInt(0, grid_nr_z).toString();
     //console.log(rand_grid_pos_str, dense_matter_object[rand_grid_pos_str]['position'], dense_matter_object[rand_grid_pos_str]['exists']); 
@@ -1538,31 +1456,36 @@ function Controller(viewArea) {
     var dummy = new THREE.Object3D()
     var mat4 = new THREE.Matrix4();
 
-    var elementCount = elements_per_palette_object['#fab511'];
+    var selected_color = "#e6007b";
+    var elementCount = elements_per_palette_object[selected_color];
     var axis = new THREE.Vector3(0, 1, 0);
     var rot_axis = new THREE.Vector3(1, 0, 0);
     var distance = 0.5;
     
     for (let i = 0; i < elementCount; i++) {
-      imeshes_object['#fab511'].getMatrixAt(i, mat4); // mat4 will contain the current transform matrix of the instance
+      imeshes_object[selected_color].getMatrixAt(i, mat4); // mat4 will contain the current transform matrix of the instance
       mat4.decompose(dummy.position, dummy.quaternion, dummy.scale); // map mat4 matrix onto our dummy object
 
       // START all element transformations here
       dummy.translateOnAxis(axis, distance);
+
+      if (dummy.position.y > 500) {
+        dummy.position.set(dummy.position.x, -500, dummy.position.z + 20);
+      }
+
       //dummy.rotateOnWorldAxis(rot_axis, Math.PI/50);
 
       // END element transformations here
 
       dummy.updateMatrix();
-      imeshes_object['#fab511'].setMatrixAt(i, dummy.matrix);
+      imeshes_object[selected_color].setMatrixAt(i, dummy.matrix);
     }
-    imeshes_object['#fab511'].instanceMatrix.needsUpdate = true;
-
+    imeshes_object[selected_color].instanceMatrix.needsUpdate = true;
 
   }
 
-  // run for animation
-  //var denseMatterIntervallInstance = setInterval(function () {update_dense_matter()}, 50);
+  // RUN FOR ANIMATION
+  //var denseMatterIntervallInstance = setInterval(function () {update_dense_matter()}, 20);
 
 
 
@@ -1881,7 +1804,7 @@ const capture = (contx) => {
     const urlBase64 = renderer.domElement.toDataURL('img/png'); 
     const a = document.createElement("a");
     a.href = urlBase64;
-    a.download = `collectionfive_${parseInt(Math.random()*10000000)}.png`;
+    a.download = `collectionfive_${palette_name}_${parseInt(Math.random()*10000000)}.png`; 
     a.click();
     URL.revokeObjectURL(urlBase64);
   }  

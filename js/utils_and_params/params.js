@@ -5,7 +5,7 @@
 var dynamic_track = false;
 var linewidth_scale = 0.00001; // 0.00001, line width to line length ratio
 var loading_start_time = new Date().getTime();
-var min_loading_time = 2000; // this is the minimum that the loading screen will be shown, in miliseconds
+var min_loading_time = 1000; // this is the minimum that the loading screen will be shown, in miliseconds
 var debug = true;
 var cam_factor = 4; //controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
@@ -565,15 +565,6 @@ function generate_module_params(position) {
 
 
 
-
-
-
-
-
-
-
-
-
 //////ANIMATION SETTINGS CHOOSING//////
 const light_frame_speed_param = {
   Fast: 25, // light increment per 1/100 of a second
@@ -589,4 +580,209 @@ const light_step_size_param = {
   Small: 0.0005,
   Medium: 0.0010,
   Large: 0.0015
+}
+
+
+
+
+
+const palettes = {
+  "Dessau": [ "#f9f0de", // white
+              "#e51531", // red
+              "#2a70ae", // blue
+              "#fab511", // yellow
+              "#080808"],// black
+
+  "Dessau_light": [ "#f9f0de", // white
+                    "#e51531", // red
+                    "#2a70ae", // blue
+                    "#fab511"], // yellow
+
+  "Edo":    [ "#f9f0de", // white
+              "#e51531", // red
+              "#080808"], // black
+
+  "Edo_dark": [ "#ebe2cf", // light gray
+                "#2a2b29", // dark gray
+                "#1d1e1b"], // black
+
+  "Shirokuro": [ "#ebe2cf", // light gray
+                 "#cac3b3", // gray
+                 "#1d1e1b"], // black
+
+  "Sashiko_light": [ "#ebe2cf", // light gray
+                     "#20315d", // blue
+                     "#1c2342", // dark blue
+                     "#1d1f2b"], // black
+
+  "Blueprint": [ "#f9f6f2", // white
+                 "#ebe2cf", // light gray
+                 "#2c52a0"], // light blue
+
+  "Akiba": [ "#ebe2cf", // light gray
+             "#c5c8ba", // gray
+             "#f8c1c1", // light pink
+             "#2c52a0"], // light blue
+
+  "Napoli": [ "#f9f6f2", // white
+              "#ebe2cf", // light gray
+              "#d7312e", // red
+              "#40483a"], // dark green
+
+  "Arashiyama": [ "#cec29d", // light brown
+                  "#505e3f", // light olive 
+                  "#39472b", // dark green
+                  "#2a3320"], // dark olive
+                                  
+  "Ex_Astris": [ "#ebe2cf", // light gray
+                 "#c5c8ba", // gray
+                 "#262d49", // dark blue
+                 "#e4032c"], // red
+
+  "Brubeck_mod": [ "#f7f8e6", // white
+                   "#d83715", // red
+                   "#224870", // blue
+                   "#151a1b"], // black
+
+  "Nineties_mod": [ "#2c2f7a", // blue
+                    "#005742", // teal
+                    "#8b5ba2", // purple
+                    "#1d1e1b", // black
+                    "#ebe2cf"], // light gray
+
+  "Tabata": [ "#ece3d0", // light gray
+              "#e51531", // red
+              "#1d1d1b", // black
+              "#f8c1c1"], // light pink
+
+  "Yoyogi_mod": [ "#e40520", // red
+                  "#e1318a", // pink
+                  "#484395", // blue
+                  "#19171a", // black
+                  "#ece3d0"], // white
+
+  "Osaki": [ "#f299a5", // light pink
+             "#084698", // blue
+             "#1a86c8", // light blue
+             "#74afe0", // super light blue
+             "#a0d6da", // light teal
+             "#f8f9f2"], // white
+
+  "Shinagawa": [ "#e87e95", // light pink
+                 "#6cc7df", // light blue
+                 "#816987", // light purple
+                 "#f9f6f2"], // white
+
+  "Shinjuku_mod": [ "#fcbd32", // yellow
+                    "#007b5d", // teal
+                    "#0089c5", // blue
+                    "#221e1f", // black
+                    "#ece3d0"], // white
+
+  "Meguro_mod": [ "#f9f6f2", // white
+                  "#e51f23", // red
+                  "#e6007b", // pink
+                  "#005aa7", // blue
+                  "#5ec5ee"], // light blue
+
+  "Asphalt_mod": [ "#00a19d", // teal
+                   "#fff8e5", // white
+                   "#2c2e43", // dark gray
+                   "#b2b1b9", // light gray
+                   "#595260"], // gray
+
+  "Diatomite_mod": [ "#fff8f3", // white
+                     "#a3e4db", // light teal
+                     "#1c6dd0", // blue
+                     "#2c2e43", // dark gray
+                     "#ffd523"], // yellow
+
+  "Arkose": [ "#a2d2ff", // light blue
+              "#fef9ef", // white
+              "#ff865e", // light red
+              "#fee440"], // yellow
+
+  "Hematite": [ "#3db2ff", // light blue
+                "#ffedda", // white
+                "#ffb830", // orange
+                "#ff2442"], // red
+
+  "Fisherprice_mod": [ "#f9af06", // orange yellow
+                       "#1e62ad", // blue
+                       "#ece7d9", // white
+                       "#01906d", // green
+                       "#e74620"], // red
+
+  "Dark_Crystals": [ "#d94939", // light red
+                     "#066278", // dark teal
+                     "#e3e0d5"], // white
+
+  "Sea_Dark_mod": [ "#e4e2d5", // white
+                    "#324a58", // dark blue
+                    "#deb55c"], // yellow
+
+  "Noir_mod": [ "#22252a", // black
+                "#2f3237", // dark gray
+                "#62646a", // gray
+                "#aeb1b7", // light gray
+                "#e1e4ea"], // white
+
+  "Ocean": [ "#00a19d", // teal
+             "#005aa7", // blue
+             "#2a70ae", // blue
+             "#1e62ad", // blue
+             "#0089c5", // blue
+             "#20315d", // blue
+             "#066278", // dark teal
+             "#181e3e", // dark blue
+             "#2d5d7d", // gray blue
+             "#3db2ff", // light blue
+             "#2c52a0", // light blue
+             "#5ec5ee", // light blue
+             "#6cc7df", // light blue
+             "#1d1f2b"], // black
+
+  "Furnace": [ "#e51531", // red
+               "#d7312e", // red
+               "#e4032c", // red
+               "#d83715", // red
+               "#ff2442", // red
+               "#e74620", // red
+               "#e51f23", // red
+               "#f9af06", // orange yellow
+               "#fab511", // yellow
+               "#ff865e", // light red
+               "#19171a"], // black
+
+  "Charcoal": [ "#020202", // black
+                "#080808", // black
+                "#1a1a1a", // black
+                "#1d1d1d", // black
+                "#222222", // black
+                "#2c2c2c", // dark gray
+                "#3c3c3c"], // gray
+
+  "Marble": [ "#f9f0de", // white
+              "#f9f6f2", // white
+              "#f7f8e6", // white
+              "#fff8e5", // white
+              "#e1e4ea", // white
+              "#e4e2d5", // white
+              "#ece7d9", // white
+              "#ffedda", // white
+              "#aeb1b7", // light gray
+              "#ece3d0"], // white
+
+  "Chloroplast": [  "#40483a", // dark green
+                    "#505e3f", // light olive 
+                    "#39472b", // dark green
+                    "#2a3320", // dark olive
+                    "#066278", // dark teal
+                    "#007b5d", // teal
+                    "#005742", // teal
+                    "#00a19d", // teal
+                    "#a0d6da", // light teal
+                    "#01906d", // green
+                    "#1d1e1b"], // black
+                    
 }

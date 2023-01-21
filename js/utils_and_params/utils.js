@@ -83,6 +83,18 @@ function gene_weighted_choice(data){
   return data[data.length - 1][0];
 }
 
+// choose a random property name (key) from an object
+function gene_pick_key(obj) {
+  var keys = Object.keys(obj);
+  return keys[keys.length * gene() << 0];
+}
+
+// choose a random property from an object
+function gene_pick_property(obj) {
+  var keys = Object.keys(obj);
+  return obj[keys[keys.length * gene() << 0]];
+}
+
 function calculate_size(mode, node) {
     if (mode == 0) {
       return gene() * 50 + 25
@@ -151,7 +163,6 @@ function gaussian(mean, stdev) {
 function lerp(start, end, amt){
   return (1 - amt) * start + amt * end;
 }
-
 
 // randomize array in-place using Durstenfeld shuffle algorithm, an optimized version of Fisher-Yates
 function shuffleArray(array) {
