@@ -377,7 +377,13 @@ View.prototype.addDenseMatter = function  () {
   var quadrant_div_y = 2.0; // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
   var quadrants = false; // trigger for color grading according to QUADRANTS
 
-  var color_feature; // additional color features appearing
+  var color_features; // additional color features appearing
+
+
+
+  //color_features = ["horizontal stripe solid", "vertical stripe blocks"];
+  color_features = [gene_weighted_choice(allel_color_features_vert), gene_weighted_choice(allel_color_features_horiz)];
+
   var stripe_param_a = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
   var stripe_param_b = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
   var stripe_param_c = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
@@ -386,11 +392,14 @@ View.prototype.addDenseMatter = function  () {
   var stripe_shift = Math.floor(gene_range(1, stripe_spacing)); // stripe shift, needs to be smaller than stripe spacing
   var block_spacing = Math.floor(gene_range(10, 25)); // block spacing in horizontal stripes
   var block_width = Math.floor(block_spacing / 2); // block width in horizontal stripes
-  console.log("stripe width", stripe_width);
-  console.log("stripe spacing", stripe_spacing);
-  console.log("stripe shift", stripe_shift);
-  console.log("block spacing", block_spacing);
-  console.log("block width", block_width);
+  var shift_sign_horiz = gene() < 0.5 ? 1 : -1; // chance for horizontal stripes to be shifted in or out of the grid
+  var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the opposite from horizontal ones
+
+  console.log("stripe width ->", stripe_width);
+  console.log("stripe spacing ->", stripe_spacing);
+  console.log("stripe shift ->", stripe_shift);
+  console.log("block spacing ->", block_spacing);
+  console.log("block width ->", block_width);
 
   var noise_scale_x = 0.01; // 0.01, increase this factor to 0.2 to get narrow cracks
   var noise_scale_y = 0.01; // 0.01
@@ -441,45 +450,50 @@ View.prototype.addDenseMatter = function  () {
 
 
         
-        color_feature = "horizontal stripe blocks";
+        
         var element_smooth = false; // by default, element will have a slight random rotation assigned to it later
 
         // additional color features
-        if ((color_feature == "vertical stripe sparse") && (Math.floor(i/stripe_param_a) % stripe_param_b == i % stripe_param_c)) { //(Math.floor(i/15) % 2 == 1)
+        if ((color_features.includes("vertical stripe sparse")) && (Math.floor(i/stripe_param_a) % stripe_param_b == i % stripe_param_c)) { //(Math.floor(i/15) % 2 == 1)
           color_gradient = "width stack";
           grid_push_z = 0;
           element_smooth = true;
-
-        } else if ((color_feature == "vertical stripe dashed") && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+        }
+        
+        if ((color_features.includes("vertical stripe dashed")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
           color_gradient = "width stack";
-          grid_push_z = -10;
+          grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
+        }
 
-        } else if ((color_feature == "vertical stripe blocks") && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+        if ((color_features.includes("vertical stripe blocks")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
           color_gradient = "height stack";
-          grid_push_z = -10;
+          grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
-
-        } else if ((color_feature == "vertical stripe solid") && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+        }
+        
+        if ((color_features.includes("vertical stripe solid")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
           color_gradient = "depth stack";
-          grid_push_z = -10;
+          grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
+        }
 
-        } else if ((color_feature == "horizontal stripe dashed") && (j % stripe_spacing == stripe_shift)) {
+        if ((color_features.includes("horizontal stripe dashed")) && (j % stripe_spacing == stripe_shift)) {
           color_gradient = "width stack";
-          grid_push_z = -10;
+          grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
-
-        } else if ((color_feature == "horizontal stripe solid") && (j % stripe_spacing == stripe_shift)) {
+        }
+        
+        if ((color_features.includes("horizontal stripe solid")) && (j % stripe_spacing == stripe_shift)) {
           color_gradient = "height stack";
-          grid_push_z = -10;
+          grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
-
-        } else if ((color_feature == "horizontal stripe blocks") && (j % stripe_spacing == stripe_shift) && (i % block_spacing < block_width)) {
+        }
+        
+        if ((color_features.includes("horizontal stripe blocks")) && (j % stripe_spacing == stripe_shift) && ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))) { //(i % block_spacing < block_width), ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))
           color_gradient = "height stack";
-          grid_push_z = -10;
+          grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
-
         }
 
         
@@ -585,7 +599,7 @@ View.prototype.addDenseMatter = function  () {
 
 
         // probability to cull the element according to noise
-        var noise_cull_rule = "clean"; 
+        var noise_cull_rule = "fuzzy"; 
 
         var noise_cull_prob;
         if (noise_cull_rule == "fuzzy") {
@@ -600,8 +614,8 @@ View.prototype.addDenseMatter = function  () {
         var noise_cull = noise_cull_prob < noise_value; // condition to cull the element according to noise
 
         // culling the element
-        //var element_exists = !(pattern_cull || noise_cull); // both conditions can cull the element
-        var element_exists = !pattern_cull;
+        var element_exists = !(pattern_cull || noise_cull); // both conditions can cull the element
+        //var element_exists = !pattern_cull;
 
 
         //// ASSIGNING ELEMENT PROPERTIES ////

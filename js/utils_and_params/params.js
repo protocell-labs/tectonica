@@ -784,6 +784,18 @@ const palettes = {
                     "#00a19d", // teal
                     "#a0d6da", // light teal
                     "#01906d", // green
-                    "#1d1e1b"], // black
-                    
+                    "#1d1e1b"], // black                  
 }
+
+const allel_color_features_vert = [
+  ["vertical stripe sparse", 1],
+  ["vertical stripe dashed", 1],
+  ["vertical stripe blocks", 1],
+  ["vertical stripe solid", 1]
+];
+
+const allel_color_features_horiz = [
+  ["horizontal stripe dashed", 1],
+  ["horizontal stripe blocks", 1],
+  ["horizontal stripe solid", 1]
+];
