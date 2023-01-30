@@ -63,9 +63,9 @@ const allel_explosion_type = [
 ];
 
 const allel_light_source_type = [
-  ['west', 1],
+  ['west', 0],
   ['east', 0],
-  ['north', 0],
+  ['north', 1],
   ['south', 0]
 ];
 
@@ -645,7 +645,8 @@ const palettes = {
                    "#151a1b"], // black
 
   "Nineties_mod": [ "#2c2f7a", // blue
-                    "#005742", // teal
+                    "#2a70ae", // blue
+                    //"#005742", // teal
                     "#8b5ba2", // purple
                     "#1d1e1b", // black
                     "#ebe2cf"], // light gray
@@ -762,7 +763,7 @@ const palettes = {
                 "#2c2c2c", // dark gray
                 "#3c3c3c"], // gray
 
-  "Marble": [ "#f9f0de", // white
+  /*"Marble": [ "#f9f0de", // white
               "#f9f6f2", // white
               "#f7f8e6", // white
               "#fff8e5", // white
@@ -771,7 +772,7 @@ const palettes = {
               "#ece7d9", // white
               "#ffedda", // white
               "#aeb1b7", // light gray
-              "#ece3d0"], // white
+              "#ece3d0"], // white */
 
   "Chloroplast": [  "#40483a", // dark green
                     "#505e3f", // light olive 

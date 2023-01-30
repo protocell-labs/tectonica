@@ -25,9 +25,9 @@ var imeshes_object = {}; // color is the key, imesh is the value
 var c_type = 'square beam';
 var c_xy_scale = 5; //5
 var c_length = 50; //50
-var grid_nr_x = 110;
+var grid_nr_x = 110; //110
 var grid_nr_y = 15;
-var grid_nr_z = 40;
+var grid_nr_z = 30;
 var y_gap = 1; //5
 var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
 var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
@@ -57,8 +57,8 @@ explosion_type = 0; ////OVERRIDE////
 
 
 
-var global_rot_x = -Math.PI/16; //gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
-var global_rot_y = Math.PI/16; //gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
+var global_rot_x = -Math.PI/16; // -Math.PI/16, gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
+var global_rot_y = Math.PI/16; // Math.PI/16, gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
 //var global_rot_x = gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
 //var global_rot_y = gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
 
@@ -280,7 +280,7 @@ function View(viewArea) {
 
   // ADD LIGHTING
   var light = new THREE.PointLight(0xffffff);
-  light.position.set(0, 0, 2000); //1000,1000,1000
+  light.position.set(0, 0, 10000); //0, 0, 2000
  
   light.castShadow = true;
   light.shadow.camera.near = 200;
@@ -370,26 +370,156 @@ View.prototype.addDenseMatter = function  () {
     imesh_index_tracker[chosen_palette[i]] = 0; // for each color we set the starting index to zero
   }
 
+  // color grading scheme - ["solid", "uniform", ""vertical grading", "horizontal grading", "width stack", "height stack", "depth stack"]
+  //var color_gradient = "depth stack";
+  var color_gradient;
+  var quadrant_div_x = 2.0; // 1.5 - 4.0, controls the vertical division line with QUADRANTS
+  var quadrant_div_y = 2.0; // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
+  var quadrants = false; // trigger for color grading according to QUADRANTS
+
+  var color_feature; // additional color features appearing
+  var stripe_param_a = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
+  var stripe_param_b = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
+  var stripe_param_c = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
+  var stripe_width = Math.floor(gene_range(2, 20)); // stripe width
+  var stripe_spacing = Math.floor(gene_range(2, 15)); // stripe spacing
+  var stripe_shift = Math.floor(gene_range(1, stripe_spacing)); // stripe shift, needs to be smaller than stripe spacing
+  var block_spacing = Math.floor(gene_range(10, 25)); // block spacing in horizontal stripes
+  var block_width = Math.floor(block_spacing / 2); // block width in horizontal stripes
+  console.log("stripe width", stripe_width);
+  console.log("stripe spacing", stripe_spacing);
+  console.log("stripe shift", stripe_shift);
+  console.log("block spacing", block_spacing);
+  console.log("block width", block_width);
+
+  var noise_scale_x = 0.01; // 0.01, increase this factor to 0.2 to get narrow cracks
+  var noise_scale_y = 0.01; // 0.01
+  var noise_scale_z = 0.01; // 0.01, increase this factor to 0.5 to get thinner layers in depth
+  var height_f = c_length/c_xy_scale;
+
+  // random shift of noise to get a different pattern every time
+  var noise_shift_x = gene_range(-100, 100);
+  var noise_shift_y = gene_range(-100, 100);
+  var noise_shift_z = gene_range(-100, 100);
 
   // fill dense_matter_object with positions and attributes of elements - we iterate through every point on the grid to decide if the element is placed there
   for (var i = 0; i < grid_nr_x; i++) {
     for (var j = 0; j < grid_nr_y; j++) {
       for (var k = 0; k < grid_nr_z; k++) {
 
-        var element_exists = gene() < (0.25 + j * 0.05) ? true : false; //(1.0 - k * 0.05) , 0.75
 
-        var element_position = new THREE.Vector3(i * c_xy_scale + grid_offset_x, j * (c_length + y_gap) + grid_offset_y, k * c_xy_scale + grid_offset_z);
-        var element_grid_position = new THREE.Vector3(i, j, k);
-        var element_grid_position_str = element_grid_position.x.toString() + ' ' + element_grid_position.y.toString() + ' ' + element_grid_position.z.toString();
+        //// ELEMENT COLOR ////
 
-        var ascending_param = j;
-        var descending_param = grid_nr_y - j;
-        var min_param = 1;
-        ///var zero_param = 0;
+        color_gradient = "vertical grading clean";
+        grid_push_z = 0;
+
+        
+
+        var grid_push_z;
+
+        // color gradient - QUADRANTS
+        // upper right quadrant
+        if ((i > grid_nr_x/quadrant_div_x) && (j > grid_nr_y/quadrant_div_y) && (quadrants == true)) {
+          color_gradient = "height stack";
+          grid_push_z = 0;
+
+        // upper left quadrant
+        } else if ((i < grid_nr_x/quadrant_div_x) && (j > grid_nr_y/quadrant_div_y) && (quadrants == true)) {
+          color_gradient = "height stack";
+          grid_push_z = 0;
+
+        // lower right quadrant
+        } else if ((i > grid_nr_x/quadrant_div_x) && (j < grid_nr_y/quadrant_div_y) && (quadrants == true)) {
+          color_gradient = "depth stack";
+          grid_push_z = 0;
+
+        // lower left quadrant
+        } else if (quadrants == true) {
+          color_gradient = "depth stack";
+          grid_push_z = 0;
+        }
+
+
+        
+        color_feature = "horizontal stripe blocks";
+        var element_smooth = false; // by default, element will have a slight random rotation assigned to it later
+
+        // additional color features
+        if ((color_feature == "vertical stripe sparse") && (Math.floor(i/stripe_param_a) % stripe_param_b == i % stripe_param_c)) { //(Math.floor(i/15) % 2 == 1)
+          color_gradient = "width stack";
+          grid_push_z = 0;
+          element_smooth = true;
+
+        } else if ((color_feature == "vertical stripe dashed") && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+          color_gradient = "width stack";
+          grid_push_z = -10;
+          element_smooth = true;
+
+        } else if ((color_feature == "vertical stripe blocks") && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+          color_gradient = "height stack";
+          grid_push_z = -10;
+          element_smooth = true;
+
+        } else if ((color_feature == "vertical stripe solid") && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+          color_gradient = "depth stack";
+          grid_push_z = -10;
+          element_smooth = true;
+
+        } else if ((color_feature == "horizontal stripe dashed") && (j % stripe_spacing == stripe_shift)) {
+          color_gradient = "width stack";
+          grid_push_z = -10;
+          element_smooth = true;
+
+        } else if ((color_feature == "horizontal stripe solid") && (j % stripe_spacing == stripe_shift)) {
+          color_gradient = "height stack";
+          grid_push_z = -10;
+          element_smooth = true;
+
+        } else if ((color_feature == "horizontal stripe blocks") && (j % stripe_spacing == stripe_shift) && (i % block_spacing < block_width)) {
+          color_gradient = "height stack";
+          grid_push_z = -10;
+          element_smooth = true;
+
+        }
+
+        
 
         // probabilities for each palette color, if there are more probabilities than there are colors these will be ignored
         // we can keep this order the same as the colors in chosen_palette are already shuffled
-        var palette_probs = [ascending_param, descending_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param, min_param];
+        var palette_probs, ascending_param, descending_param;
+        if (color_gradient == "solid") {
+          palette_probs = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        } else if (color_gradient == "solid sprinkled") {
+          palette_probs = [50, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+        } else if (color_gradient == "uniform") {
+          palette_probs = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+        } else if (color_gradient == "vertical grading") {
+          ascending_param = j;
+          descending_param = grid_nr_y - j;
+          palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+        
+        } else if (color_gradient == "horizontal grading") {
+          ascending_param = i;
+          descending_param = grid_nr_x - i;
+          palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+
+        } else if (color_gradient == "vertical grading clean") {
+          ascending_param = j;
+          descending_param = grid_nr_y - j;
+          palette_probs = [ascending_param, descending_param, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        } else if (color_gradient == "horizontal grading clean") {
+          ascending_param = i;
+          descending_param = grid_nr_x - i;
+          palette_probs = [ascending_param, descending_param, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+        } else {
+          // in this case, palette_probs is not used so we assign it dummy values
+          palette_probs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        }
 
         // constructing a dynamic color palette with varying number of colors to which probabilities are assigned
         var allel_palette_dynamic = [];
@@ -397,13 +527,98 @@ View.prototype.addDenseMatter = function  () {
           allel_palette_dynamic.push([chosen_palette[n], palette_probs[n]]); // [palette color, probability]
         }
 
+        // assigning element color according to color_gradient type
+        if (color_gradient == "solid" || color_gradient == "solid sprinkled" || color_gradient == "uniform" || color_gradient == "vertical grading" || color_gradient == "horizontal grading" || color_gradient == "vertical grading clean" || color_gradient == "horizontal grading clean") {
+          var element_color = gene_weighted_choice(allel_palette_dynamic);
+
+        } else if (color_gradient == "width stack") {
+          var color_index = i % chosen_palette.length;
+          var element_color = chosen_palette[color_index];
+
+        } else if (color_gradient == "height stack") {
+          var color_index = (j + k) % chosen_palette.length;
+          var element_color = chosen_palette[color_index];
+
+        } else if (color_gradient == "depth stack") {
+          var color_index = k % chosen_palette.length;
+          var element_color = chosen_palette[color_index];
+        }
+
+
+
+
+        //// ELEMENT CULL ////
+
+        /*
+        // culling rules - ALTERNATING
+        if (j % 2 == 0) {pattern_cull_rule = "solid";}
+        else {pattern_cull_rule = "solid";}
+        */
+
+
+
+        // probability to cull the element according to pattern
+        var pattern_cull_rule = "solid";
+
+        var pattern_cull_prob;
+        if (pattern_cull_rule == "uniform") {
+          pattern_cull_prob = 0.25;
+
+        } else if (pattern_cull_rule == "solid") {
+          pattern_cull_prob = 0.0;
+
+        } else if (pattern_cull_rule == "down dissolve") {
+          pattern_cull_prob = 1.0 - j * 0.06;
+
+        } else if (pattern_cull_rule == "up dissolve") {
+          pattern_cull_prob = 0.25 + j * 0.06;
+
+        } else if (pattern_cull_rule == "left dissolve") {
+          pattern_cull_prob = 1.0 - i * 0.007;
+
+        } else if (pattern_cull_rule == "right dissolve") {
+          pattern_cull_prob = 0.25 + i * 0.008;
+        }
+
+
+        var noise_value = perlin3D(i * noise_scale_x + noise_shift_x, j * noise_scale_y * height_f + noise_shift_y, k * noise_scale_z + noise_shift_z);
+
+
+        // probability to cull the element according to noise
+        var noise_cull_rule = "clean"; 
+
+        var noise_cull_prob;
+        if (noise_cull_rule == "fuzzy") {
+          noise_cull_prob = gene();
+
+        } else if (noise_cull_rule == "clean") {
+          noise_cull_prob = 0.50;
+        }
+
+        // defining conditions for culling the element
+        var pattern_cull = gene() < pattern_cull_prob; // condition to cull the element according to pattern
+        var noise_cull = noise_cull_prob < noise_value; // condition to cull the element according to noise
+
+        // culling the element
+        //var element_exists = !(pattern_cull || noise_cull); // both conditions can cull the element
+        var element_exists = !pattern_cull;
+
+
+        //// ASSIGNING ELEMENT PROPERTIES ////
+
+
+        // defining element position
+        var element_position = new THREE.Vector3(i * c_xy_scale + grid_offset_x, j * (c_length + y_gap) + grid_offset_y, k * c_xy_scale + grid_offset_z + grid_push_z);
+        var element_grid_position = new THREE.Vector3(i, j, k);
+        var element_grid_position_str = element_grid_position.x.toString() + ' ' + element_grid_position.y.toString() + ' ' + element_grid_position.z.toString();
+
+
         // exceptions in case the element does not exist at this grid point
         if (element_exists == true) {
-          var element_color = gene_weighted_choice(allel_palette_dynamic);
           var imesh_idx = elements_per_palette_object[element_color]; // imesh index for this element so we can find it later when accessing transform matrices for that element
           elements_per_palette_object[element_color] += 1; // add one to the count of elements for this color - we need to know this nr when we create instanced mesh
-        }
-        else {
+        
+        } else {
           var element_color = undefined;
           var imesh_idx = undefined;
         }
@@ -413,6 +628,7 @@ View.prototype.addDenseMatter = function  () {
                                     position: element_position, 
                                     grid_pos: element_grid_position,
                                     color: element_color,
+                                    smooth: element_smooth,
                                     imesh_idx: imesh_idx};
         dense_matter_object[element_grid_position_str] = dense_matter_element;
 
@@ -433,6 +649,10 @@ View.prototype.addDenseMatter = function  () {
   console.log(elements_per_palette_object);
   console.log(imeshes_object);
 
+  var axis_z = new THREE.Vector3(0, 0, 1);
+  var axis_x = new THREE.Vector3(1, 0, 0);
+  var element_axis = new THREE.Vector3(0, 0, 1);
+
   // iterate through dense_matter_object's keys and values and build instanced meshes for each color
   for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
     if (dense_matter_element['exists'] == false) {continue;} // early exit - if the element doesn't exist, don't add it to the imesh
@@ -440,15 +660,19 @@ View.prototype.addDenseMatter = function  () {
     //console.log(key, dense_matter_element);
     var dummy = new THREE.Object3D();
     var imesh = imeshes_object[dense_matter_element['color']];
-    var axis = new THREE.Vector3(0, 0, 1);
+
     imesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
 
-    var vector = new THREE.Vector3(0, 0, 1);
     var element_position = dense_matter_element['position'];
     dummy.scale.set(c_xy_scale, c_length, c_xy_scale);
-    dummy.quaternion.setFromUnitVectors(axis, vector.clone().normalize());
+    dummy.quaternion.setFromUnitVectors(axis_z, element_axis.clone().normalize());
     dummy.position.set(element_position.x, element_position.y, element_position.z);
-    dummy.rotateY(Math.PI * 0.28); //rotate member around its axis to align with the grid
+
+    if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.25, 0.15];} // rotation jitter will be applied
+    else {var rot_jitter_factors = [0, 0];} // rotation jitter will NOT be applied - we will get a smooth and shiny surface
+
+    dummy.rotateY(Math.PI * 0.28 + (gene() - 0.5) * rot_jitter_factors[0]); // rotate member around its axis to align with the grid, plus a random jitter (Math.PI * 0.28 + (gene() - 0.5) * 0.25)
+    dummy.rotateOnWorldAxis(axis_x, (gene() - 0.5) * rot_jitter_factors[1]); // add a slight random rotation jitter around the X axis
 
     dummy.updateMatrix();
     imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix);
@@ -1031,7 +1255,7 @@ View.prototype.addCelestialObject = function (celestial_object_type)
   // place dark disk behind the celestial objects but in front of the stars so they are covered
   if (celestial_object_type == 'eclipse' || celestial_object_type == 'ultra eclipse' || celestial_object_type == 'moon' || celestial_object_type == 'planet' || celestial_object_type == 'orbit' || celestial_object_type == 'rapture') {
     const dark_disc_geo = new THREE.CircleGeometry(radius_x, 64);
-    const dark_disc_material = new THREE.MeshBasicMaterial({color: 0x000000});
+    const dark_disc_material = new THREE.MeshBasicMaterial({color: '#080808'});
     const dark_disc_mesh = new THREE.Mesh(dark_disc_geo, dark_disc_material);
     dark_disc_mesh.position.set(cent_x, cent_y, celestial_plane_distance - 100);
     this.scene.add(dark_disc_mesh);
@@ -1408,7 +1632,7 @@ function Controller(viewArea) {
   // LIGHT TRAVEL PARAMETERS
   var light_framerate = 50; 
   light_framerate_change = 50; //Needs to be the same
-  var base_light_angle = 0.75 * Math.PI/3; // starting angle, angle 0 is straight behind the camera - Math.PI/3
+  var base_light_angle = 1.0 * Math.PI/3; // starting angle, angle 0 is straight behind the camera - Math.PI/3, 0.75 * Math.PI/3
   base_light_angle_step = 0.0005; //0.05
   //var light_angle;
   var light_angle_step;
