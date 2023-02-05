@@ -106,6 +106,17 @@ const allel_celestial_object_types_empty = [
   [['constellation'], 5]
 ];
 
+const allel_celestials_reduced = [
+  [['none'], 35],
+  [['comet'], 5],
+  [['eclipse'], 10],
+  [['moon'], 15],
+  [['planet'], 10],
+  [['meteor shower'], 10],
+  [['constellation'], 15]
+];
+
+
 //////LATTICE ALLEL DEFINITION//////
 
 // in OBSCVRVM, it is allel_center_piece_type which determines the central lattice primitive type, so these probabilites don't matter
@@ -784,10 +795,67 @@ const palettes = {
                     "#00a19d", // teal
                     "#a0d6da", // light teal
                     "#01906d", // green
-                    "#1d1e1b"], // black                  
+                    "#1d1e1b"], // black     
+
+}
+
+const palettes_v2 = {
+  "ColorHunt_01": ['#eaeaea', '#ff2e63', '#252a34', '#08d9d6'],
+  "ColorHunt_02": ['#eeeeee', '#00adb5', '#393e46', '#222831'],
+  "ColorHunt_03": ['#521262', '#6639a6', '#3490de', '#6fe7dd'],
+  "ColorHunt_04": ['#eeeeee', '#d72323', '#3a4750', '#303841'],
+  "ColorHunt_05": ['#d9faff', '#00bbf0', '#005792', '#00204a'],
+  "ColorHunt_06": ['#40514e', '#11999e', '#30e3ca', '#e4f9f5'],
+  "ColorHunt_07": ['#a7ff83', '#17b978', '#086972', '#071a52'],
+  "ColorHunt_08": ['#c5e3f6', '#fc5c9c', '#fccde2', '#fcefee'],
+  "Coolors_01": ['#114b5f', '#1a936f', '#88d498', '#c6dabf', '#f3e9d2'],
+  "Coolors_02": ['#114b5f', '#028090', '#e4fde1', '#456990', '#f45b69'],
+  "Coolors_03": ['#06aed5', '#086788', '#f0c808', '#fff1d0', '#dd1c1a'],
+  "Coolors_04": ['#ffbf00', '#e83f6f', '#2274a5', '#32936f', '#f9f0de'],
+  "Coolors_05": ['#ffbf00', '#e83f6f', '#2274a5', '#f9f0de', '#080808'],
+  "colorsmuzli_01": ['#8a00d4', '#d527b7', '#f782c2', '#f9c46b', '#e3e3e3'],
+  "colorsmuzli_02": ['#e74645', '#fb7756', '#facd60', '#fdfa66', '#1ac0c6'],
+  "colorsmuzli_05": ['#1f306e', '#553772', '#8f3b76', '#f5487f', '#f9f0de'],
+  "colorsmuzli_06": ['#343090', '#5f59f7', '#6592fd', '#44c2fd', '#f9f0de'],
+  "ColourLovers_01": ['#e8ddcb', '#cdb380', '#036564', '#033649', '#031634'],
+  "ColourLovers_02": ['#3fb8af', '#7fc7af', '#dad8a7', '#ff9e9d', '#ff3d7f'],
+  "ColourLovers_03": ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'],
+  "AdobeColor_01": ['#a6032f', '#022873', '#035aa6', '#04b2d9', '#05dbf2'],
+  "AdobeColor_02": ['#1b3da6', '#26488c', '#2372d9', '#62abd9', '#f2d857'],
+  "AdobeColor_03": ['#3f0259', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
+  "AdobeColor_04": ['#080808', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
+  "AdobeColor_05": ['#485922', '#798c35', '#b4bf5e', '#242614', '#f2f2f2'],
+  "ColorLeap_01": ['#fef7ee', '#fef000', '#fb0002', '#1c82eb', '#1d1e1b'],
+  "ColorLeap_02": ['#c87994', '#c3d2cf', '#52a29f', '#283730', '#0e0312'],
+  "Bauhaus_01": ['#f44336', '#ffd966', '#2a5779', '#f3f6f4', '#080808'],
+  "Hokusai_01": ['#7d9ba6', '#c0b7a8', '#ddd3c4', '#10284a', '#474b4e'],
+  "Stary_Night": ['#070c0f', '#1d5880', '#fece3e', '#f8e288', '#9fc798'],
+  "byrnes": ["#c54514", "#dca215", "#23507f", "#e8e7d4"], // red, yellow, blue, white
+  "saami": ["#eab700", "#e64818", "#2c6393", "#eecfca", "#e7e6e4"], // yellow, red, blue, light lila, white
+  "cc234": ["#ffce49", "#ede8dc", "#ff5736", "#ff99b4"], // yellow, white, red, light pink
+  "sprague": ["#ec2f28", "#f8cd28", "#1e95bb", "#fbaab3", "#fcefdf"], // red, yellow, blue, light pink, white
+  "jud_horizon": ["#f8c3df", "#f2e420", "#28b3d0", "#648731", "#ef6a7d", "#f2f0e1"], // light pink, yellow, blue, green, red, white
+  "hilda": ["#eb5627", "#eebb20", "#4e9eb8", "#f7f5d0", "#77c1c0"], // red, yellow, blue, white, light blue
+  "jung_croc": ["#f13274", "#eed03e", "#405e7f", "#19a198", "#ede8dc"], // red, yellow, blue, teal, white
+  "cc245": ["#0d4a4e", "#ff947b", "#ead3a2", "#5284ab"], // green, light red, beige, blue
+  "rohlfs_1R": ["#004996", "#567bae", "#ff4c48", "#ffbcb3", "#fff8e7"], // deep blue, blue, red, light lila, white
+  "rohlfs_4": ["#fde500", "#2f2043", "#f76975", "#fbbeca", "#eff0dd"], // yellow, deep purple, light red, light lila, white
+  "system_5": ["#db4549", "#d1e1e1", "#3e6a90", "#2e3853", "#a3c9d3"], // red, white, blue, dark blue, light blue
+  "jung_horse": ["#e72e81", "#f0bf36", "#3056a2", "#e8e7d4"], // red, yellow, blue, white
+  "system_4": ["#e31f4f", "#f0ac3f", "#18acab", "#26265a", "#ea7d81", "#dcd9d0"], // red, yellow, teal, deep blue, light lila, light gray
+  "jud_playground": ["#f04924", "#fcce09", "#408ac9", "#f9f0de", "#080808"], // red, yellow, blue, white, black
+  "kov_05": ["#de3f1a", "#de9232", "#007158", "#e6cdaf", "#869679", "#7aa5a6"], // red, yellow, green, white, olive green, light green
+  "jud_mural": ["#ca3122", "#e5af16", "#4a93a2", "#0e7e39", "#e2b9bd", "#e3ded8"], // red, yellow, light blue, green, light lila, white
+  "vintage_01": ["#655D8A", "#7897AB", "#D885A3", "#FDCEB9"], // purple, teal, pink, beige
+  "vintage_02": ["#4C0027", "#570530", "#750550", "#980F5A", "#f9f0de"], // dark maroon, maroon, light maroon, maroon purple, white
+  "vintage_03": ["#151515", "#301B3F", "#3C415C", "#655D8A", "#f9f0de"], // black, dark purple, light purple, purple, white
+  "blood_honey": ["#900C3F", "#C70039", "#FF5733", "#FFC300", "#f9f0de"], // maroon, red, orange, yellow, white
+  // "": ["#", "#", "#", "#", "#", "#"],
+
 }
 
 const allel_color_features_vert = [
+  ["none", 10],
   ["vertical stripe sparse", 1],
   ["vertical stripe dashed", 1],
   ["vertical stripe blocks", 1],
@@ -795,7 +863,75 @@ const allel_color_features_vert = [
 ];
 
 const allel_color_features_horiz = [
+  ["none", 10],
   ["horizontal stripe dashed", 1],
   ["horizontal stripe blocks", 1],
   ["horizontal stripe solid", 1]
 ];
+
+const allel_noise_cull_rule = [
+  ["clean", 1],
+  ["fuzzy", 1]
+];
+
+const allel_noise_scale_x = [
+  [0.05, 1],
+  [0.10, 1],
+  [0.15, 1],
+  [0.20, 1],
+  [0.25, 1]
+]
+
+const allel_noise_scale_y = [
+  [0.10, 1],
+  [0.20, 1],
+  [0.30, 1],
+  [0.40, 1],
+  [0.50, 1]
+]
+
+const allel_noise_scale_z = [
+  [0.10, 1],
+  [0.20, 1],
+  [0.30, 1],
+  [0.40, 1],
+  [0.50, 1]
+]
+
+const allel_noise_features = [
+  ["cracks", 1],
+  ["bands", 1],
+  ["sheets", 1],
+  ["unbiased", 1]
+]
+
+const allel_color_gradient = [
+  //["solid", 1],
+  ["solid sprinkled", 1],
+  ["uniform", 1],
+  ["vertical grading", 1],
+  ["horizontal grading", 1],
+  //["vertical grading clean", 1],
+  //["horizontal grading clean", 1],
+  ["width stack", 1],
+  ["height stack", 1],
+  ["depth stack", 1]
+]
+
+const allel_color_gradient_quadrants = [
+  ["solid sprinkled", 1],
+  ["uniform", 1],
+  ["vertical grading", 1],
+  ["horizontal grading", 1],
+  ["width stack", 1],
+  ["height stack", 1],
+  ["depth stack", 1]
+]
+
+const allel_quadrant_div = [
+  [1.5, 1],
+  [1.75, 1],
+  [2.0, 1],
+  [3.0, 1],
+  [4.0, 1]
+]

@@ -32,11 +32,14 @@ var y_gap = 1; //5
 var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
 var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
 var grid_offset_z = -(grid_nr_z * c_xy_scale) / 2.0;
+var total_elements_existing = 0; // will be calculated later
+var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
 
 
 
-//var palette_name = "Chloroplast"; // OVERRIDE - choose palette name
-var palette_name = gene_pick_key(palettes); // choose palette name at random
+
+//var palette_name = "blood_honey"; // OVERRIDE - choose palette name
+var palette_name = gene_pick_key(palettes_v2); // choose palette name at random
 
 
 
@@ -55,7 +58,7 @@ var { aspect_ratio, frame_type, center_piece_type, center_piece_factor, explosio
 aspect_ratio = '0.75'; ////OVERRIDE////
 explosion_type = 0; ////OVERRIDE////
 
-
+celestial_object_types = gene_weighted_choice(allel_celestials_reduced);
 
 var global_rot_x = -Math.PI/16; // -Math.PI/16, gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
 var global_rot_y = Math.PI/16; // Math.PI/16, gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
@@ -136,20 +139,28 @@ if (center_piece_type != 'none') {
 }
 */
 
+
+
+// LATTICE 3 - STARS, ordered, triangles
+/*
 var nDatas = [];
 var nData;
 
-// LATTICE 3 - STARS, ordered, triangles
 lattice_params = generate_lattice_params('plane', 6); // all input parameters are optional, they will be chosen at random if not passed into the function
 nData = generate_lattice(lattice_params);
 nDatas.push(nData);
+*/
 
 // STARS - random
 var random_starfield_bounds = 1500;
-var nr_of_random_stars = 10000;
+var nr_of_random_stars = 20000;
 
 
-var { stage, transformation_index, steps } = lattice_params; // WORKAROUND FOR NOW - all the params we need in main.js to make it run, but in the end we will have multiple lattices with multiple params
+//var { stage, transformation_index, steps } = lattice_params; // WORKAROUND FOR NOW - all the params we need in main.js to make it run, but in the end we will have multiple lattices with multiple params
+var stage = 6; // workaround, not actually needed
+var steps = get_steps(stage); // workaround, not actually needed
+
+
 
 //////FXHASH FEATURES//////
 
@@ -161,6 +172,9 @@ window.$fxhashFeatures = {
   'Celestial': feature_celestial
 };
 
+
+
+/*
 //////CONSOLE LOG//////
 
 var obscvrvm_logo = "%c                                                                         \n"
@@ -177,8 +191,6 @@ console.log('%cFelix, qui potuit rerum cognoscere causas.\n', 'font-style: itali
 
 console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
             'Dimension -> ' + feature_dimension, '\n',
-            'Frame     -> ' + feature_frame, '\n',
-            'Primitive -> ' + feature_primitive, '\n',
             'State     -> ' + feature_state, '\n',
             'Celestial -> ' + feature_celestial, '\n');
 
@@ -191,15 +203,16 @@ console.log('%cCONTROLS', 'color: white; background: #000000;', '\n',
             'g   : start / stop gif capture', '\n',
             '1-5 : image capture 1-5x resolution', '\n');
 
-console.log('%cPERFORMANCE', 'color: white; background: #000000;', '\n',
-            'Default shadow map size is 4096 pix. On iOS devices, this was downgraded to 2048 pix due to memory limitations. This value can be changed by passing a query string to the URL with an arbitrary shadow map size of the form ?shadow=value.', '\n',
-            'Examples -> ?shadow=4096, ?shadow=2048, ?shadow=1024, ?shadow=512 ...', '\n');
+console.log('%cURL STRINGS', 'color: white; background: #000000;', '\n',
+            'Shadow map size in pix (default is 4096 pix, 2048 pix on iOS devices)', '\n',
+            '?shadow=size', '\n');
 
 console.log('%cPIXELS', 'color: white; background: #000000;', '\n',
             "Change pixel density by changing your browser's zoom level (50% zoom doubles the pixels etc.)", '\n');
                                  
 
 //////END CONSOLE LOG//////
+*/
 
 var pre_calc = 0.000;
 var viz_update = 0.00000;
@@ -222,7 +235,7 @@ var background_toggle = false;
 var controller;
 
 var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
-const composer = new THREE.EffectComposer( renderer );
+const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
 var capturer = null;
@@ -255,6 +268,7 @@ function View(viewArea) {
   renderer.setSize( viewportWidth, viewportHeight );
   renderer.shadowMap.enabled = true;
   renderer.domElement.id = 'obscvrvmcanvas';
+  //renderer.setClearColor(0x000000, 0); // we have to set this to get a transparent background
 
   viewport.appendChild(renderer.domElement);
 
@@ -343,7 +357,7 @@ function View(viewArea) {
 
   // Renders the Scene
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
-  this.composer.addPass( renderPass );
+  this.composer.addPass(renderPass);
 
 
   //Bloom
@@ -358,58 +372,145 @@ function View(viewArea) {
 
 View.prototype.addDenseMatter = function  () {
 
-  console.log("Number of palettes:", Object.keys(palettes).length); // show the total number of palettes
-
-  var chosen_palette = palettes[palette_name].slice(0); // make a copy of the chosen color palette
+  var chosen_palette = palettes_v2[palette_name].slice(0); // make a copy of the chosen color palette
   shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
-  console.log(palette_name, chosen_palette);
-
+  
   // use elements_per_palette objects to count nr of elements for each color - we need to know this nr when we create instanced mesh
   for (i in chosen_palette) {
     elements_per_palette_object[chosen_palette[i]] = 0; // for each color we set nr of elements to zero
     imesh_index_tracker[chosen_palette[i]] = 0; // for each color we set the starting index to zero
   }
 
-  // color grading scheme - ["solid", "uniform", ""vertical grading", "horizontal grading", "width stack", "height stack", "depth stack"]
-  //var color_gradient = "depth stack";
-  var color_gradient;
-  var quadrant_div_x = 2.0; // 1.5 - 4.0, controls the vertical division line with QUADRANTS
-  var quadrant_div_y = 2.0; // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
-  var quadrants = false; // trigger for color grading according to QUADRANTS
-
-  var color_features; // additional color features appearing
 
 
 
+
+
+  //// GOOD COMBINATIONS ////
+
+  // noise_feature = "sheets" & color_gradient_default = "depth stack"
+
+  ///////////////////////////
+
+
+
+  //var color_gradient_default = gene_weighted_choice(allel_color_gradient); // "solid", "solid sprinkled", "uniform", "vertical grading", "horizontal grading", "vertical grading clean", "horizontal grading clean", "width stack", "height stack", "depth stack"
+  var color_gradient_default = "depth stack";
+
+  var quadrants = gene() < 0.0 ? true : false; // trigger for color grading according to QUADRANTS
+  //var quadrant_div_x = gene_range(1.5, 4.0); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
+  //var quadrant_div_y = gene_range(1.5, 4.0); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
+  var quadrant_div_x = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
+  var quadrant_div_y = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
+  // determines the color grading for each segment of the QUADRANT
+  var color_gradient_quadrants = [gene_weighted_choice(allel_color_gradient_quadrants),
+                                  gene_weighted_choice(allel_color_gradient_quadrants),
+                                  gene_weighted_choice(allel_color_gradient_quadrants),
+                                  gene_weighted_choice(allel_color_gradient_quadrants)];
+
+  var noise_cull_rule = gene_weighted_choice(allel_noise_cull_rule); // rule for culling elements using noise
+
+  // additional color features appearing
+  var color_features_vert = gene_weighted_choice(allel_color_features_vert);
+  var color_features_horiz = gene_weighted_choice(allel_color_features_horiz);
+  var color_features = [color_features_vert, color_features_horiz];
   //color_features = ["horizontal stripe solid", "vertical stripe blocks"];
-  color_features = [gene_weighted_choice(allel_color_features_vert), gene_weighted_choice(allel_color_features_horiz)];
 
   var stripe_param_a = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
   var stripe_param_b = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
   var stripe_param_c = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
   var stripe_width = Math.floor(gene_range(2, 20)); // stripe width
-  var stripe_spacing = Math.floor(gene_range(2, 15)); // stripe spacing
+  var stripe_spacing = Math.floor(gene_range(5, 15)); // stripe spacing
   var stripe_shift = Math.floor(gene_range(1, stripe_spacing)); // stripe shift, needs to be smaller than stripe spacing
-  var block_spacing = Math.floor(gene_range(10, 25)); // block spacing in horizontal stripes
+  var block_spacing = Math.floor(gene_range(50, 150)); // block spacing in horizontal stripes, (10, 25)
   var block_width = Math.floor(block_spacing / 2); // block width in horizontal stripes
   var shift_sign_horiz = gene() < 0.5 ? 1 : -1; // chance for horizontal stripes to be shifted in or out of the grid
   var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the opposite from horizontal ones
 
+
+  var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
+  //var noise_feature = "bands";
+  var noise_height_f = c_length/c_xy_scale; // noise height factor
+
+  var noise_scale_x, noise_scale_y, noise_scale_z;
+  if (noise_feature == "cracks") {
+    noise_scale_x = gene_weighted_choice(allel_noise_scale_x);
+    noise_scale_y = 0.01;
+    noise_scale_z = 0.025; // 0.01
+
+  } else if (noise_feature == "bands") {
+    noise_scale_x = 0.01;
+    noise_scale_y = gene_weighted_choice(allel_noise_scale_y);
+    noise_scale_z = 0.05;
+
+  } else if (noise_feature == "sheets") {
+    noise_scale_x = 0.01;
+    noise_scale_y = 0.01;
+    noise_scale_z = gene_weighted_choice(allel_noise_scale_z);
+
+  } else { // in any other case, noise_feature == "unbiased"
+    noise_scale_x = 0.01;
+    noise_scale_y = 0.01;
+    noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
+  }
+
+
+  //var noise_scale_x = 0.01; // 0.01, increase this factor to 0.2 to get narrow cracks
+  //var noise_scale_x = gene_weighted_choice(allel_noise_scale_x); 
+  //var noise_scale_y = 0.5; // 0.01
+  //var noise_scale_y = 0.01; // 0.01
+  //var noise_scale_z = 0.01; // 0.01, increase this factor to 0.5 to get thinner layers in depth, 0.05 avoids too low density when using noise_cull_rule = "clean"
+  //var noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01; // var noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
+  
+  
+
+  // random shift of noise to get a different pattern every time
+  var noise_shift_x = gene_range(-100, 100);
+  var noise_shift_y = gene_range(-100, 100);
+  var noise_shift_z = gene_range(-100, 100);
+
+  console.log("%cCOLOR", "color: white; background: #000000;");
+  console.log("palette ->", palette_name, "\n"); // chosen_palette is where the colors are stores
+
+  console.log("%c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    ",
+              `color: white; background: ${chosen_palette[0]};`,
+              `color: white; background: ${chosen_palette[1]};`,
+              `color: white; background: ${chosen_palette[2]};`,
+              `color: white; background: ${chosen_palette[3]};`,
+              `color: white; background: ${chosen_palette[4]};`,
+              `color: white; background: ${chosen_palette[5]};`,
+              `color: white; background: ${chosen_palette[6]};`,
+              `color: white; background: ${chosen_palette[7]};`,
+              `color: white; background: ${chosen_palette[8]};`,
+              `color: white; background: ${chosen_palette[9]};`,
+              `color: white; background: ${chosen_palette[10]};`,
+              `color: white; background: ${chosen_palette[11]};`,
+              `color: white; background: ${chosen_palette[12]};`,
+              `color: white; background: ${chosen_palette[13]};`,
+              `color: white; background: ${chosen_palette[14]};`); // overprinting in case there are up to 15 colors (undefined is returned in case the color doesn't exist)
+
+  console.log("color gradient default ->", color_gradient_default);
+  //console.log("number of palettes -> ", Object.keys(palettes_v2).length); // show the total number of palettes
+  console.log("quadrants ->", quadrants);
+  console.log("color grading quadrants ->", color_gradient_quadrants); 
+  console.log("quadrant divs ->", `(${quadrant_div_x}, ${quadrant_div_y})`);
+
+  console.log("%cNOISE CULL", "color: white; background: #000000;");
+  console.log("noise cull rule ->", noise_cull_rule);
+  console.log("noise feature ->", noise_feature);
+  console.log("noise scale x ->", noise_scale_x);
+  console.log("noise scale y ->", noise_scale_y);
+  console.log("noise scale z ->", noise_scale_z);
+
+  console.log("%cSTRIPES", "color: white; background: #000000;");
+  console.log("color features vert ->", color_features_vert);
+  console.log("color features horiz ->", color_features_horiz);
   console.log("stripe width ->", stripe_width);
   console.log("stripe spacing ->", stripe_spacing);
   console.log("stripe shift ->", stripe_shift);
   console.log("block spacing ->", block_spacing);
   console.log("block width ->", block_width);
 
-  var noise_scale_x = 0.01; // 0.01, increase this factor to 0.2 to get narrow cracks
-  var noise_scale_y = 0.01; // 0.01
-  var noise_scale_z = 0.01; // 0.01, increase this factor to 0.5 to get thinner layers in depth
-  var height_f = c_length/c_xy_scale;
-
-  // random shift of noise to get a different pattern every time
-  var noise_shift_x = gene_range(-100, 100);
-  var noise_shift_y = gene_range(-100, 100);
-  var noise_shift_z = gene_range(-100, 100);
 
   // fill dense_matter_object with positions and attributes of elements - we iterate through every point on the grid to decide if the element is placed there
   for (var i = 0; i < grid_nr_x; i++) {
@@ -419,32 +520,28 @@ View.prototype.addDenseMatter = function  () {
 
         //// ELEMENT COLOR ////
 
-        color_gradient = "vertical grading clean";
-        grid_push_z = 0;
-
-        
-
-        var grid_push_z;
+        var color_gradient = color_gradient_default; // we have to reset this for every element as it gets changed based on other parameters
+        var grid_push_z = 0;
 
         // color gradient - QUADRANTS
         // upper right quadrant
         if ((i > grid_nr_x/quadrant_div_x) && (j > grid_nr_y/quadrant_div_y) && (quadrants == true)) {
-          color_gradient = "height stack";
+          color_gradient = color_gradient_quadrants[0];
           grid_push_z = 0;
 
         // upper left quadrant
         } else if ((i < grid_nr_x/quadrant_div_x) && (j > grid_nr_y/quadrant_div_y) && (quadrants == true)) {
-          color_gradient = "height stack";
+          color_gradient = color_gradient_quadrants[1];
           grid_push_z = 0;
 
         // lower right quadrant
         } else if ((i > grid_nr_x/quadrant_div_x) && (j < grid_nr_y/quadrant_div_y) && (quadrants == true)) {
-          color_gradient = "depth stack";
+          color_gradient = color_gradient_quadrants[2];
           grid_push_z = 0;
 
         // lower left quadrant
         } else if (quadrants == true) {
-          color_gradient = "depth stack";
+          color_gradient = color_gradient_quadrants[3];
           grid_push_z = 0;
         }
 
@@ -595,12 +692,9 @@ View.prototype.addDenseMatter = function  () {
         }
 
 
-        var noise_value = perlin3D(i * noise_scale_x + noise_shift_x, j * noise_scale_y * height_f + noise_shift_y, k * noise_scale_z + noise_shift_z);
-
+        var noise_value = perlin3D(i * noise_scale_x + noise_shift_x, j * noise_scale_y * noise_height_f + noise_shift_y, k * noise_scale_z + noise_shift_z);
 
         // probability to cull the element according to noise
-        var noise_cull_rule = "fuzzy"; 
-
         var noise_cull_prob;
         if (noise_cull_rule == "fuzzy") {
           noise_cull_prob = gene();
@@ -657,11 +751,15 @@ View.prototype.addDenseMatter = function  () {
     var material = new THREE.MeshPhongMaterial( {color: geometry_color, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
     var imesh = new THREE.InstancedMesh(geometry, material, elements_per_palette);
     imeshes_object[element_color] = imesh;
+    total_elements_existing += elements_per_palette;
   }
 
-  console.log(dense_matter_object);
-  console.log(elements_per_palette_object);
-  console.log(imeshes_object);
+  //console.log(dense_matter_object);
+  //console.log(elements_per_palette_object);
+  console.log("%cQUANTITY", "color: white; background: #000000;");
+  console.log("existing elements ->", total_elements_existing);
+  console.log("density ->", Math.round(100 * total_elements_existing / total_possible_elements), "%");
+  //console.log(imeshes_object);
 
   var axis_z = new THREE.Vector3(0, 0, 1);
   var axis_x = new THREE.Vector3(1, 0, 0);
@@ -1791,7 +1889,7 @@ function Controller(viewArea) {
   view.addDenseMatter(); // dense grid of colored elements
 
   //view.addInstances();
-  view.addStarsOrdered(); // ordered stars based on lattice nodes from nDatas
+  //view.addStarsOrdered(); // ordered stars based on lattice nodes from nDatas
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
 
   // all celestial objects from the celestial_object_types list will be added here
