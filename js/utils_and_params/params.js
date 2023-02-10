@@ -69,7 +69,7 @@ const allel_light_source_type = [
   ['south', 0]
 ];
 
-// all celestial types - 'none', 'comet', 'eclipse', 'ultra eclipse', 'moon', 'planet', 'orbit', 'meteor shower', 'quasar', 'nova', 'rapture', 'nebula', 'constellation'
+// all celestial types - 'none', 'comet', 'eclipse', 'ultra eclipse', 'moon', 'planet', 'orbit', 'meteor shower', 'quasar', 'nova', 'rapture', 'constellation'
 const allel_celestial_object_types = [
   [['none'], 35],
   [['comet'], 5],
@@ -107,13 +107,14 @@ const allel_celestial_object_types_empty = [
 ];
 
 const allel_celestials_reduced = [
-  [['none'], 35],
-  [['comet'], 5],
-  [['eclipse'], 10],
-  [['moon'], 15],
-  [['planet'], 10],
-  [['meteor shower'], 10],
-  [['constellation'], 15]
+  [['none'], 0],
+  [['comet'], 0],
+  [['eclipse'], 0],
+  [['moon'], 0],
+  [['full moon'], 1],
+  [['planet'], 0],
+  [['meteor shower'], 0],
+  [['constellation'], 0]
 ];
 
 
@@ -331,7 +332,7 @@ function generate_composition_params(aspect_ratio, frame_type, center_piece_type
   else if (explosion_type >= 5 && explosion_type <= 6) {feature_state = 'pierced';}
   else {feature_state = 'pristine';}
 
-  // 'none', 'comet', 'eclipse', 'ultra eclipse', 'moon', 'planet', 'orbit', 'meteor shower', 'quasar', 'nova', 'rapture', 'nebula', 'constellation'
+  // 'none', 'comet', 'eclipse', 'ultra eclipse', 'moon', 'planet', 'orbit', 'meteor shower', 'quasar', 'nova', 'rapture', 'constellation'
   if (celestial_object_types.length == 1) {feature_celestial = celestial_object_types[0];}
   else if (celestial_object_types.length == 2) {feature_celestial = celestial_object_types[0] + ' and ' + celestial_object_types[1];}
 
@@ -655,12 +656,12 @@ const palettes = {
                    "#224870", // blue
                    "#151a1b"], // black
 
-  "Nineties_mod": [ "#2c2f7a", // blue
+  /*"Nineties_mod": [ "#2c2f7a", // blue
                     "#2a70ae", // blue
-                    //"#005742", // teal
+                    "#005742", // teal
                     "#8b5ba2", // purple
                     "#1d1e1b", // black
-                    "#ebe2cf"], // light gray
+                    "#ebe2cf"], // light gray*/
 
   "Tabata": [ "#ece3d0", // light gray
               "#e51531", // red
@@ -802,7 +803,7 @@ const palettes = {
 const palettes_v2 = {
   "ColorHunt_01": ['#eaeaea', '#ff2e63', '#252a34', '#08d9d6'],
   "ColorHunt_02": ['#eeeeee', '#00adb5', '#393e46', '#222831'],
-  "ColorHunt_03": ['#521262', '#6639a6', '#3490de', '#6fe7dd'],
+  //"ColorHunt_03": ['#521262', '#6639a6', '#3490de', '#6fe7dd'],
   "ColorHunt_04": ['#eeeeee', '#d72323', '#3a4750', '#303841'],
   "ColorHunt_05": ['#d9faff', '#00bbf0', '#005792', '#00204a'],
   "ColorHunt_06": ['#40514e', '#11999e', '#30e3ca', '#e4f9f5'],
@@ -820,10 +821,10 @@ const palettes_v2 = {
   "ColourLovers_01": ['#e8ddcb', '#cdb380', '#036564', '#033649', '#031634'],
   "ColourLovers_02": ['#3fb8af', '#7fc7af', '#dad8a7', '#ff9e9d', '#ff3d7f'],
   "ColourLovers_03": ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'],
-  "AdobeColor_01": ['#a6032f', '#022873', '#035aa6', '#04b2d9', '#05dbf2'],
+  //"AdobeColor_01": ['#a6032f', '#022873', '#035aa6', '#04b2d9', '#05dbf2'],
   "AdobeColor_02": ['#1b3da6', '#26488c', '#2372d9', '#62abd9', '#f2d857'],
-  "AdobeColor_03": ['#3f0259', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
-  "AdobeColor_04": ['#080808', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
+  //"AdobeColor_03": ['#3f0259', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
+  //"AdobeColor_04": ['#080808', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
   "AdobeColor_05": ['#485922', '#798c35', '#b4bf5e', '#242614', '#f2f2f2'],
   "ColorLeap_01": ['#fef7ee', '#fef000', '#fb0002', '#1c82eb', '#1d1e1b'],
   "ColorLeap_02": ['#c87994', '#c3d2cf', '#52a29f', '#283730', '#0e0312'],
@@ -854,6 +855,88 @@ const palettes_v2 = {
 
 }
 
+
+
+const palettes_v3 = {
+  "Dessau": [ "#f9f0de", "#e51531", "#2a70ae", "#fab511", "#080808"], // white, red, blue, yellow, black
+  "Dessau_light": [ "#f9f0de", "#e51531", "#2a70ae", "#fab511"], // white, red, blue, yellow
+  "Edo": [ "#f9f0de", "#e51531", "#080808"], // white, red, black
+  "Edo_dark": [ "#ebe2cf", "#2a2b29", "#1d1e1b"], // light gray, dark gray, black
+  "Shirokuro": [ "#ebe2cf", "#cac3b3", "#1d1e1b"], // light gray, gray, black
+  "Sashiko_light": [ "#ebe2cf", "#20315d", "#1c2342", "#1d1f2b"], // light gray, blue, dark blue, black
+  "Blueprint": [ "#f9f6f2", "#ebe2cf", "#2c52a0"], // white, light gray, light blue
+  "Akiba": [ "#ebe2cf", "#c5c8ba", "#f8c1c1", "#2c52a0"], // light gray, gray, light pink, light blue
+  "Napoli": [ "#f9f6f2", "#ebe2cf", "#d7312e", "#40483a"], // white, light gray, red, dark green
+  "Arashiyama": [ "#cec29d", "#505e3f", "#39472b", "#2a3320"], // light brown, light olive, dark green, dark olive                 
+  "Ex_Astris": [ "#ebe2cf", "#c5c8ba", "#262d49", "#e4032c"], // light gray, gray, dark blue, red
+  "Brubeck_mod": [ "#f7f8e6", "#d83715", "#224870", "#151a1b"], // white, red, blue, black
+  "Tabata": [ "#ece3d0", "#e51531", "#1d1d1b", "#f8c1c1"], // light gray, red, black, light pink
+  "Yoyogi_mod": [ "#e40520", "#e1318a", "#484395", "#19171a", "#ece3d0"], // red, pink, blue, black, white
+  "Osaki": [ "#f299a5", "#084698", "#1a86c8", "#74afe0", "#a0d6da", "#f8f9f2"], // light pink, blue, light blue, super light blue, light teal, white
+  "Shinagawa": [ "#e87e95", "#6cc7df", "#816987", "#f9f6f2"], // light pink, light blue, light purple, white
+  "Shinjuku_mod": [ "#fcbd32", "#007b5d", "#0089c5", "#221e1f", "#ece3d0"], // yellow, teal, blue, black, white
+  "Meguro_mod": [ "#f9f6f2", "#e51f23", "#e6007b", "#005aa7", "#5ec5ee"], // white, red, pink, blue, light blue
+  "Asphalt_mod": [ "#00a19d", "#fff8e5", "#2c2e43", "#b2b1b9", "#595260"], // teal, white, dark gray, light gray, gray
+  "Diatomite_mod": [ "#fff8f3", "#a3e4db", "#1c6dd0", "#2c2e43", "#ffd523"], // white, light teal, blue, dark gray, yellow
+  "Arkose": [ "#a2d2ff", "#fef9ef", "#ff865e", "#fee440"], // light blue, white, light red, yellow
+  "Hematite": [ "#3db2ff", "#ffedda", "#ffb830", "#ff2442"], // light blue, white, orange, red
+  "Fisherprice_mod": [ "#f9af06", "#1e62ad", "#ece7d9", "#01906d", "#e74620"], // orange yellow, blue, white, green, red
+  "Dark_Crystals": [ "#d94939", "#066278", "#e3e0d5"], // light red, dark teal, white
+  "Sea_Dark_mod": [ "#e4e2d5", "#324a58", "#deb55c"], // white, dark blue, yellow
+  "Noir_mod": [ "#22252a", "#2f3237", "#62646a", "#aeb1b7", "#e1e4ea"], // black, dark gray, gray, light gray, white
+  "Ocean": [ "#00a19d", "#005aa7", "#2a70ae", "#1e62ad", "#0089c5", "#20315d", "#066278", "#181e3e", "#2d5d7d", "#3db2ff", "#2c52a0", "#5ec5ee", "#6cc7df", "#1d1f2b"], // teal, blue, blue, blue, blue, blue, dark teal, dark blue, gray blue, light blue, light blue, light blue, light blue, black
+  "Furnace": [ "#e51531", "#d7312e", "#e4032c", "#d83715", "#ff2442", "#e74620", "#e51f23", "#f9af06", "#fab511", "#ff865e", "#19171a"], // red, red, red, red, red, red, red, orange yellow, yellow, light red, black
+  "Charcoal": [ "#020202", "#080808", "#1a1a1a", "#1d1d1d", "#222222", "#2c2c2c", "#3c3c3c"], // black, black, black, black, black, dark gray, gray
+  "Chloroplast": ["#40483a", "#505e3f", "#39472b", "#2a3320", "#066278", "#007b5d", "#005742", "#00a19d", "#a0d6da", "#01906d", "#1d1e1b"], // dark green, light olive, dark green, dark olive, dark teal, teal, teal, teal, light teal, green, black 
+  "ColorHunt_01": ['#eaeaea', '#ff2e63', '#252a34', '#08d9d6'],
+  "ColorHunt_02": ['#eeeeee', '#00adb5', '#393e46', '#222831'],
+  "ColorHunt_04": ['#eeeeee', '#d72323', '#3a4750', '#303841'],
+  "ColorHunt_05": ['#d9faff', '#00bbf0', '#005792', '#00204a'],
+  "ColorHunt_06": ['#40514e', '#11999e', '#30e3ca', '#e4f9f5'],
+  "ColorHunt_07": ['#a7ff83', '#17b978', '#086972', '#071a52'],
+  "ColorHunt_08": ['#c5e3f6', '#fc5c9c', '#fccde2', '#fcefee'],
+  "Coolors_01": ['#114b5f', '#1a936f', '#88d498', '#c6dabf', '#f3e9d2'],
+  "Coolors_02": ['#114b5f', '#028090', '#e4fde1', '#456990', '#f45b69'],
+  "Coolors_03": ['#06aed5', '#086788', '#f0c808', '#fff1d0', '#dd1c1a'],
+  "Coolors_04": ['#ffbf00', '#e83f6f', '#2274a5', '#32936f', '#f9f0de'],
+  "Coolors_05": ['#ffbf00', '#e83f6f', '#2274a5', '#f9f0de', '#080808'],
+  "colorsmuzli_01": ['#8a00d4', '#d527b7', '#f782c2', '#f9c46b', '#e3e3e3'],
+  "colorsmuzli_02": ['#e74645', '#fb7756', '#facd60', '#fdfa66', '#1ac0c6'],
+  "colorsmuzli_05": ['#1f306e', '#553772', '#8f3b76', '#f5487f', '#f9f0de'],
+  "colorsmuzli_06": ['#343090', '#5f59f7', '#6592fd', '#44c2fd', '#f9f0de'],
+  "ColourLovers_01": ['#e8ddcb', '#cdb380', '#036564', '#033649', '#031634'],
+  "ColourLovers_02": ['#3fb8af', '#7fc7af', '#dad8a7', '#ff9e9d', '#ff3d7f'],
+  "ColourLovers_03": ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'],
+  "AdobeColor_02": ['#1b3da6', '#26488c', '#2372d9', '#62abd9', '#f2d857'],
+  "AdobeColor_05": ['#485922', '#798c35', '#b4bf5e', '#242614', '#f2f2f2'],
+  "ColorLeap_01": ['#fef7ee', '#fef000', '#fb0002', '#1c82eb', '#1d1e1b'],
+  "ColorLeap_02": ['#c87994', '#c3d2cf', '#52a29f', '#283730', '#0e0312'],
+  "Bauhaus_01": ['#f44336', '#ffd966', '#2a5779', '#f3f6f4', '#080808'],
+  "Hokusai_01": ['#7d9ba6', '#c0b7a8', '#ddd3c4', '#10284a', '#474b4e'],
+  "Stary_Night": ['#070c0f', '#1d5880', '#fece3e', '#f8e288', '#9fc798'],
+  "byrnes": ["#c54514", "#dca215", "#23507f", "#e8e7d4"], // red, yellow, blue, white
+  "saami": ["#eab700", "#e64818", "#2c6393", "#eecfca", "#e7e6e4"], // yellow, red, blue, light lila, white
+  "cc234": ["#ffce49", "#ede8dc", "#ff5736", "#ff99b4"], // yellow, white, red, light pink
+  "sprague": ["#ec2f28", "#f8cd28", "#1e95bb", "#fbaab3", "#fcefdf"], // red, yellow, blue, light pink, white
+  "jud_horizon": ["#f8c3df", "#f2e420", "#28b3d0", "#648731", "#ef6a7d", "#f2f0e1"], // light pink, yellow, blue, green, red, white
+  "hilda": ["#eb5627", "#eebb20", "#4e9eb8", "#f7f5d0", "#77c1c0"], // red, yellow, blue, white, light blue
+  "jung_croc": ["#f13274", "#eed03e", "#405e7f", "#19a198", "#ede8dc"], // red, yellow, blue, teal, white
+  "cc245": ["#0d4a4e", "#ff947b", "#ead3a2", "#5284ab"], // green, light red, beige, blue
+  "rohlfs_1R": ["#004996", "#567bae", "#ff4c48", "#ffbcb3", "#fff8e7"], // deep blue, blue, red, light lila, white
+  "rohlfs_4": ["#fde500", "#2f2043", "#f76975", "#fbbeca", "#eff0dd"], // yellow, deep purple, light red, light lila, white
+  "system_5": ["#db4549", "#d1e1e1", "#3e6a90", "#2e3853", "#a3c9d3"], // red, white, blue, dark blue, light blue
+  "jung_horse": ["#e72e81", "#f0bf36", "#3056a2", "#e8e7d4"], // red, yellow, blue, white
+  "system_4": ["#e31f4f", "#f0ac3f", "#18acab", "#26265a", "#ea7d81", "#dcd9d0"], // red, yellow, teal, deep blue, light lila, light gray
+  "jud_playground": ["#f04924", "#fcce09", "#408ac9", "#f9f0de", "#080808"], // red, yellow, blue, white, black
+  "kov_05": ["#de3f1a", "#de9232", "#007158", "#e6cdaf", "#869679", "#7aa5a6"], // red, yellow, green, white, olive green, light green
+  "jud_mural": ["#ca3122", "#e5af16", "#4a93a2", "#0e7e39", "#e2b9bd", "#e3ded8"], // red, yellow, light blue, green, light lila, white
+  "vintage_01": ["#655D8A", "#7897AB", "#D885A3", "#FDCEB9"], // purple, teal, pink, beige
+  "vintage_02": ["#4C0027", "#570530", "#750550", "#980F5A", "#f9f0de"], // dark maroon, maroon, light maroon, maroon purple, white
+  "vintage_03": ["#151515", "#301B3F", "#3C415C", "#655D8A", "#f9f0de"], // black, dark purple, light purple, purple, white
+  "blood_honey": ["#900C3F", "#C70039", "#FF5733", "#FFC300", "#f9f0de"], // maroon, red, orange, yellow, white
+}
+
+
 const allel_color_features_vert = [
   ["none", 10],
   ["vertical stripe sparse", 1],
@@ -875,11 +958,10 @@ const allel_noise_cull_rule = [
 ];
 
 const allel_noise_scale_x = [
-  [0.05, 1],
+  [0.05, 2],
   [0.10, 1],
   [0.15, 1],
-  [0.20, 1],
-  [0.25, 1]
+  [0.20, 1]
 ]
 
 const allel_noise_scale_y = [
