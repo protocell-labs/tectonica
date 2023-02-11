@@ -173,3 +173,17 @@ function shuffleArray(array) {
       array[j] = temp;
   }
 }
+
+
+function shiftArray(arr){
+  let last = arr.pop();
+  arr.unshift(last);
+  return arr;
+}
+
+function shiftArrayCopy(arr){
+  arrCopy = [...arr];
+  let last = arrCopy.pop();
+  arrCopy.unshift(last);
+  return arrCopy;
+}

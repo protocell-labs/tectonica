@@ -98,6 +98,12 @@ for (var nx = 0; nx < grid_module_nr_x; nx++) {
 var random_starfield_bounds = 1000; // O B S C V R V M - 1500
 var nr_of_random_stars = 15000; // O B S C V R V M - 20000
 
+// COLOUR CHANGE
+var chosen_palette;
+const flickerInterval = 100; //(ms)
+const flickerDuration = 2000; //(ms)
+const cycleDuration = 5000; //(ms)
+
 
 //var { stage, transformation_index, steps } = lattice_params; // WORKAROUND FOR NOW - all the params we need in main.js to make it run, but in the end we will have multiple lattices with multiple params
 var stage = 6; // workaround, not actually needed
@@ -256,8 +262,8 @@ function View(viewArea) {
 
   light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
-  light.shadow.camera.near = 1000;
-  light.shadow.camera.far = 4000;
+  light.shadow.camera.near = 500;
+  light.shadow.camera.far = 3000;
   light.shadow.bias = - 0.000222;
 
   const d = 1000; 
@@ -270,7 +276,7 @@ function View(viewArea) {
   const helper = new THREE.CameraHelper( light.shadow.camera );
   scene.add( helper );
 
-  var shadow = 4096; //2048; //Default
+  var shadow = 8192; //2048; //Default
   var paramsAssigned = false;
   // URL PARAMS
   // Usage: add this to the url ?shadow=4096
@@ -339,9 +345,9 @@ function View(viewArea) {
 
 View.prototype.addDenseMatter = function  () {
 
-  var chosen_palette = palettes_v3[palette_name].slice(0); // make a copy of the chosen color palette
+  chosen_palette = palettes_v3[palette_name].slice(0); // make a copy of the chosen color palette
   shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
-  
+
   // use elements_per_palette objects to count nr of elements for each color - we need to know this nr when we create instanced mesh
   for (i in chosen_palette) {
     elements_per_palette_object[chosen_palette[i]] = 0; // for each color we set nr of elements to zero
@@ -764,6 +770,7 @@ View.prototype.addDenseMatter = function  () {
   }
 
   // add instance meshes to the scene
+ 
   for (const [element_color, imesh] of Object.entries(imeshes_object)) {
       // global rotation of the instanced mesh
       imesh.rotateX(global_rot_x);
@@ -772,9 +779,57 @@ View.prototype.addDenseMatter = function  () {
       imesh.instanceMatrix.needsUpdate = true
       imesh.castShadow = true;
       imesh.receiveShadow = true;
-  
+
       this.scene.add(imesh);
   }
+
+  //KEDIT
+  var chosen_palette_array = [];
+  console.log(chosen_palette);
+  for(i=0; i<chosen_palette.length; i++){
+    var col = new THREE.Color(chosen_palette[i]);
+    console.log(col);
+    chosen_palette_array.push(col)
+  }
+
+
+  
+  //setInterval(function(){
+    var copyPalette = shiftArrayCopy(chosen_palette_array);
+    var cycleTime = 0;
+    setInterval(function () {
+      if(cycleTime<=flickerDuration){ //During State Change
+        var k=0;
+        var stateChangeProb = cycleTime/flickerDuration;
+        //console.log(stateChangeProb);
+        for (const [element_color, elements_per_palette] of Object.entries(elements_per_palette_object)) {
+          var selectedColor;
+          for (i=0; i<imeshes_object[element_color].count; i++){
+            if (stateChangeProb > gene()){
+              selectedColor = copyPalette[k]; //Update State with shifted palette
+            } else {
+              selectedColor = chosen_palette_array[k]; //Recede State
+            }
+            imeshes_object[element_color].setColorAt(i,selectedColor);
+          };
+          imeshes_object[element_color].instanceColor.needsUpdate = true;
+          //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
+          k++;
+        }
+      }//Else: State Stable
+      
+      cycleTime += flickerInterval;
+
+      if (cycleTime>=cycleDuration){
+        chosen_palette_array=[...copyPalette];
+        copyPalette = shiftArrayCopy(chosen_palette_array);
+        console.log(chosen_palette_array,copyPalette)
+        cycleTime = 0;
+      }
+    }, flickerInterval);
+
+  //  chosen_palette_array=copyPalette;
+  //}, cycleDuration)
 
 
 
@@ -973,6 +1028,7 @@ View.prototype.addInstances = function  () {
     imesh.rotateY(global_rot_y);
 
     imesh.instanceMatrix.needsUpdate = true
+    imesh.instanceColor.needsUpdate = true
 
     imesh.castShadow = true;
     imesh.receiveShadow = true;
@@ -1020,6 +1076,7 @@ View.prototype.addInstances = function  () {
 
 
     imesh_debris.instanceMatrix.needsUpdate = true
+    
     imesh_debris.castShadow = true; // remove for performance
     imesh_debris.receiveShadow = true;
     this.scene.add(imesh_debris);
