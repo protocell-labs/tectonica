@@ -221,9 +221,21 @@ function View(viewArea) {
   //camera.position.set(0,0, 100);
 
 
+
   //cam_factor controls the "zoom" when using orthographic camera
   var camera = new THREE.OrthographicCamera( -viewportWidth/cam_factor_mod, viewportWidth/cam_factor_mod, viewportHeight/cam_factor_mod, -viewportHeight/cam_factor_mod, 0, 5000 );
+  
+  //controls
+  const controls = new THREE.OrbitControls( camera, renderer.domElement );
+  controls.enableZoom = true;
+  //controls.smoothZoom = true;
+  //controls.zoomDampingFactor = 0.2;
+  //controls.smoothZoomSpeed = 5.0;
+  
+
   camera.position.set(0, 0, 2000);
+  controls.update();
+  this.controls = controls;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   //composer = new THREE.EffectComposer( renderer );
@@ -233,18 +245,32 @@ function View(viewArea) {
   scene.background = new THREE.Color('#080808'); //0xffffff, 0x000000
 
   const color = 0xffffff; //0xffffff
-  const intensity = 0.1; //0-1, zero works great for shadows with strong contrast
+  const intensity = 0.9; //0-1, zero works great for shadows with strong contrast
 
   // ADD LIGHTING
-  var light = new THREE.PointLight(0xffffff);
-  light.position.set(0, 0, 10000); //0, 0, 2000
- 
+  var light = new THREE.DirectionalLight(0xffffff, intensity); //new THREE.PointLight(0xffffff);
+  //scene.add( light.target ); //Needs to be added to change target
+  //light.target = //ASSIGN NEW TARGET
+
+
+
+  light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
-  light.shadow.camera.near = 200;
-  light.shadow.camera.far = 2000;
+  light.shadow.camera.near = 1000;
+  light.shadow.camera.far = 4000;
   light.shadow.bias = - 0.000222;
 
-  var shadow = 2048; //Default
+  const d = 1000; 
+  light.shadow.camera.left = - d; 
+  light.shadow.camera.right = d; 
+  light.shadow.camera.top = d; 
+  light.shadow.camera.bottom = - d
+
+  //Create a helper for the shadow camera (optional)
+  const helper = new THREE.CameraHelper( light.shadow.camera );
+  scene.add( helper );
+
+  var shadow = 4096; //2048; //Default
   var paramsAssigned = false;
   // URL PARAMS
   // Usage: add this to the url ?shadow=4096
@@ -281,7 +307,7 @@ function View(viewArea) {
   scene.add(light);
 
   const amblight = new THREE.AmbientLight(color, intensity);
-  scene.add(amblight);
+  //scene.add(amblight);
 
   this.winHeight = viewportHeight;
   this.winWidth = viewportWidth;
@@ -310,8 +336,6 @@ function View(viewArea) {
   bloomPass.threshold = 0.0;
   this.composer.addPass(bloomPass)
 }
-
-
 
 View.prototype.addDenseMatter = function  () {
 
@@ -756,9 +780,6 @@ View.prototype.addDenseMatter = function  () {
 
 }
 
-
-
-
 View.prototype.addInstances = function  () {
 
   var c_type = 'square beam';
@@ -999,7 +1020,7 @@ View.prototype.addInstances = function  () {
 
 
     imesh_debris.instanceMatrix.needsUpdate = true
-    //imesh_debris.castShadow = true; // remove for performance
+    imesh_debris.castShadow = true; // remove for performance
     imesh_debris.receiveShadow = true;
     this.scene.add(imesh_debris);
   }
@@ -1343,6 +1364,7 @@ View.prototype.render = function () {
     //this.renderer.clear();  //
 
     requestAnimationFrame(this.render.bind(this));
+    this.controls.update();
 
     //this.renderer.clear();  //
     if (debug){
@@ -1433,7 +1455,7 @@ function Controller(viewArea) {
     //view.light.position.set(Math.sin(light_angle)*parallex_amplitude, Math.cos(light_angle)*parallex_amplitude, lp.z);
   }
  
-  var lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate);
+  //STATICLIGHT//var lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate);
 
 
   // DENSE MATTER COMPUTATION
@@ -1514,7 +1536,7 @@ function Controller(viewArea) {
         
         } else { arc_division = 1.0; }//Update light step as well if framerate is changed and
         light_framerate = light_framerate_change;
-        lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate); //create new interval with updated framerate
+        //STATICLIGHT//lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate); //create new interval with updated framerate
       }
 
     
