@@ -776,7 +776,8 @@ View.prototype.addDenseMatter = function  () {
       imesh.rotateX(global_rot_x);
       imesh.rotateY(global_rot_y);
   
-      imesh.instanceMatrix.needsUpdate = true
+      imesh.instanceMatrix.needsUpdate = true;
+      imesh.instanceColor.needsUpdate = true;
       imesh.castShadow = true;
       imesh.receiveShadow = true;
 
@@ -795,38 +796,40 @@ View.prototype.addDenseMatter = function  () {
 
   
   //setInterval(function(){
-    var copyPalette = shiftArrayCopy(chosen_palette_array);
-    var cycleTime = 0;
-    setInterval(function () {
-      if(cycleTime<=flickerDuration){ //During State Change
-        var k=0;
-        var stateChangeProb = cycleTime/flickerDuration;
-        //console.log(stateChangeProb);
-        for (const [element_color, elements_per_palette] of Object.entries(elements_per_palette_object)) {
-          var selectedColor;
-          for (i=0; i<imeshes_object[element_color].count; i++){
-            if (stateChangeProb > gene()){
-              selectedColor = copyPalette[k]; //Update State with shifted palette
-            } else {
-              selectedColor = chosen_palette_array[k]; //Recede State
-            }
-            imeshes_object[element_color].setColorAt(i,selectedColor);
-          };
-          imeshes_object[element_color].instanceColor.needsUpdate = true;
-          //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
-          k++;
-        }
-      }//Else: State Stable
-      
-      cycleTime += flickerInterval;
-
-      if (cycleTime>=cycleDuration){
-        chosen_palette_array=[...copyPalette];
-        copyPalette = shiftArrayCopy(chosen_palette_array);
-        console.log(chosen_palette_array,copyPalette)
-        cycleTime = 0;
+  var copyPalette = shiftArrayCopy(chosen_palette_array);
+  var cycleTime = 0;
+  setInterval(function () {
+    if(cycleTime<=flickerDuration){ //During State Change
+      var k=0;
+      var stateChangeProb = cycleTime/flickerDuration;
+      //console.log(stateChangeProb);
+      for (const [element_color, elements_per_palette] of Object.entries(elements_per_palette_object)) { 
+        var selectedColor;
+        for (i=0; i<imeshes_object[element_color].count; i++){
+          if (stateChangeProb > gene()){
+            //console.log("y")
+            selectedColor = copyPalette[k]; //Update State with shifted palette
+          } else {
+            //console.log("n")
+            selectedColor = chosen_palette_array[k]; //Recede State
+          }
+          imeshes_object[element_color].setColorAt(i,selectedColor);
+        };
+        imeshes_object[element_color].instanceColor.needsUpdate = true;
+        //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
+        k++;
       }
-    }, flickerInterval);
+    }//Else: State Stable
+    
+    cycleTime += flickerInterval;
+
+    if (cycleTime>=cycleDuration){
+      chosen_palette_array=[...copyPalette];
+      copyPalette = shiftArrayCopy(chosen_palette_array);
+      //console.log(chosen_palette_array,copyPalette)
+      cycleTime = 0;
+    }
+  }, flickerInterval);
 
   //  chosen_palette_array=copyPalette;
   //}, cycleDuration)
