@@ -325,10 +325,10 @@ View.prototype.addDenseMatter = function  () {
   }
 
 
-  //var color_gradient_default = gene_weighted_choice(allel_color_gradient); // "solid", "solid sprinkled", "uniform", "vertical grading", "horizontal grading", "vertical grading clean", "horizontal grading clean", "width stack", "height stack", "depth stack"
-  var color_gradient_default = "uniform"; //"vertical grading layered", "depth stack"
+  var color_gradient_default = gene_weighted_choice(allel_color_gradient); // "solid", "solid sprinkled", "uniform", "vertical grading", "horizontal grading", "vertical grading clean", "horizontal grading clean", "width stack", "height stack", "depth stack"
+  //var color_gradient_default = "uniform"; //"vertical grading layered", "depth stack"
 
-  var quadrants = gene() < 0.0 ? true : false; // trigger for color grading according to QUADRANTS
+  var quadrants = gene() < 0.35 ? true : false; // trigger for color grading according to QUADRANTS
   //var quadrant_div_x = gene_range(1.5, 4.0); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
   //var quadrant_div_y = gene_range(1.5, 4.0); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
   var quadrant_div_x = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
@@ -339,8 +339,8 @@ View.prototype.addDenseMatter = function  () {
                                   gene_weighted_choice(allel_color_gradient_quadrants),
                                   gene_weighted_choice(allel_color_gradient_quadrants)];
 
-  //var noise_cull_rule = gene_weighted_choice(allel_noise_cull_rule); // rule for culling elements using noise
-  var noise_cull_rule = "clean";
+  var noise_cull_rule = gene_weighted_choice(allel_noise_cull_rule); // rule for culling elements using noise
+  //var noise_cull_rule = "clean";
 
   // additional color features appearing
   var color_features_vert = gene_weighted_choice(allel_color_features_vert);
@@ -360,8 +360,8 @@ View.prototype.addDenseMatter = function  () {
   var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the opposite from horizontal ones
 
 
-  //var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
-  var noise_feature = "unbiased";
+  var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
+  //var noise_feature = "unbiased";
   
   var noise_height_f = c_length/c_xy_scale; // noise height factor
 
