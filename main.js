@@ -183,7 +183,7 @@ var background_toggle = false;
 
 var controller;
 
-var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true, preserveDrawingBuffer: true});
+var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, preserveDrawingBuffer: true}); //antialias: true
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
@@ -251,7 +251,8 @@ function View(viewArea) {
   scene.background = new THREE.Color('#080808'); //0xffffff, 0x000000
 
   const color = 0xffffff; //0xffffff
-  const intensity = 0.9; //0-1, zero works great for shadows with strong contrast
+  const intensity = 0.9;
+  const amb_intensity = 0.1; //0-1, zero works great for shadows with strong contrast
 
   // ADD LIGHTING
   var light = new THREE.DirectionalLight(0xffffff, intensity); //new THREE.PointLight(0xffffff);
@@ -312,8 +313,8 @@ function View(viewArea) {
 
   scene.add(light);
 
-  const amblight = new THREE.AmbientLight(color, intensity);
-  //scene.add(amblight);
+  const amblight = new THREE.AmbientLight(color, amb_intensity);
+  scene.add(amblight);
 
   this.winHeight = viewportHeight;
   this.winWidth = viewportWidth;
@@ -334,6 +335,11 @@ function View(viewArea) {
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
 
+  // FXAA antialiasing
+  effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+  effectFXAA.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
+  effectFXAA.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
+  this.composer.addPass( effectFXAA );   
 
   //Bloom
   const bloomPass = new THREE.UnrealBloomPass();
