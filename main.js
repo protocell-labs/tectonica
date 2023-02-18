@@ -770,18 +770,19 @@ View.prototype.addDenseMatter = function  () {
   }
 
   // add instance meshes to the scene
- 
+  var sceneMeshes = []
   for (const [element_color, imesh] of Object.entries(imeshes_object)) {
       // global rotation of the instanced mesh
       imesh.rotateX(global_rot_x);
       imesh.rotateY(global_rot_y);
   
       imesh.instanceMatrix.needsUpdate = true;
-      imesh.instanceColor.needsUpdate = true;
+      //imesh.instanceColor.needsUpdate = true;
       imesh.castShadow = true;
       imesh.receiveShadow = true;
-
+      imesh.name = element_color;
       this.scene.add(imesh);
+      sceneMeshes.push(imesh);
   }
 
   //KEDIT
@@ -789,33 +790,58 @@ View.prototype.addDenseMatter = function  () {
   console.log(chosen_palette);
   for(i=0; i<chosen_palette.length; i++){
     var col = new THREE.Color(chosen_palette[i]);
+    //col.setHex(chosen_palette[i]);
     console.log(col);
     chosen_palette_array.push(col)
   }
 
-
+  //var imesh = this.scene.getObjectByName(element_color);
   
   //setInterval(function(){
+  //let matrix = new THREE.Matrix4();
+  //matrix.makeScale(1, 1, 1);
+  //console.log(this.scene);
   var copyPalette = shiftArrayCopy(chosen_palette_array);
   var cycleTime = 0;
+  //const sigmoid_amplitude = 0.05;
   setInterval(function () {
+
     if(cycleTime<=flickerDuration){ //During State Change
       var k=0;
       var stateChangeProb = cycleTime/flickerDuration;
       //console.log(stateChangeProb);
-      for (const [element_color, elements_per_palette] of Object.entries(elements_per_palette_object)) { 
+      for (const [element_color, imeshx] of Object.entries(imeshes_object)) { 
         var selectedColor;
-        for (i=0; i<imeshes_object[element_color].count; i++){
+        
+        /*
+        for (let i=0; i<imeshx.count; i++){
           if (stateChangeProb > gene()){
-            //console.log("y")
             selectedColor = copyPalette[k]; //Update State with shifted palette
           } else {
-            //console.log("n")
             selectedColor = chosen_palette_array[k]; //Recede State
           }
-          imeshes_object[element_color].setColorAt(i,selectedColor);
-        };
-        imeshes_object[element_color].instanceColor.needsUpdate = true;
+          //imeshx.setMatrixAt(i, matrix);
+          //matrix.setPosition(imeshx[i])
+          //imeshx.getMatrixAt(i, matrix)
+          //imeshx.setMatrixAt(i, matrix);
+          sceneMeshes[k].setColorAt(i,selectedColor);
+          //imesh.setColorAt(i,selectedColor);
+          
+        };*/
+
+        //imeshx.instanceMatrix.needsUpdate = true;
+        //console.log(imeshx.instanceColor)
+        var sigmoidValue = sigmoid(cycleTime-flickerDuration/2,500)+0.08; //non linear activation
+        //console.log(sigmoidValue);
+        if (sigmoidValue > gene()){
+        ////if (stateChangeProb > gene()){
+          selectedColor = copyPalette[k]; //Update State with shifted palette
+        } else {
+          selectedColor = chosen_palette_array[k]; //Recede State
+        }
+        //imesh.instanceColor.needsUpdate = true;
+        ////sceneMeshes[k].instanceColor.needsUpdate = true;
+        imeshes_object[element_color].material.color = selectedColor;
         //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
         k++;
       }
