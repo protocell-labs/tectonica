@@ -574,9 +574,6 @@ function generate_module_params(position) {
 
 
 
-
-
-
 //////ANIMATION SETTINGS CHOOSING//////
 const light_frame_speed_param = {
   Fast: 25, // light increment per 1/100 of a second
@@ -597,348 +594,91 @@ const light_step_size_param = {
 
 
 
-
-const palettes = {
-  "Dessau": [ "#f9f0de", // white
-              "#e51531", // red
-              "#2a70ae", // blue
-              "#fab511", // yellow
-              "#080808"],// black
-
-  "Dessau_light": [ "#f9f0de", // white
-                    "#e51531", // red
-                    "#2a70ae", // blue
-                    "#fab511"], // yellow
-
-  "Edo":    [ "#f9f0de", // white
-              "#e51531", // red
-              "#080808"], // black
-
-  "Edo_dark": [ "#ebe2cf", // light gray
-                "#2a2b29", // dark gray
-                "#1d1e1b"], // black
-
-  "Shirokuro": [ "#ebe2cf", // light gray
-                 "#cac3b3", // gray
-                 "#1d1e1b"], // black
-
-  "Sashiko_light": [ "#ebe2cf", // light gray
-                     "#20315d", // blue
-                     "#1c2342", // dark blue
-                     "#1d1f2b"], // black
-
-  "Blueprint": [ "#f9f6f2", // white
-                 "#ebe2cf", // light gray
-                 "#2c52a0"], // light blue
-
-  "Akiba": [ "#ebe2cf", // light gray
-             "#c5c8ba", // gray
-             "#f8c1c1", // light pink
-             "#2c52a0"], // light blue
-
-  "Napoli": [ "#f9f6f2", // white
-              "#ebe2cf", // light gray
-              "#d7312e", // red
-              "#40483a"], // dark green
-
-  "Arashiyama": [ "#cec29d", // light brown
-                  "#505e3f", // light olive 
-                  "#39472b", // dark green
-                  "#2a3320"], // dark olive
-                                  
-  "Ex_Astris": [ "#ebe2cf", // light gray
-                 "#c5c8ba", // gray
-                 "#262d49", // dark blue
-                 "#e4032c"], // red
-
-  "Brubeck_mod": [ "#f7f8e6", // white
-                   "#d83715", // red
-                   "#224870", // blue
-                   "#151a1b"], // black
-
-  /*"Nineties_mod": [ "#2c2f7a", // blue
-                    "#2a70ae", // blue
-                    "#005742", // teal
-                    "#8b5ba2", // purple
-                    "#1d1e1b", // black
-                    "#ebe2cf"], // light gray*/
-
-  "Tabata": [ "#ece3d0", // light gray
-              "#e51531", // red
-              "#1d1d1b", // black
-              "#f8c1c1"], // light pink
-
-  "Yoyogi_mod": [ "#e40520", // red
-                  "#e1318a", // pink
-                  "#484395", // blue
-                  "#19171a", // black
-                  "#ece3d0"], // white
-
-  "Osaki": [ "#f299a5", // light pink
-             "#084698", // blue
-             "#1a86c8", // light blue
-             "#74afe0", // super light blue
-             "#a0d6da", // light teal
-             "#f8f9f2"], // white
-
-  "Shinagawa": [ "#e87e95", // light pink
-                 "#6cc7df", // light blue
-                 "#816987", // light purple
-                 "#f9f6f2"], // white
-
-  "Shinjuku_mod": [ "#fcbd32", // yellow
-                    "#007b5d", // teal
-                    "#0089c5", // blue
-                    "#221e1f", // black
-                    "#ece3d0"], // white
-
-  "Meguro_mod": [ "#f9f6f2", // white
-                  "#e51f23", // red
-                  "#e6007b", // pink
-                  "#005aa7", // blue
-                  "#5ec5ee"], // light blue
-
-  "Asphalt_mod": [ "#00a19d", // teal
-                   "#fff8e5", // white
-                   "#2c2e43", // dark gray
-                   "#b2b1b9", // light gray
-                   "#595260"], // gray
-
-  "Diatomite_mod": [ "#fff8f3", // white
-                     "#a3e4db", // light teal
-                     "#1c6dd0", // blue
-                     "#2c2e43", // dark gray
-                     "#ffd523"], // yellow
-
-  "Arkose": [ "#a2d2ff", // light blue
-              "#fef9ef", // white
-              "#ff865e", // light red
-              "#fee440"], // yellow
-
-  "Hematite": [ "#3db2ff", // light blue
-                "#ffedda", // white
-                "#ffb830", // orange
-                "#ff2442"], // red
-
-  "Fisherprice_mod": [ "#f9af06", // orange yellow
-                       "#1e62ad", // blue
-                       "#ece7d9", // white
-                       "#01906d", // green
-                       "#e74620"], // red
-
-  "Dark_Crystals": [ "#d94939", // light red
-                     "#066278", // dark teal
-                     "#e3e0d5"], // white
-
-  "Sea_Dark_mod": [ "#e4e2d5", // white
-                    "#324a58", // dark blue
-                    "#deb55c"], // yellow
-
-  "Noir_mod": [ "#22252a", // black
-                "#2f3237", // dark gray
-                "#62646a", // gray
-                "#aeb1b7", // light gray
-                "#e1e4ea"], // white
-
-  "Ocean": [ "#00a19d", // teal
-             "#005aa7", // blue
-             "#2a70ae", // blue
-             "#1e62ad", // blue
-             "#0089c5", // blue
-             "#20315d", // blue
-             "#066278", // dark teal
-             "#181e3e", // dark blue
-             "#2d5d7d", // gray blue
-             "#3db2ff", // light blue
-             "#2c52a0", // light blue
-             "#5ec5ee", // light blue
-             "#6cc7df", // light blue
-             "#1d1f2b"], // black
-
-  "Furnace": [ "#e51531", // red
-               "#d7312e", // red
-               "#e4032c", // red
-               "#d83715", // red
-               "#ff2442", // red
-               "#e74620", // red
-               "#e51f23", // red
-               "#f9af06", // orange yellow
-               "#fab511", // yellow
-               "#ff865e", // light red
-               "#19171a"], // black
-
-  "Charcoal": [ "#020202", // black
-                "#080808", // black
-                "#1a1a1a", // black
-                "#1d1d1d", // black
-                "#222222", // black
-                "#2c2c2c", // dark gray
-                "#3c3c3c"], // gray
-
-  /*"Marble": [ "#f9f0de", // white
-              "#f9f6f2", // white
-              "#f7f8e6", // white
-              "#fff8e5", // white
-              "#e1e4ea", // white
-              "#e4e2d5", // white
-              "#ece7d9", // white
-              "#ffedda", // white
-              "#aeb1b7", // light gray
-              "#ece3d0"], // white */
-
-  "Chloroplast": [  "#40483a", // dark green
-                    "#505e3f", // light olive 
-                    "#39472b", // dark green
-                    "#2a3320", // dark olive
-                    "#066278", // dark teal
-                    "#007b5d", // teal
-                    "#005742", // teal
-                    "#00a19d", // teal
-                    "#a0d6da", // light teal
-                    "#01906d", // green
-                    "#1d1e1b"], // black     
-
-}
-
-const palettes_v2 = {
-  "ColorHunt_01": ['#eaeaea', '#ff2e63', '#252a34', '#08d9d6'],
-  "ColorHunt_02": ['#eeeeee', '#00adb5', '#393e46', '#222831'],
-  //"ColorHunt_03": ['#521262', '#6639a6', '#3490de', '#6fe7dd'],
-  "ColorHunt_04": ['#eeeeee', '#d72323', '#3a4750', '#303841'],
-  "ColorHunt_05": ['#d9faff', '#00bbf0', '#005792', '#00204a'],
-  "ColorHunt_06": ['#40514e', '#11999e', '#30e3ca', '#e4f9f5'],
-  "ColorHunt_07": ['#a7ff83', '#17b978', '#086972', '#071a52'],
-  "ColorHunt_08": ['#c5e3f6', '#fc5c9c', '#fccde2', '#fcefee'],
-  "Coolors_01": ['#114b5f', '#1a936f', '#88d498', '#c6dabf', '#f3e9d2'],
-  "Coolors_02": ['#114b5f', '#028090', '#e4fde1', '#456990', '#f45b69'],
-  "Coolors_03": ['#06aed5', '#086788', '#f0c808', '#fff1d0', '#dd1c1a'],
-  "Coolors_04": ['#ffbf00', '#e83f6f', '#2274a5', '#32936f', '#f9f0de'],
-  "Coolors_05": ['#ffbf00', '#e83f6f', '#2274a5', '#f9f0de', '#080808'],
-  "colorsmuzli_01": ['#8a00d4', '#d527b7', '#f782c2', '#f9c46b', '#e3e3e3'],
-  "colorsmuzli_02": ['#e74645', '#fb7756', '#facd60', '#fdfa66', '#1ac0c6'],
-  "colorsmuzli_05": ['#1f306e', '#553772', '#8f3b76', '#f5487f', '#f9f0de'],
-  "colorsmuzli_06": ['#343090', '#5f59f7', '#6592fd', '#44c2fd', '#f9f0de'],
-  "ColourLovers_01": ['#e8ddcb', '#cdb380', '#036564', '#033649', '#031634'],
-  "ColourLovers_02": ['#3fb8af', '#7fc7af', '#dad8a7', '#ff9e9d', '#ff3d7f'],
-  "ColourLovers_03": ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'],
-  //"AdobeColor_01": ['#a6032f', '#022873', '#035aa6', '#04b2d9', '#05dbf2'],
-  "AdobeColor_02": ['#1b3da6', '#26488c', '#2372d9', '#62abd9', '#f2d857'],
-  //"AdobeColor_03": ['#3f0259', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
-  //"AdobeColor_04": ['#080808', '#f2e205', '#f2b705', '#f2ebdc', '#d95e32'],
-  "AdobeColor_05": ['#485922', '#798c35', '#b4bf5e', '#242614', '#f2f2f2'],
-  "ColorLeap_01": ['#fef7ee', '#fef000', '#fb0002', '#1c82eb', '#1d1e1b'],
-  "ColorLeap_02": ['#c87994', '#c3d2cf', '#52a29f', '#283730', '#0e0312'],
-  "Bauhaus_01": ['#f44336', '#ffd966', '#2a5779', '#f3f6f4', '#080808'],
-  "Hokusai_01": ['#7d9ba6', '#c0b7a8', '#ddd3c4', '#10284a', '#474b4e'],
-  "Stary_Night": ['#070c0f', '#1d5880', '#fece3e', '#f8e288', '#9fc798'],
-  "byrnes": ["#c54514", "#dca215", "#23507f", "#e8e7d4"], // red, yellow, blue, white
-  "saami": ["#eab700", "#e64818", "#2c6393", "#eecfca", "#e7e6e4"], // yellow, red, blue, light lila, white
-  "cc234": ["#ffce49", "#ede8dc", "#ff5736", "#ff99b4"], // yellow, white, red, light pink
-  "sprague": ["#ec2f28", "#f8cd28", "#1e95bb", "#fbaab3", "#fcefdf"], // red, yellow, blue, light pink, white
-  "jud_horizon": ["#f8c3df", "#f2e420", "#28b3d0", "#648731", "#ef6a7d", "#f2f0e1"], // light pink, yellow, blue, green, red, white
-  "hilda": ["#eb5627", "#eebb20", "#4e9eb8", "#f7f5d0", "#77c1c0"], // red, yellow, blue, white, light blue
-  "jung_croc": ["#f13274", "#eed03e", "#405e7f", "#19a198", "#ede8dc"], // red, yellow, blue, teal, white
-  "cc245": ["#0d4a4e", "#ff947b", "#ead3a2", "#5284ab"], // green, light red, beige, blue
-  "rohlfs_1R": ["#004996", "#567bae", "#ff4c48", "#ffbcb3", "#fff8e7"], // deep blue, blue, red, light lila, white
-  "rohlfs_4": ["#fde500", "#2f2043", "#f76975", "#fbbeca", "#eff0dd"], // yellow, deep purple, light red, light lila, white
-  "system_5": ["#db4549", "#d1e1e1", "#3e6a90", "#2e3853", "#a3c9d3"], // red, white, blue, dark blue, light blue
-  "jung_horse": ["#e72e81", "#f0bf36", "#3056a2", "#e8e7d4"], // red, yellow, blue, white
-  "system_4": ["#e31f4f", "#f0ac3f", "#18acab", "#26265a", "#ea7d81", "#dcd9d0"], // red, yellow, teal, deep blue, light lila, light gray
-  "jud_playground": ["#f04924", "#fcce09", "#408ac9", "#f9f0de", "#080808"], // red, yellow, blue, white, black
-  "kov_05": ["#de3f1a", "#de9232", "#007158", "#e6cdaf", "#869679", "#7aa5a6"], // red, yellow, green, white, olive green, light green
-  "jud_mural": ["#ca3122", "#e5af16", "#4a93a2", "#0e7e39", "#e2b9bd", "#e3ded8"], // red, yellow, light blue, green, light lila, white
-  "vintage_01": ["#655D8A", "#7897AB", "#D885A3", "#FDCEB9"], // purple, teal, pink, beige
-  "vintage_02": ["#4C0027", "#570530", "#750550", "#980F5A", "#f9f0de"], // dark maroon, maroon, light maroon, maroon purple, white
-  "vintage_03": ["#151515", "#301B3F", "#3C415C", "#655D8A", "#f9f0de"], // black, dark purple, light purple, purple, white
-  "blood_honey": ["#900C3F", "#C70039", "#FF5733", "#FFC300", "#f9f0de"], // maroon, red, orange, yellow, white
-  // "": ["#", "#", "#", "#", "#", "#"],
-
-}
-
-// taken out:
-//"Blueprint": [ "#f9f6f2", "#ebe2cf", "#2c52a0"], // white, light gray, light blue
-//"Akiba": [ "#ebe2cf", "#c5c8ba", "#f8c1c1", "#2c52a0"], // light gray, gray, light pink, light blue
-//"Napoli": [ "#f9f6f2", "#ebe2cf", "#d7312e", "#40483a"], // white, light gray, red, dark green
-//"Shinjuku_mod": [ "#fcbd32", "#007b5d", "#0089c5", "#221e1f", "#ece3d0"], // yellow, teal, blue, black, white
-//"Asphalt_mod": [ "#00a19d", "#fff8e5", "#2c2e43", "#b2b1b9", "#595260"], // teal, white, dark gray, light gray, gray
-//"Dark_Crystals": [ "#d94939", "#066278", "#e3e0d5"], // light red, dark teal, white
-//"Sea_Dark_mod": [ "#e4e2d5", "#324a58", "#deb55c"], // white, dark blue, yellow
-//"Ocean": [ "#00a19d", "#005aa7", "#2a70ae", "#1e62ad", "#0089c5", "#20315d", "#066278", "#181e3e", "#2d5d7d", "#3db2ff", "#2c52a0", "#5ec5ee", "#6cc7df", "#1d1f2b"], // teal, blue, blue, blue, blue, blue, dark teal, dark blue, gray blue, light blue, light blue, light blue, light blue, black
-//"Noir_mod": [ "#22252a", "#2f3237", "#62646a", "#aeb1b7", "#e1e4ea"], // black, dark gray, gray, light gray, white
-//"Chloroplast": ["#40483a", "#505e3f", "#39472b", "#2a3320", "#066278", "#007b5d", "#005742", "#00a19d", "#a0d6da", "#01906d", "#1d1e1b"], // dark green, light olive, dark green, dark olive, dark teal, teal, teal, teal, light teal, green, black 
-//"ColorHunt_01": ['#eaeaea', '#ff2e63', '#252a34', '#08d9d6'],
-//"ColorHunt_02": ['#eeeeee', '#00adb5', '#393e46', '#222831'],
-//"ColorHunt_04": ['#eeeeee', '#d72323', '#3a4750', '#303841'],
-//"ColorHunt_06": ['#40514e', '#11999e', '#30e3ca', '#e4f9f5'],
-//"ColorHunt_07": ['#a7ff83', '#17b978', '#086972', '#071a52'],
-//"colorsmuzli_06": ['#343090', '#5f59f7', '#6592fd', '#44c2fd', '#f9f0de'],
-//"ColourLovers_01": ['#e8ddcb', '#cdb380', '#036564', '#033649', '#031634'],
-//"ColourLovers_03": ['#69d2e7', '#a7dbd8', '#e0e4cc', '#f38630', '#fa6900'],
-//"ColorLeap_02": ['#c87994', '#c3d2cf', '#52a29f', '#283730', '#0e0312'],
-//"rohlfs_4": ["#fde500", "#2f2043", "#f76975", "#fbbeca", "#eff0dd"], // yellow, deep purple, light red, light lila, white
-//"jud_mural": ["#ca3122", "#e5af16", "#4a93a2", "#0e7e39", "#e2b9bd", "#e3ded8"], // red, yellow, light blue, green, light lila, white
-//"vintage_03": ["#151515", "#301B3F", "#3C415C", "#655D8A", "#f9f0de"], // black, dark purple, light purple, purple, white
-//"system_4": ["#e31f4f", "#f0ac3f", "#18acab", "#26265a", "#ea7d81", "#dcd9d0"], // red, yellow, teal, deep blue, light lila, light gray
-
 const palettes_v3 = {
-  "Dessau": [ "#f9f0de", "#e51531", "#2a70ae", "#fab511", "#080808"], // white, red, blue, yellow, black
-  "Dessau_light": [ "#f9f0de", "#e51531", "#2a70ae", "#fab511"], // white, red, blue, yellow
-  "Edo": [ "#f9f0de", "#e51531", "#080808"], // white, red, black
-  "Edo_dark": [ "#ebe2cf", "#2a2b29", "#1d1e1b"], // light gray, dark gray, black
-  "Shirokuro": [ "#ebe2cf", "#cac3b3", "#1d1e1b"], // light gray, gray, black
-  "Sashiko_light": [ "#ebe2cf", "#20315d", "#1c2342", "#1d1f2b"], // light gray, blue, dark blue, black
-  "Arashiyama": [ "#cec29d", "#505e3f", "#39472b", "#2a3320"], // light brown, light olive, dark green, dark olive                 
-  "Ex_Astris": [ "#ebe2cf", "#c5c8ba", "#262d49", "#e4032c"], // light gray, gray, dark blue, red
-  "Brubeck_mod": [ "#f7f8e6", "#d83715", "#224870", "#151a1b"], // white, red, blue, black
-  "Tabata": [ "#ece3d0", "#e51531", "#1d1d1b", "#f8c1c1"], // light gray, red, black, light pink
 
-  "Yoyogi_mod": [ "#e40520", "#e1318a", "#484395", "#19171a", "#ece3d0"], // red, pink, blue, black, white
-  "Osaki": [ "#f299a5", "#084698", "#1a86c8", "#74afe0", "#a0d6da", "#f8f9f2"], // light pink, blue, light blue, super light blue, light teal, white
-  "Shinagawa": [ "#e87e95", "#6cc7df", "#816987", "#f9f6f2"], // light pink, light blue, light purple, white
-  "Meguro_mod": [ "#f9f6f2", "#e51f23", "#e6007b", "#005aa7", "#5ec5ee"], // white, red, pink, blue, light blue
-  "Diatomite_mod": [ "#fff8f3", "#a3e4db", "#1c6dd0", "#2c2e43", "#ffd523"], // white, light teal, blue, dark gray, yellow
-  "Arkose": [ "#a2d2ff", "#fef9ef", "#ff865e", "#fee440"], // light blue, white, light red, yellow
-  "Hematite": [ "#3db2ff", "#ffedda", "#ffb830", "#ff2442"], // light blue, white, orange, red
-  "Fisherprice_mod": [ "#f9af06", "#1e62ad", "#ece7d9", "#01906d", "#e74620"], // orange yellow, blue, white, green, red
-  "Furnace": [ "#e51531", "#d7312e", "#e4032c", "#d83715", "#ff2442", "#e74620", "#e51f23", "#f9af06", "#fab511", "#ff865e", "#19171a"], // red, red, red, red, red, red, red, orange yellow, yellow, light red, black
-  "Charcoal": [ "#020202", "#080808", "#1a1a1a", "#1d1d1d", "#222222", "#2c2c2c", "#3c3c3c"], // black, black, black, black, black, dark gray, gray
-
-  "ColorHunt_05": ['#d9faff', '#00bbf0', '#005792', '#00204a'],
-  "ColorHunt_08": ['#c5e3f6', '#fc5c9c', '#fccde2', '#fcefee'],
-  "Coolors_01": ['#114b5f', '#1a936f', '#88d498', '#c6dabf', '#f3e9d2'],
-  "Coolors_02": ['#114b5f', '#028090', '#e4fde1', '#456990', '#f45b69'],
-  "Coolors_03": ['#06aed5', '#086788', '#f0c808', '#fff1d0', '#dd1c1a'],
-  "Coolors_04": ['#ffbf00', '#e83f6f', '#2274a5', '#32936f', '#f9f0de'],
-  "Coolors_05": ['#ffbf00', '#e83f6f', '#2274a5', '#f9f0de', '#080808'],
-  "colorsmuzli_01": ['#8a00d4', '#d527b7', '#f782c2', '#f9c46b', '#e3e3e3'],
-  "colorsmuzli_02": ['#e74645', '#fb7756', '#facd60', '#fdfa66', '#1ac0c6'],
-  "colorsmuzli_05": ['#1f306e', '#553772', '#8f3b76', '#f5487f', '#f9f0de'],
-
-  "ColourLovers_02": ['#3fb8af', '#7fc7af', '#dad8a7', '#ff9e9d', '#ff3d7f'],
-  "AdobeColor_02": ['#1b3da6', '#26488c', '#2372d9', '#62abd9', '#f2d857'],
-  "AdobeColor_05": ['#485922', '#798c35', '#b4bf5e', '#242614', '#f2f2f2'],
-  "ColorLeap_01": ['#fef7ee', '#fef000', '#fb0002', '#1c82eb', '#1d1e1b'],
-  "Bauhaus_01": ['#f44336', '#ffd966', '#2a5779', '#f3f6f4', '#080808'],
-  "Hokusai_01": ['#7d9ba6', '#c0b7a8', '#ddd3c4', '#10284a', '#474b4e'],
-  "Stary_Night": ['#070c0f', '#1d5880', '#fece3e', '#f8e288', '#9fc798'],
-  "byrnes": ["#c54514", "#dca215", "#23507f", "#e8e7d4"], // red, yellow, blue, white
-  "saami": ["#eab700", "#e64818", "#2c6393", "#eecfca", "#e7e6e4"], // yellow, red, blue, light lila, white
-  "cc234": ["#ffce49", "#ede8dc", "#ff5736", "#ff99b4"], // yellow, white, red, light pink
-
-  "sprague": ["#ec2f28", "#f8cd28", "#1e95bb", "#fbaab3", "#fcefdf"], // red, yellow, blue, light pink, white
-  "jud_horizon": ["#f8c3df", "#f2e420", "#28b3d0", "#648731", "#ef6a7d", "#f2f0e1"], // light pink, yellow, blue, green, red, white
-  "hilda": ["#eb5627", "#eebb20", "#4e9eb8", "#f7f5d0", "#77c1c0"], // red, yellow, blue, white, light blue
-  "jung_croc": ["#f13274", "#eed03e", "#405e7f", "#19a198", "#ede8dc"], // red, yellow, blue, teal, white
-  "cc245": ["#0d4a4e", "#ff947b", "#ead3a2", "#5284ab"], // green, light red, beige, blue
-  "rohlfs_1R": ["#004996", "#567bae", "#ff4c48", "#ffbcb3", "#fff8e7"], // deep blue, blue, red, light lila, white
-  "system_5": ["#db4549", "#d1e1e1", "#3e6a90", "#2e3853", "#a3c9d3"], // red, white, blue, dark blue, light blue
-  "jung_horse": ["#e72e81", "#f0bf36", "#3056a2", "#e8e7d4"], // red, yellow, blue, white
-  "jud_playground": ["#f04924", "#fcce09", "#408ac9", "#f9f0de", "#080808"], // red, yellow, blue, white, black
-  "kov_05": ["#de3f1a", "#de9232", "#007158", "#e6cdaf", "#869679", "#7aa5a6"], // red, yellow, green, white, olive green, light green
-
-  "vintage_01": ["#655D8A", "#7897AB", "#D885A3", "#FDCEB9"], // purple, teal, pink, beige
-  "vintage_02": ["#4C0027", "#570530", "#750550", "#980F5A", "#f9f0de"], // dark maroon, maroon, light maroon, maroon purple, white
-  "blood_honey": ["#900C3F", "#C70039", "#FF5733", "#FFC300", "#f9f0de"], // maroon, red, orange, yellow, white
+  //1. Horizon, sunshine, grapefruit - bauhaus light (8)
+  
+  "Otti":             ["#a3d3ff", "#fefaee", "#ff855f", "#ffe550"], // light blue, white, light red, yellow - Otti Berger
+  "Stölzl":           ["#c44414", "#daa211", "#255080", "#e7e7d7"], // red, yellow, blue, white - Gunta Stölzl
+  "Albers":           ["#f9f0df", "#e51335", "#2a72ae", "#fbb515"], // white, red, blue, yellow - Anni Albers
+  "Brandt":           ["#3bb3ff", "#feeddd", "#ffbb33", "#ff2244"], // light blue, white, orange, red - Marianne Brandt
+  "Koch-Otte":        ["#ee5626", "#eebb22", "#4d9db9", "#f5f5d5", "#7cc1c1"], // red, yellow, blue, white, light blue - Benita Koch-Otte
+  "Arndt":            ["#e22e82", "#efbf33", "#3555a5", "#e7e7d7"], // red, yellow, blue, white - Gertrude Arndt
+  "Siedhoff-Buscher": ["#ebb707", "#e84818", "#266396", "#eecece", "#e4e4e4"], // yellow, red, blue, light lila, white - Alma Siedhoff-Buscher
+  "Heymann":          ["#ee2f2f", "#f2cd22", "#1b94bb", "#faaaba", "#feeede"], // red, yellow, blue, light pink, white - Margarete Heymann
+  
+  //2. Night, embers, citrus - bauhaus (5)
+  
+  "van der Rohe": ["#f34333", "#fdd666", "#275777", "#f3f3f3", "#090909"], // - Ludwig Mies van der Rohe
+  "Gropius":      ["#fef5ee", "#faf000", "#fb0101", "#1c81ea", "#1e1e1e"], // - Walter Gropius
+  "Breuer":       ["#ffbf0b", "#ee3e6e", "#2277a7", "#f9f0df", "#090909"], // - Marcel Breuer
+  "Gray":         ["#f9f0df", "#e51335", "#2a72ae", "#fbb515", "#090909"], // white, red, blue, yellow, black - Eileen Gray
+  "Le Corbusier": ["#f24222", "#fccc0c", "#4888c8", "#f9f0df", "#090909"], // red, yellow, blue, white, black - Le Corbusier
+  
+  //3. Ivy, apatite, tourmaline - bauhaus + green (8)
+  
+  "O'Keeffe":   ["#0e4a4e", "#ff9777", "#ead2a2", "#5484a8"], // green, light red, beige, blue - Georgia O'Keeffe
+  "Dalí":       ["#e54545", "#f77757", "#fccc66", "#fafa66", "#1ac1ca"], // - Salvador Dalí
+  "Matisse":    ["#06add6", "#066888", "#f0cc0c", "#fff1d1", "#dd1d1d"], // - Henri Matisse
+  "Kandinsky":  ["#ffbf0b", "#ee3e6e", "#2277a7", "#33936d", "#f9f0df"], // - Wassily Kandinsky
+  "Chagall":    ["#f6af06", "#1e66aa", "#eee7d7", "#019166", "#e74422"], // orange yellow, blue, white, green, red - Marc Chagall
+  "Negreiros":  ["#f8c8de", "#f2e222", "#28b2d2", "#668833", "#ef6e7e", "#f2f2e2"], // light pink, yellow, blue, green, red, white - Almada Negreiros
+  "Picasso":    ["#f33373", "#eed333", "#445e7e", "#19a199", "#ede8dd"], // red, yellow, blue, teal, white - Pablo Picasso
+  "Klee":       ["#de3e1e", "#de9333", "#007555", "#eccdad", "#889979", "#7aa7a7"], // red, yellow, green, white, olive green, light green - Paul Klee
+  
+  //4. Sodalite, glacier, rust - blue red (7)
+  
+  "Planck":     ["#f8f8e8", "#d83818", "#224772", "#151a1a"], // white, red, blue, black - Max Planck
+  "Thomson":    ["#144b5b", "#088191", "#e5fde5", "#466994", "#f55b66"], // - Sir Joseph John Thomson
+  "Einstein":   ["#ebe0ce", "#c5c5bb", "#242d44", "#e4042e"], // light gray, gray, dark blue, red - Albert Einstein
+  "Heisenberg": ["#f9f9f0", "#e11e21", "#e7007e", "#005aa5", "#5ec5ee"], // white, red, pink, blue, light blue - Werner Heisenberg
+  "Bohr":       ["#f999a9", "#044499", "#1a88c1", "#77aee7", "#a6d6d6", "#f9f9f0"], // light pink, blue, light blue, super light blue, light teal, white - Niels Bohr
+  "Feynman":    ["#004999", "#557baa", "#ff4f44", "#ffbcbc", "#fff8e8"], // deep blue, blue, red, light lila, white - Richard Feynman
+  "Dirac":      ["#db4545", "#d0e0e0", "#3a6a93", "#2e3855", "#a3c6d3"], // red, white, blue, dark blue, light blue - Paul Dirac
+  
+  //5. Ocean, lapis, sulphur - blue yellow (4)
+  
+  "Babbage":  ["#1a3daa", "#244888", "#2277d7", "#62aad6", "#f2d552"], // - Charles Babbage
+  "Lovelace": ["#dafaff", "#00bbfb", "#005995", "#002044"], // - Ada Lovelace
+  "Leibniz":  ["#fff8f8", "#a3e3dd", "#1c6dd6", "#2c2c44", "#ffd525"], // white, light teal, blue, dark gray, yellow - Gottfried Wilhelm Leibniz
+  "Boole":    ["#070c0c", "#1d5581", "#fece3c", "#f8e288", "#9fc999"], // - George Boole
+  
+  //6. Moss, cedar, algae - green (3)
+  
+  "Zancan":  ["#445522", "#788c33", "#b5be5e", "#242414", "#f2f2f2"], // - Zancan
+  "Muir":    ["#cec09c", "#505e3e", "#374727", "#2a3322"], // light brown, light olive, dark green, dark olive - John Muir
+  "Thoreau": ["#144b5b", "#1a966a", "#88d899", "#cadaba", "#f9e9d9"], // - Henry David Thoreau
+  
+  //7. Ink, steel, salt (2)
+  
+  "Hokusai":   ["#7d9aa7", "#c0b8a8", "#ddd4c4", "#10244a", "#444b4e"], // - Katsushika Hokusai
+  "Hiroshige": ["#ebe0ce", "#20335c", "#1c2244", "#1d1f2d"], // light gray, blue, dark blue, black - Utagawa Hiroshige
+  
+  //8. Charcoal, papyrus, marble - monochrome (4)
+  
+  "Charcoal":       ["#090909", "#1a1a1a", "#1d1d1d", "#222222", "#2c2c2c", "#3c3c3c"], // black, black, black, black, dark gray, gray
+  "Marble":         ["#cac5b5", "#ebe0ce", "#f9f0df", "#eee7d7", "#fff8f8", "#feeddd"], // gray, light gray, white, white, white
+  "Adams":          ["#ebe0ce", "#2a2b2c", "#1e1e1e"], // light gray, dark gray, black - Ansel Adams
+  "New York Times": ["#ebe0ce", "#cac5b5", "#1e1e1e"], // light gray, gray, black
+  
+  //9. Murex, rhodochrosite, marshmallow - pink purple (8)
+  
+  "Minsky":      ["#c5e5f5", "#fd5d9d", "#fccce0", "#feefef"], // - Marvin Minsky
+  "Newell":      ["#8d00d8", "#d722b7", "#f288c2", "#f9c66c", "#e2e2e2"], // - Allen Newell
+  "Simon":       ["#1f336f", "#553773", "#8b3b7b", "#f7447f", "#f9f0df"], // - Herbert A. Simon
+  "McCarthy":    ["#3fb3aa", "#7cc7ac", "#dadaaa", "#fe9e9e", "#ff3f7f"], // - John McCarthy
+  "Solomonoff":  ["#e77e99", "#6cc6dd", "#866686", "#f9f9f0"], // light pink, light blue, light purple, white - Ray Solomonoff
+  "Shannon":     ["#665d8d", "#7799aa", "#d885a5", "#fccebb"], // purple, teal, pink, beige - Claude Shannon
+  "von Neumann": ["#4a0020", "#550533", "#750555", "#990f5f", "#f9f0df"], // dark maroon, maroon, light maroon, maroon purple, white - John von Neumann
+  "Turing":      ["#e40422", "#e33388", "#434394", "#191919", "#ece3d3"], // red, pink, blue, black, white - Alan Turing
+  
+  //10. Furnace, ruby, soot - red (5)
+  
+  "Kapoor":   ["#900f3f", "#c70033", "#ff5333", "#ffcc00", "#f9f0df"], // maroon, red, orange, yellow, white - Anish Kapoor
+  "Golid":    ["#fece44", "#ede8dd", "#ff5333", "#ff99b9"], // yellow, white, red, light pink - Kjetil Golid
+  "Busia":    ["#f9f0df", "#e51335", "#090909"], // white, red, black - Kwame Bruce Busia
+  "Judd":     ["#e51335", "#e4042e", "#d83818", "#ff2244", "#e74422", "#e11e21", "#faaf0f", "#fbb515", "#ff855f", "#191919"], // red, red, red, red, red, red, orange yellow, yellow, light red, black - Donald Judd
+  "Malevich": ["#ece3d3", "#e51335", "#1d1d1d", "#fcc1c1"], // light gray, red, black, light pink - Kazimir Malevich
 }
 
 

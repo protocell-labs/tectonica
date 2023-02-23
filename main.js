@@ -38,7 +38,7 @@ var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
 
 
 
-//var palette_name = "blood_honey"; // OVERRIDE - choose palette name
+//var palette_name = "Marble"; // OVERRIDE - choose palette name
 var palette_name = gene_pick_key(palettes_v3); // choose palette name at random
 
 
@@ -263,8 +263,8 @@ function View(viewArea) {
 
   light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
-  light.shadow.camera.near = 500;
-  light.shadow.camera.far = 3000;
+  light.shadow.camera.near = 1000; //500
+  light.shadow.camera.far = 3500; //3000
   light.shadow.bias = - 0.000222;
 
   const d = 1000; 
