@@ -274,8 +274,8 @@ function View(viewArea) {
   light.shadow.camera.bottom = - d
 
   //Create a helper for the shadow camera (optional)
-  const helper = new THREE.CameraHelper( light.shadow.camera );
-  scene.add( helper );
+  const helper = new THREE.CameraHelper(light.shadow.camera);
+  //scene.add(helper);
 
   var shadow = 8192; //2048; //Default
   var paramsAssigned = false;
@@ -335,11 +335,15 @@ function View(viewArea) {
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
 
+  // SAO - Scalable Ambient Occlusion
+  saoPass = new THREE.SAOPass(this.scene, this.camera, false, true);
+  this.composer.addPass(saoPass);
+
   // FXAA antialiasing
-  effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
-  effectFXAA.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
-  effectFXAA.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
-  this.composer.addPass( effectFXAA );   
+  effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (window.innerWidth * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (window.innerHeight * window.devicePixelRatio);
+  this.composer.addPass(effectFXAA);   
 
   //Bloom
   const bloomPass = new THREE.UnrealBloomPass();
