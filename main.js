@@ -104,6 +104,14 @@ const flickerInterval = 100; //(ms)
 const flickerDuration = 2000; //(ms)
 const cycleDuration = 5000; //(ms)
 
+// BACKGROUND ROTATION
+const cycleBackground = 1000000; //Modify for spin cycle  rv: 1000000 
+const cycleBackgroundUpdate = 100; //Modify for spin refresh rv: 100
+const rotThetaDelta = Math.PI*2*cycleBackgroundUpdate/cycleBackground;
+//const cameraVector = this.camera.getWorldDirection();
+const rotVectorBackground = new THREE.Vector3(0,0,1);
+const rotMatrixStaticIncrement = new THREE.Matrix4();
+rotMatrixStaticIncrement.makeRotationAxis(rotVectorBackground, rotThetaDelta)
 
 //var { stage, transformation_index, steps } = lattice_params; // WORKAROUND FOR NOW - all the params we need in main.js to make it run, but in the end we will have multiple lattices with multiple params
 var stage = 6; // workaround, not actually needed
@@ -274,8 +282,8 @@ function View(viewArea) {
   light.shadow.camera.bottom = - d
 
   //Create a helper for the shadow camera (optional)
-  const helper = new THREE.CameraHelper( light.shadow.camera );
-  scene.add( helper );
+  //const helper = new THREE.CameraHelper( light.shadow.camera );
+  //scene.add( helper );
 
   var shadow = 8192; //2048; //Default
   var paramsAssigned = false;
@@ -1159,7 +1167,23 @@ View.prototype.addStarsOrdered = function ()
       imesh.setMatrixAt( i, dummy.matrix );
   }
 
-  imesh.instanceMatrix.needsUpdate = true
+
+  
+  setInterval(function () {
+    
+    /*for (var n = 0; n < imesh.count; n++) {
+      var refMatrix;
+      const rotMatrix = new THREE.Matrix4.makeRotationAxis(cameraVector, rotTheta);
+      imesh.getMatrixAt(n, refMatrix);
+      imesh.setMatrixAt(n, dummy.matrix);
+    }*/
+    console.log("test")
+    imesh.applyMatrix4(rotMatrixStaticIncrement);
+    imesh.instanceMatrix.needsUpdate = true;
+    //rotTheta += rotThetaDelta;
+    //if (rotTheta >= Math.Pi*2) {rotTheta=0};
+  }, cycleBackgroundUpdate)
+
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
@@ -1204,6 +1228,24 @@ View.prototype.addStarsRandom = function (bounds, qty)
   }
 
   imesh.instanceMatrix.needsUpdate = true
+
+  //const axesHelper = new THREE.AxesHelper( 200 );
+  //this.scene.add( axesHelper );
+
+  //const cycle = 100000000;
+  //const cycleUpdate = 1000;
+  //const rotThetaDelta = Math.PI*2*cycleUpdate/cycle;
+  //const cameraVector = this.camera.getWorldDirection();
+  //const vector = new THREE.Vector3(0,0,1);
+  //const rotMatrixStaticIncrement = new THREE.Matrix4();
+  //rotMatrixStaticIncrement.makeRotationAxis(vector, rotThetaDelta)
+
+  setInterval(function () {
+    //console.log("r_random");
+    //imesh.applyMatrix4(rotMatrixStaticIncrement);
+    imesh.rotateZ(rotThetaDelta);
+    imesh.instanceMatrix.needsUpdate = true;
+  }, cycleBackgroundUpdate)
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
@@ -1275,6 +1317,15 @@ View.prototype.addStarDust = function ()
   }
 
   imesh.instanceMatrix.needsUpdate = true
+
+
+
+  setInterval(function () {
+    //console.log("r_star dust");
+    //imesh.applyMatrix4(rotMatrixStaticIncrement);
+    imesh.rotateZ(rotThetaDelta)
+    imesh.instanceMatrix.needsUpdate = true;
+  }, cycleBackgroundUpdate)
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
@@ -1330,7 +1381,7 @@ View.prototype.addMoon = function ()
   const light_disc_material = new THREE.MeshBasicMaterial({color: '#f9f0de'});
   const light_disc_mesh = new THREE.Mesh(light_disc_geo, light_disc_material);
   light_disc_mesh.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
-  this.scene.add(light_disc_mesh);
+  
 
   // one triangle
   const vertices = [
@@ -1404,6 +1455,18 @@ View.prototype.addMoon = function ()
   imesh.instanceMatrix.needsUpdate = true
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
+
+  setInterval(function () {
+    //console.log("r_moon");
+    imesh.rotateZ(rotThetaDelta);
+    //light_disc_mesh.rotateZ(rotThetaDelta);
+    light_disc_mesh.applyMatrix4(rotMatrixStaticIncrement);
+    //light_disc_mesh.updateMatrix();
+    //light_disc_mesh.matrixWorldNeedsUpdate = true;
+    //imesh.instanceMatrix.needsUpdate = true;
+  }, cycleBackgroundUpdate)
+
+  this.scene.add(light_disc_mesh);
   this.scene.add(imesh);
 
 }
