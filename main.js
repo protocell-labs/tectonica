@@ -1,14 +1,14 @@
 /*
 
 
-________/\\\\\\\\\_______/\\\\\_______/\\\______________/\\\______________/\\\\\\\\\\\\\\\________/\\\\\\\\\__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\_______/\\\\\_______/\\\\\_____/\\\_____________/\\\\\\\\\\\\\\\_         
- _____/\\\////////______/\\\///\\\____\/\\\_____________\/\\\_____________\/\\\///////////______/\\\////////__\///////\\\/////__\/////\\\///______/\\\///\\\____\/\\\\\\___\/\\\____________\/\\\///////////__        
-  ___/\\\/_____________/\\\/__\///\\\__\/\\\_____________\/\\\_____________\/\\\_______________/\\\/_________________\/\\\___________\/\\\_______/\\\/__\///\\\__\/\\\/\\\__\/\\\____________\/\\\_____________       
-   __/\\\______________/\\\______\//\\\_\/\\\_____________\/\\\_____________\/\\\\\\\\\\\______/\\\___________________\/\\\___________\/\\\______/\\\______\//\\\_\/\\\//\\\_\/\\\____________\/\\\\\\\\\\\\_____     
-    _\/\\\_____________\/\\\_______\/\\\_\/\\\_____________\/\\\_____________\/\\\///////______\/\\\___________________\/\\\___________\/\\\_____\/\\\_______\/\\\_\/\\\\//\\\\/\\\____________\////////////\\\___    
-     _\//\\\____________\//\\\______/\\\__\/\\\_____________\/\\\_____________\/\\\_____________\//\\\__________________\/\\\___________\/\\\_____\//\\\______/\\\__\/\\\_\//\\\/\\\_______________________\//\\\__   
-      __\///\\\___________\///\\\__/\\\____\/\\\_____________\/\\\_____________\/\\\______________\///\\\________________\/\\\___________\/\\\______\///\\\__/\\\____\/\\\__\//\\\\\\____________/\\\________\/\\\__  
-       ____\////\\\\\\\\\____\///\\\\\/_____\/\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\____\////\\\\\\\\\_______\/\\\________/\\\\\\\\\\\____\///\\\\\/_____\/\\\___\//\\\\\___________\//\\\\\\\\\\\\\/___ 
+________/\\\\\\\\\_______/\\\\\_______/\\\______________/\\\______________/\\\\\\\\\\\\\\\________/\\\\\\\\\__/\\\\\\\\\\\\\\\__/\\\\\\\\\\\_______/\\\\\_______/\\\\\_____/\\\_____________/\\\\\\\\\\\\\\\_
+ _____/\\\////////______/\\\///\\\____\/\\\_____________\/\\\_____________\/\\\///////////______/\\\////////__\///////\\\/////__\/////\\\///______/\\\///\\\____\/\\\\\\___\/\\\____________\/\\\///////////__
+  ___/\\\/_____________/\\\/__\///\\\__\/\\\_____________\/\\\_____________\/\\\_______________/\\\/_________________\/\\\___________\/\\\_______/\\\/__\///\\\__\/\\\/\\\__\/\\\____________\/\\\_____________
+   __/\\\______________/\\\______\//\\\_\/\\\_____________\/\\\_____________\/\\\\\\\\\\\______/\\\___________________\/\\\___________\/\\\______/\\\______\//\\\_\/\\\//\\\_\/\\\____________\/\\\\\\\\\\\\_____
+    _\/\\\_____________\/\\\_______\/\\\_\/\\\_____________\/\\\_____________\/\\\///////______\/\\\___________________\/\\\___________\/\\\_____\/\\\_______\/\\\_\/\\\\//\\\\/\\\____________\////////////\\\___
+     _\//\\\____________\//\\\______/\\\__\/\\\_____________\/\\\_____________\/\\\_____________\//\\\__________________\/\\\___________\/\\\_____\//\\\______/\\\__\/\\\_\//\\\/\\\_______________________\//\\\__
+      __\///\\\___________\///\\\__/\\\____\/\\\_____________\/\\\_____________\/\\\______________\///\\\________________\/\\\___________\/\\\______\///\\\__/\\\____\/\\\__\//\\\\\\____________/\\\________\/\\\__
+       ____\////\\\\\\\\\____\///\\\\\/_____\/\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\_\/\\\\\\\\\\\\\\\____\////\\\\\\\\\_______\/\\\________/\\\\\\\\\\\____\///\\\\\/_____\/\\\___\//\\\\\___________\//\\\\\\\\\\\\\/___
         _______\/////////_______\/////_______\///////////////__\///////////////__\///////////////________\/////////________\///________\///////////_______\/////_______\///_____\/////_____________\/////////////_____
 
 
@@ -38,7 +38,7 @@ var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
 
 
 
-//var palette_name = "blood_honey"; // OVERRIDE - choose palette name
+//var palette_name = "Marble"; // OVERRIDE - choose palette name
 var palette_name = gene_pick_key(palettes_v3); // choose palette name at random
 
 
@@ -86,7 +86,7 @@ for (var nx = 0; nx < grid_module_nr_x; nx++) {
       module_params = generate_module_params(position = module_center_pos); // all input parameters are optional, they will be chosen at random if not passed into the function
       gData = generate_lattice(module_params);
       gDatas.push(gData);
-      
+
     }
   }
 }
@@ -105,7 +105,7 @@ const flickerDuration = 2000; //(ms)
 const cycleDuration = 5000; //(ms)
 
 // BACKGROUND ROTATION
-const cycleBackground = 1000000; //Modify for spin cycle  rv: 1000000 
+const cycleBackground = 1000000; //Modify for spin cycle  rv: 1000000
 const cycleBackgroundUpdate = 100; //Modify for spin refresh rv: 100
 const rotThetaDelta = Math.PI*2*cycleBackgroundUpdate/cycleBackground;
 //const cameraVector = this.camera.getWorldDirection();
@@ -166,7 +166,7 @@ console.log('%cURL STRINGS', 'color: white; background: #000000;', '\n',
 
 console.log('%cPIXELS', 'color: white; background: #000000;', '\n',
             "Change pixel density by changing your browser's zoom level (50% zoom doubles the pixels etc.)", '\n');
-                                 
+
 
 //////END CONSOLE LOG//////
 */
@@ -217,8 +217,8 @@ function View(viewArea) {
 
   viewport.style.marginTop=margin_top+'px';
   viewport.style.marginLeft=margin_left+'px';
-    
-  
+
+
   ///SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
 
@@ -238,14 +238,14 @@ function View(viewArea) {
 
   //cam_factor controls the "zoom" when using orthographic camera
   var camera = new THREE.OrthographicCamera( -viewportWidth/cam_factor_mod, viewportWidth/cam_factor_mod, viewportHeight/cam_factor_mod, -viewportHeight/cam_factor_mod, 0, 5000 );
-  
+
   //controls
   const controls = new THREE.OrbitControls( camera, renderer.domElement );
   controls.enableZoom = true;
   //controls.smoothZoom = true;
   //controls.zoomDampingFactor = 0.2;
   //controls.smoothZoomSpeed = 5.0;
-  
+
 
   camera.position.set(0, 0, 2000);
   controls.update();
@@ -271,14 +271,14 @@ function View(viewArea) {
 
   light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
-  light.shadow.camera.near = 500;
-  light.shadow.camera.far = 3000;
+  light.shadow.camera.near = 1000; //500
+  light.shadow.camera.far = 3500; //3000
   light.shadow.bias = - 0.000222;
 
-  const d = 1000; 
-  light.shadow.camera.left = - d; 
-  light.shadow.camera.right = d; 
-  light.shadow.camera.top = d; 
+  const d = 1000;
+  light.shadow.camera.left = - d;
+  light.shadow.camera.right = d;
+  light.shadow.camera.top = d;
   light.shadow.camera.bottom = - d
 
   //Create a helper for the shadow camera (optional)
@@ -293,7 +293,7 @@ function View(viewArea) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const shadowString = urlParams.get('shadow');
-    
+
   if (shadowString!=null) {
       shadow = Math.abs(parseInt(shadowString));
       paramsAssigned = true;
@@ -304,19 +304,19 @@ function View(viewArea) {
   if (Number.isInteger(shadow) & paramsAssigned) { //If values are overiden by urlParams  for a minimum overide add: & shadow > 2048
     console.log("Using custom url parmater for shadow map size: " + shadow.toString())
     light.shadow.mapSize.width = shadow;
-    light.shadow.mapSize.height = shadow;   
+    light.shadow.mapSize.height = shadow;
   } else if (Number.isInteger(shadow) & iOS()) {
     //console.log("iOS")
     light.shadow.mapSize.width = Math.min(shadow, 2048); //increase for better quality of shadow, standard is 2048
-    light.shadow.mapSize.height = Math.min(shadow, 2048); 
+    light.shadow.mapSize.height = Math.min(shadow, 2048);
   } else if ((Number.isInteger(shadow) & !iOS())){
     //console.log("!iOS")
     light.shadow.mapSize.width = Math.max(shadow, 4096);
     light.shadow.mapSize.height = Math.max(shadow, 4096);
   } else {
     //console.log("Using default shadow map.")
-    light.shadow.mapSize.width = 4096; 
-    light.shadow.mapSize.height = 4096; 
+    light.shadow.mapSize.width = 4096;
+    light.shadow.mapSize.height = 4096;
   }
 
   scene.add(light);
@@ -343,11 +343,15 @@ function View(viewArea) {
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
 
+  // SAO - Scalable Ambient Occlusion
+  saoPass = new THREE.SAOPass(this.scene, this.camera, false, true);
+  this.composer.addPass(saoPass);
+
   // FXAA antialiasing
-  effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
-  effectFXAA.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * window.devicePixelRatio );
-  effectFXAA.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * window.devicePixelRatio );
-  this.composer.addPass( effectFXAA );   
+  effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (window.innerWidth * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (window.innerHeight * window.devicePixelRatio);
+  this.composer.addPass(effectFXAA);
 
   //Bloom
   const bloomPass = new THREE.UnrealBloomPass();
@@ -406,7 +410,7 @@ View.prototype.addDenseMatter = function  () {
 
   var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
   //var noise_feature = "unbiased";
-  
+
   var noise_height_f = c_length/c_xy_scale; // noise height factor
 
   var noise_scale_x, noise_scale_y, noise_scale_z;
@@ -433,13 +437,13 @@ View.prototype.addDenseMatter = function  () {
 
 
   //var noise_scale_x = 0.01; // 0.01, increase this factor to 0.2 to get narrow cracks
-  //var noise_scale_x = gene_weighted_choice(allel_noise_scale_x); 
+  //var noise_scale_x = gene_weighted_choice(allel_noise_scale_x);
   //var noise_scale_y = 0.5; // 0.01
   //var noise_scale_y = 0.01; // 0.01
   //var noise_scale_z = 0.01; // 0.01, increase this factor to 0.5 to get thinner layers in depth, 0.05 avoids too low density when using noise_cull_rule = "clean"
   //var noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01; // var noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
-  
-  
+
+
 
   // random shift of noise to get a different pattern every time
   var noise_shift_x = gene_range(-100, 100);
@@ -469,7 +473,7 @@ View.prototype.addDenseMatter = function  () {
   console.log("color gradient default ->", color_gradient_default);
   //console.log("number of palettes -> ", Object.keys(palettes_v3).length); // show the total number of palettes
   console.log("quadrants ->", quadrants);
-  console.log("color grading quadrants ->", color_gradient_quadrants); 
+  console.log("color grading quadrants ->", color_gradient_quadrants);
   console.log("quadrant divs ->", `(${quadrant_div_x}, ${quadrant_div_y})`);
 
   console.log("%cNOISE CULL", "color: white; background: #000000;");
@@ -523,8 +527,8 @@ View.prototype.addDenseMatter = function  () {
         }
 
 
-        
-        
+
+
         var element_smooth = false; // by default, element will have a slight random rotation assigned to it later
 
         // additional color features
@@ -533,7 +537,7 @@ View.prototype.addDenseMatter = function  () {
           grid_push_z = 0;
           element_smooth = true;
         }
-        
+
         if ((color_features.includes("vertical stripe dashed")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
           color_gradient = "width stack";
           grid_push_z = shift_sign_vert * 10;
@@ -545,7 +549,7 @@ View.prototype.addDenseMatter = function  () {
           grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
         }
-        
+
         if ((color_features.includes("vertical stripe solid")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
           color_gradient = "depth stack";
           grid_push_z = shift_sign_vert * 10;
@@ -557,20 +561,20 @@ View.prototype.addDenseMatter = function  () {
           grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
         }
-        
+
         if ((color_features.includes("horizontal stripe solid")) && (j % stripe_spacing == stripe_shift)) {
           color_gradient = "height stack";
           grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
         }
-        
+
         if ((color_features.includes("horizontal stripe blocks")) && (j % stripe_spacing == stripe_shift) && ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))) { //(i % block_spacing < block_width), ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))
           color_gradient = "height stack";
           grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
         }
 
-        
+
 
         // probabilities for each palette color, if there are more probabilities than there are colors these will be ignored
         // we can keep this order the same as the colors in chosen_palette are already shuffled
@@ -583,14 +587,14 @@ View.prototype.addDenseMatter = function  () {
 
         } else if (color_gradient == "uniform") {
           // skipping of one or two colors adds to color differentiation in depth
-          if (chosen_palette.length > 4) {palette_probs = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];} 
+          if (chosen_palette.length > 4) {palette_probs = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];}
           else {palette_probs = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];}
 
         } else if (color_gradient == "vertical grading") {
           ascending_param = j;
           descending_param = grid_nr_y - j;
           palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-        
+
         } else if (color_gradient == "horizontal grading") {
           ascending_param = i;
           descending_param = grid_nr_x - i;
@@ -715,15 +719,15 @@ View.prototype.addDenseMatter = function  () {
         if (element_exists == true) {
           var imesh_idx = elements_per_palette_object[element_color]; // imesh index for this element so we can find it later when accessing transform matrices for that element
           elements_per_palette_object[element_color] += 1; // add one to the count of elements for this color - we need to know this nr when we create instanced mesh
-        
+
         } else {
           var element_color = undefined;
           var imesh_idx = undefined;
         }
-        
+
         // this data will be later used to create instanced meshes with all the elements
         var dense_matter_element = {exists: element_exists,
-                                    position: element_position, 
+                                    position: element_position,
                                     grid_pos: element_grid_position,
                                     color: element_color,
                                     smooth: element_smooth,
@@ -789,7 +793,7 @@ View.prototype.addDenseMatter = function  () {
       // global rotation of the instanced mesh
       imesh.rotateX(global_rot_x);
       imesh.rotateY(global_rot_y);
-  
+
       imesh.instanceMatrix.needsUpdate = true;
       //imesh.instanceColor.needsUpdate = true;
       imesh.castShadow = true;
@@ -810,7 +814,7 @@ View.prototype.addDenseMatter = function  () {
   }
 
   //var imesh = this.scene.getObjectByName(element_color);
-  
+
   //setInterval(function(){
   //let matrix = new THREE.Matrix4();
   //matrix.makeScale(1, 1, 1);
@@ -824,9 +828,9 @@ View.prototype.addDenseMatter = function  () {
       var k=0;
       var stateChangeProb = cycleTime/flickerDuration;
       //console.log(stateChangeProb);
-      for (const [element_color, imeshx] of Object.entries(imeshes_object)) { 
+      for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
         var selectedColor;
-        
+
         /*
         for (let i=0; i<imeshx.count; i++){
           if (stateChangeProb > gene()){
@@ -840,7 +844,7 @@ View.prototype.addDenseMatter = function  () {
           //imeshx.setMatrixAt(i, matrix);
           sceneMeshes[k].setColorAt(i,selectedColor);
           //imesh.setColorAt(i,selectedColor);
-          
+
         };*/
 
         //imeshx.instanceMatrix.needsUpdate = true;
@@ -860,7 +864,7 @@ View.prototype.addDenseMatter = function  () {
         k++;
       }
     }//Else: State Stable
-    
+
     cycleTime += flickerInterval;
 
     if (cycleTime>=cycleDuration){
@@ -933,11 +937,11 @@ View.prototype.addInstances = function  () {
 
       // EXPLODING LATTICE MEMBERS
 
-      // setting default for all members not to get culled 
+      // setting default for all members not to get culled
       var cull_member = false;
       var cull_member_x_axis = false;
       var cull_member_y_axis = false;
-      
+
       // in case we have to calculate explosion, proceede below, otherwise skip
       if (explosion_type != 0) {
 
@@ -961,9 +965,9 @@ View.prototype.addInstances = function  () {
 
         var explosion_axis = new THREE.Vector3((gData.nodes[source_index].x + gData.nodes[target_index].x) / 2, (gData.nodes[source_index].y + gData.nodes[target_index].y) / 2, (gData.nodes[source_index].z + gData.nodes[target_index].z) / 2).normalize();
         var dist_to_axis_explosion;
-        
+
         // defining parameters for each explosion type
-        
+
         if (explosion_type == 1) {
           dist_to_axis = dist_to_x_axis;
           dist_to_axis_explosion = dist_to_x_axis;
@@ -1090,7 +1094,7 @@ View.prototype.addInstances = function  () {
       -1, 0, 0 // left
     ];
     const faces = [ 2, 1, 0 ]; // only one face
-    
+
     var dummy = new THREE.Object3D();
     var triangle = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
     triangle.scale(0.5, 10, 0.5);
@@ -1107,7 +1111,7 @@ View.prototype.addInstances = function  () {
 
       var uniscale = 0.2 + gene();
       dummy.scale.set(uniscale, uniscale, uniscale); //Dynamically assign this to give different sizes (eg add attribute to nData.nodes and call it here)
-      
+
       dummy.rotateX(gene() * Math.PI/3 - Math.PI/6);
       dummy.rotateY(gene() * Math.PI/3 - Math.PI/6);
       dummy.rotateZ(gene() * Math.PI/3 - Math.PI/6);
@@ -1119,7 +1123,7 @@ View.prototype.addInstances = function  () {
 
 
     imesh_debris.instanceMatrix.needsUpdate = true
-    
+
     imesh_debris.castShadow = true; // remove for performance
     imesh_debris.receiveShadow = true;
     this.scene.add(imesh_debris);
@@ -1146,7 +1150,7 @@ View.prototype.addStarsOrdered = function ()
   const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
-  
+
   for (var n = 0; n < nDatas.length; n++) {
     var nData = nDatas[n];
     const imesh = new THREE.InstancedMesh( geometry, material, nData.nodes.length )
@@ -1158,7 +1162,7 @@ View.prototype.addStarsOrdered = function ()
       var uniscale = 0.5 + gene();
       dummy.scale.set(uniscale,uniscale,uniscale); // dynamically assign this to give different sizes (eg add attribute to nData.nodes and call it here)
       dummy.position.set(nData.nodes[i].x + gene_range(-star_jitter, star_jitter), nData.nodes[i].y + gene_range(-star_jitter, star_jitter), star_plane_distance);
-      
+
       dummy.rotateX(gene() * Math.PI/3 - Math.PI/6);
       dummy.rotateY(gene() * Math.PI/3 - Math.PI/6);
       dummy.rotateZ(gene() * Math.PI/3 - Math.PI/6);
@@ -1168,9 +1172,9 @@ View.prototype.addStarsOrdered = function ()
   }
 
 
-  
+
   setInterval(function () {
-    
+
     /*for (var n = 0; n < imesh.count; n++) {
       var refMatrix;
       const rotMatrix = new THREE.Matrix4.makeRotationAxis(cameraVector, rotTheta);
@@ -1208,7 +1212,7 @@ View.prototype.addStarsRandom = function (bounds, qty)
   const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
-  
+
   const imesh = new THREE.InstancedMesh(geometry, material, qty);
   imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
 
@@ -1296,7 +1300,7 @@ View.prototype.addStarDust = function ()
   const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
-  
+
   const imesh = new THREE.InstancedMesh(geometry, material, total_number_of_stars);
   imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
 
@@ -1329,7 +1333,7 @@ View.prototype.addStarDust = function ()
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
-  
+
 }
 
 View.prototype.addMoon = function ()
@@ -1381,7 +1385,7 @@ View.prototype.addMoon = function ()
   const light_disc_material = new THREE.MeshBasicMaterial({color: '#f9f0de'});
   const light_disc_mesh = new THREE.Mesh(light_disc_geo, light_disc_material);
   light_disc_mesh.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
-  
+
 
   // one triangle
   const vertices = [
@@ -1396,7 +1400,7 @@ View.prototype.addMoon = function ()
   const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
-  
+
   const imesh = new THREE.InstancedMesh( geometry, material, nr_of_triangles )
   imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
 
@@ -1435,12 +1439,12 @@ View.prototype.addMoon = function ()
     //https://math.stackexchange.com/questions/2645689/what-is-the-parametric-equation-of-a-rotated-ellipse-given-the-angle-of-rotatio
     celestial_x = cent_x + r * radius_x * Math.cos(angle) * Math.cos(tilt_angle) - r * radius_y * Math.sin(angle) * Math.sin(tilt_angle);
     celestial_y = cent_y + r * radius_x * Math.cos(angle) * Math.sin(tilt_angle) + r * radius_y * Math.sin(angle) * Math.cos(tilt_angle);
-    
+
     const dummy = new THREE.Object3D();
     var uniscale = 0.5 + gene();
     dummy.scale.set(uniscale, uniscale, uniscale); // dynamically assign this to give different sizes (eg add attribute to nData.nodes and call it here)
     dummy.position.set(celestial_x, celestial_y, celestial_plane_distance);
-    
+
     dummy.rotateX(gene() * Math.PI/3 - Math.PI/6);
     dummy.rotateY(gene() * Math.PI/3 - Math.PI/6);
     dummy.rotateZ(gene() * Math.PI/3 - Math.PI/6);
@@ -1571,7 +1575,7 @@ function Controller(viewArea) {
   const up = new THREE.Vector3(0,1,0)
 
   // LIGHT TRAVEL PARAMETERS
-  var light_framerate = 50; 
+  var light_framerate = 50;
   light_framerate_change = 50; //Needs to be the same
   var base_light_angle = 1.0 * Math.PI/3; // starting angle, angle 0 is straight behind the camera - Math.PI/3, 0.75 * Math.PI/3
   base_light_angle_step = 0.0005; //0.05
@@ -1609,14 +1613,14 @@ function Controller(viewArea) {
     // rotation in XZ plane
     //view.light.position.set(Math.sin(light_angle)*parallex_amplitude, Math.cos(light_angle)*parallex_amplitude, lp.z);
   }
- 
+
   //STATICLIGHT//var lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate);
 
 
   // DENSE MATTER COMPUTATION
   function update_dense_matter () {
     var rand_grid_pos_str = generateRandomInt(0, grid_nr_x).toString() + " " + generateRandomInt(0, grid_nr_y).toString() + " " + generateRandomInt(0, grid_nr_z).toString();
-    //console.log(rand_grid_pos_str, dense_matter_object[rand_grid_pos_str]['position'], dense_matter_object[rand_grid_pos_str]['exists']); 
+    //console.log(rand_grid_pos_str, dense_matter_object[rand_grid_pos_str]['position'], dense_matter_object[rand_grid_pos_str]['exists']);
 
     var dummy = new THREE.Object3D()
     var mat4 = new THREE.Matrix4();
@@ -1626,7 +1630,7 @@ function Controller(viewArea) {
     var axis = new THREE.Vector3(0, 1, 0);
     var rot_axis = new THREE.Vector3(1, 0, 0);
     var distance = 0.5;
-    
+
     for (let i = 0; i < elementCount; i++) {
       imeshes_object[selected_color].getMatrixAt(i, mat4); // mat4 will contain the current transform matrix of the instance
       mat4.decompose(dummy.position, dummy.quaternion, dummy.scale); // map mat4 matrix onto our dummy object
@@ -1671,7 +1675,7 @@ function Controller(viewArea) {
           } else {
             light_angle_step = Math.sign(light_angle_step)*base_light_angle_step;
           }
-          
+
           //console.log("After", Math.sign(light_angle_step) ,base_light_angle_step)
         } else {
           arc_division = 1.0;
@@ -1688,13 +1692,13 @@ function Controller(viewArea) {
         if (getKeyByValue(light_step_size_param, Math.abs(light_angle_step)) == "DaySync") { //light_step_size_param.DaySync
           arc_division = Math.abs(light_angle_step)*1000/light_framerate;
           console.log("Arc Division Factor: " + arc_division.toString())
-        
+
         } else { arc_division = 1.0; }//Update light step as well if framerate is changed and
         light_framerate = light_framerate_change;
         //STATICLIGHT//lightIntervalInstance = setInterval(function () {update_light_position()}, light_framerate); //create new interval with updated framerate
       }
 
-    
+
       if (debug) {
         var end_timer = new Date().getTime();
         pre_calc = (end_timer - start_timer);
@@ -1714,7 +1718,7 @@ function Controller(viewArea) {
     }, parallex_framerate);
   }, parallex_delay)
 
-  
+
   view.addDenseMatter(); // dense grid of colored elements
 
   //view.addInstances();
@@ -1750,7 +1754,7 @@ function Controller(viewArea) {
     viewportAdjust(document.getElementById('viewport'), false);
     fitCameraToViewport(view, viewportWidth, viewportHeight);
     }
-  
+
     window.addEventListener( 'resize', onWindowResize );
 }
 
@@ -1766,14 +1770,14 @@ function viewportAdjust(vp, inner=true) {
 
       viewportHeight = window.innerHeight; //Force Height to be inner Height
       viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
-  
+
       margin_top = 0;
       margin_left = (window.innerWidth - viewportWidth)/2;
     } else {  //If target viewport width is larger then inner width
-  
+
       viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
       viewportWidth = window.innerWidth; //Force Width  to be inner Height
-  
+
       margin_top = (window.innerHeight - viewportHeight)/2;
       margin_left = 0;
 
@@ -1782,21 +1786,21 @@ function viewportAdjust(vp, inner=true) {
 
     ///SCALING
     cam_factor_mod = cam_factor * Math.min((viewportWidth/1000)*quality, (viewportHeight/1000)*quality);
-    
+
   } else {
     if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
-      
+
       //document.documentElement.scrollWidth/scrollHeight
       viewportHeight = window.innerHeight; //Force Height to be inner Height
       viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
-  
+
       margin_top = 0;
       margin_left = (window.innerWidth - viewportWidth)/2;
     } else {  //If target viewport width is larger then inner width
-  
+
       viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
       viewportWidth = window.innerWidth; //Force Width  to be inner Height
-  
+
       margin_top = (window.innerHeight - viewportHeight)/2;
       margin_left = 0;
 
@@ -1858,7 +1862,7 @@ function check_drawing_buffer(q) {
 function doc_keyUp(e) {
   // Example double key use: e.ctrlKey && e.key === 'ArrowDown'
   // this would test for whichever key is 40 (down arrow) and the ctrl key at the same time
-  if (e.keyCode === 49 || e.keyCode === 97) { // 1 or NumPad 1   
+  if (e.keyCode === 49 || e.keyCode === 97) { // 1 or NumPad 1
     snap = true;
     quality = 1;
   } else if (e.keyCode === 50 || e.keyCode === 98) {// 2 or NumPad 2
@@ -1919,13 +1923,13 @@ function doc_keyUp(e) {
       document.body.style.backgroundColor = "white";
       console.log("Background: white")
     }
-    
-  } 
+
+  }
   else if (e.keyCode === 73 && !e.ctrlKey) {  //i and not ctrl
     document.getElementById("keybinding").style.display = "block";
     document.querySelector("#keybinding").style.opacity = 1
-    //Load modal with decription for all the keys for few 
-    //seconds and make it fade to invisible after a few seconds. 
+    //Load modal with decription for all the keys for few
+    //seconds and make it fade to invisible after a few seconds.
     //Each additional non active key press restarts the fade out animation
     if (typeof fade !== 'undefined') {
       clearInterval(fade)
@@ -1961,13 +1965,13 @@ const capture = (contx) => {
   composer.render();
 
   try {
-    const urlBase64 = renderer.domElement.toDataURL('img/png'); 
+    const urlBase64 = renderer.domElement.toDataURL('img/png');
     const a = document.createElement("a");
     a.href = urlBase64;
-    a.download = `collectionfive_${palette_name}_${parseInt(Math.random()*10000000)}.png`; 
+    a.download = `collectionfive_${palette_name}_${parseInt(Math.random()*10000000)}.png`;
     a.click();
     URL.revokeObjectURL(urlBase64);
-  }  
+  }
   catch(e) {
     console.log("Browser does not support taking screenshot of 3d context");
     return;
@@ -1977,18 +1981,15 @@ const capture = (contx) => {
 
   viewportAdjust(document.getElementById('viewport'))
   cam_factor_mod = cam_factor * Math.min(viewportWidth*quality/1000, viewportHeight*quality/1000);
-  
+
   fitCameraToViewport(contx.view, viewportWidth, viewportHeight); //Projection Matrix Updated
-  
+
   composer.render();
 };
 
-// register the capture key handler 
+// register the capture key handler
 document.addEventListener('keyup', doc_keyUp, false);
 
 document.addEventListener('DOMContentLoaded', () => {
   handler();
 });
-
-
-
