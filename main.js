@@ -742,8 +742,55 @@ View.prototype.addDenseMatter = function  () {
   for (const [element_color, elements_per_palette] of Object.entries(elements_per_palette_object)) {
     var geometry_color = new THREE.Color(element_color);
     var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
-    var material = new THREE.MeshPhongMaterial( {color: geometry_color, flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
+    var material = new THREE.MeshPhongMaterial( {flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
+    
+    //KEDIT
+    var colorParsChunk = [
+      'attribute vec3 instanceColor;',
+      'varying vec3 vInstanceColor;',
+      '#include <common>'
+    ].join( '\n' );
+
+    var instanceColorChunk = [
+      '#include <begin_vertex>',
+      '\tvInstanceColor = instanceColor;'
+    ].join( '\n' );
+
+    var fragmentParsChunk = [
+      'varying vec3 vInstanceColor;',
+      '#include <common>'
+    ].join( '\n' );
+
+    var colorChunk = [
+      'vec4 diffuseColor = vec4( diffuse * vInstanceColor, opacity );'
+    ].join( '\n' );
+
+    material.onBeforeCompile = function ( shader ) {
+
+      shader.vertexShader = shader.vertexShader
+        .replace( '#include <common>', colorParsChunk )
+        .replace( '#include <begin_vertex>', instanceColorChunk );
+
+      shader.fragmentShader = shader.fragmentShader
+        .replace( '#include <common>', fragmentParsChunk )
+        .replace( 'vec4 diffuseColor = vec4( diffuse, opacity );', colorChunk );
+
+    };
+    
     var imesh = new THREE.InstancedMesh(geometry, material, elements_per_palette);
+
+    //KEDIT
+    var instanceColors = [];
+    for(var i = 0; i < imesh.count; i++){
+      instanceColors.push(geometry_color.r);
+      instanceColors.push(geometry_color.g);
+      instanceColors.push(geometry_color.b);
+    }
+    var instanceColorsBase = new Float32Array(instanceColors.length);
+    instanceColorsBase.set(instanceColors);
+    geometry.setAttribute( 'instanceColor', new THREE.InstancedBufferAttribute( new Float32Array( instanceColors ), 3 ) );
+    geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute(new Float32Array( instanceColorsBase ), 3 ) );
+
     imeshes_object[element_color] = imesh;
     total_elements_existing += elements_per_palette;
   }
@@ -831,7 +878,7 @@ View.prototype.addDenseMatter = function  () {
       for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
         var selectedColor;
 
-        /*
+        //console.log(copyPalette[k],chosen_palette_array[k])
         for (let i=0; i<imeshx.count; i++){
           if (stateChangeProb > gene()){
             selectedColor = copyPalette[k]; //Update State with shifted palette
@@ -842,10 +889,10 @@ View.prototype.addDenseMatter = function  () {
           //matrix.setPosition(imeshx[i])
           //imeshx.getMatrixAt(i, matrix)
           //imeshx.setMatrixAt(i, matrix);
-          sceneMeshes[k].setColorAt(i,selectedColor);
+          sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
+          //sceneMeshes[k].setColorAt(i,new THREE.Color(gene()*0xffffff)); //selectedColor
           //imesh.setColorAt(i,selectedColor);
-
-        };*/
+        };
 
         //imeshx.instanceMatrix.needsUpdate = true;
         //console.log(imeshx.instanceColor)
@@ -858,8 +905,9 @@ View.prototype.addDenseMatter = function  () {
           selectedColor = chosen_palette_array[k]; //Recede State
         }
         //imesh.instanceColor.needsUpdate = true;
-        ////sceneMeshes[k].instanceColor.needsUpdate = true;
-        imeshes_object[element_color].material.color = selectedColor;
+        //sceneMeshes[k].instanceColor.needsUpdate = true;
+        sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
+        //imeshes_object[element_color].material.color = selectedColor;
         //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
         k++;
       }
