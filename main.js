@@ -26,9 +26,9 @@ var c_type = 'square beam';
 var c_xy_scale = 5; //5
 var c_length = 50; //50
 var grid_nr_x = 110; //110
-var grid_nr_y = 15;
-var grid_nr_z = 30;
-var y_gap = 1; //5
+var grid_nr_y = 15; //15
+var grid_nr_z = 30; //30
+var y_gap = 1; //1
 var grid_offset_x = -(grid_nr_x * c_xy_scale) / 2.0;
 var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
 var grid_offset_z = -(grid_nr_z * c_xy_scale) / 2.0;
@@ -37,11 +37,11 @@ var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
 
 
 
-
 //var palette_name = "Marble"; // OVERRIDE - choose palette name
-var palette_name = gene_pick_key(palettes_v3); // choose palette name at random
+//var palette_name = gene_pick_key(palettes_v3); // choose palette name at random
+//var palette_name = $fx.getParam("palette_id"); // palette name is chosen using fxhash params
 
-
+var palette_name = gene_pick_key(palette_families[palette_family]); // choose palette name at random from a palette family
 
 
 //////LATTICE GENERATION//////
@@ -119,15 +119,33 @@ var steps = get_steps(stage); // workaround, not actually needed
 
 
 
+
+
+
 //////FXHASH FEATURES//////
 
-window.$fxhashFeatures = {
+$fx.features({
+  "Family": palette_family,
+  "Palette": palette_name,
+  "Structure": noise_feature,
+  "Form": noise_form,
+  "Dissipation": noise_cull_rule
+});
+
+console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
+            'Family -> ' + palette_family, '\n',
+            'Palette -> ' + palette_name, '\n',
+            'Structure -> ' + noise_feature, '\n',
+            'Form -> ' + noise_form, '\n',
+            'Dissipation -> ' + noise_cull_rule, '\n');
+
+/*window.$fxhashFeatures = {
   'Dimension': feature_dimension,
   'Frame': feature_frame,
   'Primitive': feature_primitive,
   'State': feature_state,
   'Celestial': feature_celestial
-};
+};*/
 
 
 
@@ -345,7 +363,7 @@ function View(viewArea) {
 
   // SAO - Scalable Ambient Occlusion
   saoPass = new THREE.SAOPass(this.scene, this.camera, false, true);
-  this.composer.addPass(saoPass);
+  //this.composer.addPass(saoPass);
 
   // FXAA antialiasing
   effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
@@ -363,7 +381,8 @@ function View(viewArea) {
 
 View.prototype.addDenseMatter = function  () {
 
-  chosen_palette = palettes_v3[palette_name].slice(0); // make a copy of the chosen color palette
+  chosen_palette = palette_families[palette_family][palette_name].slice(0); // make a copy of the chosen color palette
+  
   shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
 
   // use elements_per_palette objects to count nr of elements for each color - we need to know this nr when we create instanced mesh
@@ -387,7 +406,7 @@ View.prototype.addDenseMatter = function  () {
                                   gene_weighted_choice(allel_color_gradient_quadrants),
                                   gene_weighted_choice(allel_color_gradient_quadrants)];
 
-  var noise_cull_rule = gene_weighted_choice(allel_noise_cull_rule); // rule for culling elements using noise
+  //var noise_cull_rule = gene_weighted_choice(allel_noise_cull_rule); // rule for culling elements using noise
   //var noise_cull_rule = "clean";
 
   // additional color features appearing
@@ -408,30 +427,30 @@ View.prototype.addDenseMatter = function  () {
   var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the opposite from horizontal ones
 
 
-  var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
+  //var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
   //var noise_feature = "unbiased";
 
   var noise_height_f = c_length/c_xy_scale; // noise height factor
 
   var noise_scale_x, noise_scale_y, noise_scale_z;
   if (noise_feature == "cracks") {
-    noise_scale_x = gene_weighted_choice(allel_noise_scale_x);
-    noise_scale_y = 0.01;
-    noise_scale_z = 0.025; // 0.01
+    noise_scale_x = gene_weighted_choice(allel_noise_scale_x) * noise_form_scales[1];
+    noise_scale_y = 0.01 * noise_form_scales[0]; //0.01
+    noise_scale_z = 0.025; //0.025
 
   } else if (noise_feature == "bands") {
-    noise_scale_x = 0.01;
+    noise_scale_x = 0.01 * noise_form_scales[0]; //0.01
     noise_scale_y = gene_weighted_choice(allel_noise_scale_y);
-    noise_scale_z = 0.05;
+    noise_scale_z = 0.05 * noise_form_scales[0]; //0.05
 
   } else if (noise_feature == "sheets") {
-    noise_scale_x = 0.01;
-    noise_scale_y = 0.01;
+    noise_scale_x = 0.01 * noise_form_scales[0]; //0.01
+    noise_scale_y = 0.01 * noise_form_scales[0]; //0.01
     noise_scale_z = gene_weighted_choice(allel_noise_scale_z);
 
   } else { // in any other case, noise_feature == "unbiased"
-    noise_scale_x = 0.01;
-    noise_scale_y = 0.01;
+    noise_scale_x = 0.01 * noise_form_scales[0]; //0.01
+    noise_scale_y = 0.01 * noise_form_scales[0]; //0.01
     noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
   }
 

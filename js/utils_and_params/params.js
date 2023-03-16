@@ -12,6 +12,124 @@ var cam_factor_mod;
 
 
 
+
+//////FXHASH PARAMS//////
+// we can use $fx.getParam("param_id") to get the selected param in the code
+
+$fx.params([
+  {
+    id: "palette_family_id",
+    name: "Family",
+    type: "select",
+    options: {
+      options: ["horizon, sunshine, grapefruit",
+                "night, embers, citrus",
+                "ivy, apatite, tourmaline",
+                "sodalite, glacier, rust",
+                "ocean, lapis, sulphur",
+                "moss, cedar, algae",
+                "ink, steel, salt",
+                "charcoal, papyrus, marble",
+                "murex, rhodochrosite, marshmallow",
+                "furnace, ruby, soot"],
+    }
+  },
+  {
+    id: "noise_feature_id",
+    name: "Structure",
+    type: "select",
+    options: {
+      options: ["cracks", "bands", "sheets", "unbiased"],
+    }
+  },
+  {
+    id: "noise_form_id",
+    name: "Form",
+    type: "select",
+    options: {
+      options: ["expressive", "monolithic"],
+    }
+  },
+  {
+    id: "noise_cull_id",
+    name: "Dissipation",
+    type: "select",
+    options: {
+      options: ["clean", "fuzzy"],
+    }
+  },
+]);
+
+
+var palette_family = $fx.getParam("palette_family_id"); // palette family is chosen using fxhash params
+var noise_feature = $fx.getParam("noise_feature_id"); // noise feature is chosen using fxhash params
+var noise_form = $fx.getParam("noise_form_id"); // noise form is chosen using fxhash params
+var noise_form_scales = noise_form == "expressive" ? [1.0, 1.0] : [0.1, 0.25]; // factors which will scale noise sampling dimensions
+var noise_cull_rule = $fx.getParam("noise_cull_id"); // noise cull rule is chosen using fxhash params
+
+
+// examples of params from the fxhash boilerplate
+/*
+$fx.params([
+  {
+    id: "number_id",
+    name: "A number/float64",
+    type: "number",
+    //default: Math.PI,
+    options: {
+      min: 1,
+      max: 10,
+      step: 0.00000000000001,
+    },
+  },
+  {
+    id: "bigint_id",
+    name: "A bigint",
+    type: "bigint",
+    //default: BigInt(Number.MAX_SAFE_INTEGER * 2),
+    options: {
+      min: Number.MIN_SAFE_INTEGER * 4,
+      max: Number.MAX_SAFE_INTEGER * 4,
+      step: 1,
+    },
+  },
+  {
+    id: "select_id",
+    name: "A selection",
+    type: "select",
+    //default: "pear",
+    options: {
+      options: ["apple", "orange", "pear"],
+    }
+  },
+  {
+    id: "color_id",
+    name: "A color",
+    type: "color",
+    //default: "ff0000",
+  },
+  {
+    id: "boolean_id",
+    name: "A boolean",
+    type: "boolean",
+    //default: true,
+  },
+  {
+    id: "string_id",
+    name: "A string",
+    type: "string",
+    //default: "hello",
+    options: {
+      minLength: 1,
+      maxLength: 64
+    }
+  },
+]);
+*/
+
+
+
+
 //////COMPOSITION ALLEL DEFINITION//////
 
 const daily_arc_second = 2*Math.PI/86400;
@@ -592,12 +710,10 @@ const light_step_size_param = {
 }
 
 
+const palette_families = {
 
+  "horizon, sunshine, grapefruit": {
 
-const palettes_v3 = {
-
-  //1. Horizon, sunshine, grapefruit - bauhaus light (8)
-  
   "Otti":             ["#a3d3ff", "#fefaee", "#ff855f", "#ffe550"], // light blue, white, light red, yellow - Otti Berger
   "Stölzl":           ["#c44414", "#daa211", "#255080", "#e7e7d7"], // red, yellow, blue, white - Gunta Stölzl
   "Albers":           ["#f9f0df", "#e51335", "#2a72ae", "#fbb515"], // white, red, blue, yellow - Anni Albers
@@ -607,15 +723,18 @@ const palettes_v3 = {
   "Siedhoff-Buscher": ["#ebb707", "#e84818", "#266396", "#eecece", "#e4e4e4"], // yellow, red, blue, light lila, white - Alma Siedhoff-Buscher
   "Heymann":          ["#ee2f2f", "#f2cd22", "#1b94bb", "#faaaba", "#feeede"], // red, yellow, blue, light pink, white - Margarete Heymann
   
-  //2. Night, embers, citrus - bauhaus (5)
+  },
+
+  "night, embers, citrus": {
   
   "van der Rohe": ["#f34333", "#fdd666", "#275777", "#f3f3f3", "#090909"], // - Ludwig Mies van der Rohe
-  "Gropius":      ["#fef5ee", "#faf000", "#fb0101", "#1c81ea", "#1e1e1e"], // - Walter Gropius
   "Breuer":       ["#ffbf0b", "#ee3e6e", "#2277a7", "#f9f0df", "#090909"], // - Marcel Breuer
-  "Gray":         ["#f9f0df", "#e51335", "#2a72ae", "#fbb515", "#090909"], // white, red, blue, yellow, black - Eileen Gray
+  "Gropius":         ["#f9f0df", "#e51335", "#2a72ae", "#fbb515", "#090909"], // white, red, blue, yellow, black - Walter Gropius
   "Le Corbusier": ["#f24222", "#fccc0c", "#4888c8", "#f9f0df", "#090909"], // red, yellow, blue, white, black - Le Corbusier
   
-  //3. Ivy, apatite, tourmaline - bauhaus + green (8)
+  },
+
+  "ivy, apatite, tourmaline": {
   
   "O'Keeffe":   ["#0e4a4e", "#ff9777", "#ead2a2", "#5484a8"], // green, light red, beige, blue - Georgia O'Keeffe
   "Dalí":       ["#e54545", "#f77757", "#fccc66", "#fafa66", "#1ac1ca"], // - Salvador Dalí
@@ -626,7 +745,9 @@ const palettes_v3 = {
   "Picasso":    ["#f33373", "#eed333", "#445e7e", "#19a199", "#ede8dd"], // red, yellow, blue, teal, white - Pablo Picasso
   "Klee":       ["#de3e1e", "#de9333", "#007555", "#eccdad", "#889979", "#7aa7a7"], // red, yellow, green, white, olive green, light green - Paul Klee
   
-  //4. Sodalite, glacier, rust - blue red (7)
+  },
+
+  "sodalite, glacier, rust": {
   
   "Planck":     ["#f8f8e8", "#d83818", "#224772", "#151a1a"], // white, red, blue, black - Max Planck
   "Thomson":    ["#144b5b", "#088191", "#e5fde5", "#466994", "#f55b66"], // - Sir Joseph John Thomson
@@ -636,32 +757,42 @@ const palettes_v3 = {
   "Feynman":    ["#004999", "#557baa", "#ff4f44", "#ffbcbc", "#fff8e8"], // deep blue, blue, red, light lila, white - Richard Feynman
   "Dirac":      ["#db4545", "#d0e0e0", "#3a6a93", "#2e3855", "#a3c6d3"], // red, white, blue, dark blue, light blue - Paul Dirac
   
-  //5. Ocean, lapis, sulphur - blue yellow (4)
+  },
+
+  "ocean, lapis, sulphur": {
   
   "Babbage":  ["#1a3daa", "#244888", "#2277d7", "#62aad6", "#f2d552"], // - Charles Babbage
   "Lovelace": ["#dafaff", "#00bbfb", "#005995", "#002044"], // - Ada Lovelace
   "Leibniz":  ["#fff8f8", "#a3e3dd", "#1c6dd6", "#2c2c44", "#ffd525"], // white, light teal, blue, dark gray, yellow - Gottfried Wilhelm Leibniz
   "Boole":    ["#070c0c", "#1d5581", "#fece3c", "#f8e288", "#9fc999"], // - George Boole
   
-  //6. Moss, cedar, algae - green (3)
+  },
+
+  "moss, cedar, algae": {
   
   "Zancan":  ["#445522", "#788c33", "#b5be5e", "#242414", "#f2f2f2"], // - Zancan
   "Muir":    ["#cec09c", "#505e3e", "#374727", "#2a3322"], // light brown, light olive, dark green, dark olive - John Muir
   "Thoreau": ["#144b5b", "#1a966a", "#88d899", "#cadaba", "#f9e9d9"], // - Henry David Thoreau
   
-  //7. Ink, steel, salt (2)
+  },
+
+  "ink, steel, salt": {
   
   "Hokusai":   ["#7d9aa7", "#c0b8a8", "#ddd4c4", "#10244a", "#444b4e"], // - Katsushika Hokusai
   "Hiroshige": ["#ebe0ce", "#20335c", "#1c2244", "#1d1f2d"], // light gray, blue, dark blue, black - Utagawa Hiroshige
   
-  //8. Charcoal, papyrus, marble - monochrome (4)
+  },
+
+  "charcoal, papyrus, marble": {
   
   "Charcoal":       ["#090909", "#1a1a1a", "#1d1d1d", "#222222", "#2c2c2c", "#3c3c3c"], // black, black, black, black, dark gray, gray
   "Marble":         ["#cac5b5", "#ebe0ce", "#f9f0df", "#eee7d7", "#fff8f8", "#feeddd"], // gray, light gray, white, white, white
   "Adams":          ["#ebe0ce", "#2a2b2c", "#1e1e1e"], // light gray, dark gray, black - Ansel Adams
   "New York Times": ["#ebe0ce", "#cac5b5", "#1e1e1e"], // light gray, gray, black
   
-  //9. Murex, rhodochrosite, marshmallow - pink purple (8)
+  },
+
+  "murex, rhodochrosite, marshmallow": {
   
   "Minsky":      ["#c5e5f5", "#fd5d9d", "#fccce0", "#feefef"], // - Marvin Minsky
   "Newell":      ["#8d00d8", "#d722b7", "#f288c2", "#f9c66c", "#e2e2e2"], // - Allen Newell
@@ -672,13 +803,17 @@ const palettes_v3 = {
   "von Neumann": ["#4a0020", "#550533", "#750555", "#990f5f", "#f9f0df"], // dark maroon, maroon, light maroon, maroon purple, white - John von Neumann
   "Turing":      ["#e40422", "#e33388", "#434394", "#191919", "#ece3d3"], // red, pink, blue, black, white - Alan Turing
   
-  //10. Furnace, ruby, soot - red (5)
+  },
+
+  "furnace, ruby, soot": {
   
   "Kapoor":   ["#900f3f", "#c70033", "#ff5333", "#ffcc00", "#f9f0df"], // maroon, red, orange, yellow, white - Anish Kapoor
   "Golid":    ["#fece44", "#ede8dd", "#ff5333", "#ff99b9"], // yellow, white, red, light pink - Kjetil Golid
   "Busia":    ["#f9f0df", "#e51335", "#090909"], // white, red, black - Kwame Bruce Busia
   "Judd":     ["#e51335", "#e4042e", "#d83818", "#ff2244", "#e74422", "#e11e21", "#faaf0f", "#fbb515", "#ff855f", "#191919"], // red, red, red, red, red, red, orange yellow, yellow, light red, black - Donald Judd
   "Malevich": ["#ece3d3", "#e51335", "#1d1d1d", "#fcc1c1"], // light gray, red, black, light pink - Kazimir Malevich
+
+  }
 }
 
 
@@ -697,10 +832,10 @@ const allel_color_features_horiz = [
   ["horizontal stripe solid", 5]
 ];
 
-const allel_noise_cull_rule = [
+/*const allel_noise_cull_rule = [
   ["clean", 65],
   ["fuzzy", 35]
-];
+];*/
 
 const allel_noise_scale_x = [
   [0.05, 2],
@@ -725,12 +860,12 @@ const allel_noise_scale_z = [
   [0.50, 1]
 ]
 
-const allel_noise_features = [
+/*const allel_noise_features = [
   ["cracks", 20],
   ["bands", 20],
   ["sheets", 30],
   ["unbiased", 30]
-]
+]*/
 
 // taken out:
 //["solid", 1],
