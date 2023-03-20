@@ -958,45 +958,6 @@ View.prototype.addMoon = function ()
 }
 
 
-View.prototype.addLineMesh = function (data, dash_array, dash_ratio, line_thickness, dash_speed) {
-  var temp_array = new Float32Array(6);
-  //console.log(gData.nodes[data['source']].x)
-  temp_array[0] = gData.nodes[data['source']].x;
-  temp_array[1] = gData.nodes[data['source']].y;
-  temp_array[2] = gData.nodes[data['source']].z;
-  temp_array[3] = gData.nodes[data['target']].x;
-  temp_array[4] = gData.nodes[data['target']].y;
-  temp_array[5] = gData.nodes[data['target']].z;
-
-  var geo = new THREE.BufferGeometry()
-
-  geo.setAttribute( 'position', new THREE.BufferAttribute( temp_array, 3 ) );
-
-  var g = new MeshLine();
-  g.setGeometry( geo );
-  //g.setFromPoints()
-  this.meshline_data.push(g)
-
-  var material = new MeshLineMaterial( {
-    antialias: true,
-    useMap: false,
-    color: new THREE.Color( my_features.ink),
-    opacity: 1,
-    transparent: true, // switch to false is opacity is 1, switch to true when using dashed lines
-    dashArray: dash_array, // 0.05, 0 -> no dash ; 1 -> half dashline length ; 2 -> dashline = length
-    dashOffset: 0,
-    dashRatio: dash_ratio, // 0.0 -> full line ; 0.5 -> balancing ; 1.0 -> full void
-    //resolution: resolution,
-    sizeAttenuation: false, // makes the line width constant regardless distance (1 unit is 1px on screen) (false - attenuate, true - don't attenuate)
-    lineWidth: line_thickness, // 0.002, float defining width (if sizeAttenuation is true, it's world units; else is screen pixels)
-  });
-
-  var mesh = new THREE.Mesh( g.geometry, material );
-  this.meshline_mesh.push(mesh);
-
-  this.scene.add(mesh);
-}
-
 
 
 View.prototype.render = function () {
