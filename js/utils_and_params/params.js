@@ -137,6 +137,9 @@ var debug = true;
 var cam_factor = 4; //controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
 var aspect_ratio = '0.75'; ////OVERRIDE//// 0.75 - portrait
+var global_rot_x = -Math.PI/16; // global rotation of the model around the X axis
+var global_rot_y = Math.PI/16; // global rotation of the model around the Y axis
+
 
 //////ANIMATION SETTINGS CHOOSING//////
 const light_frame_speed_param = {

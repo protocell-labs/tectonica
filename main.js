@@ -22,65 +22,12 @@ var imesh_index_tracker = {}; // color is the key, index nr is the value
 var imeshes_object = {}; // color is the key, imesh is the value
 
 
-
-
-//////LATTICE GENERATION//////
-
-var gDatas = [];
-var lattice_params, gData;
-var composition_params;
-
-// COMPOSITION - generate parameters for the composition of the piece
-composition_params = generate_composition_params(); // all input parameters are optional, they will be chosen at random if not passed into the function
-
-var { frame_type, center_piece_type, center_piece_factor, explosion_type, light_source_type, explosion_center_a, explosion_center_b, celestial_object_types, feature_dimension, feature_frame, feature_primitive, feature_state, feature_celestial } = composition_params; // unpacking parameters we need in main.js and turning them into globals
-
-
-explosion_type = 0; ////OVERRIDE////
-
-celestial_object_types = gene_weighted_choice(allel_celestials_reduced);
-
-var global_rot_x = -Math.PI/16; // -Math.PI/16, gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
-var global_rot_y = Math.PI/16; // Math.PI/16, gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
-//var global_rot_x = gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the X axis
-//var global_rot_y = gene_range(-Math.PI/8, Math.PI/8); // global rotation of the model around the Y axis
-
-
-// MODULE GRID
-
-var grid_module_nr_x = 3;
-var grid_module_nr_y = 3;
-var grid_module_nr_z = 3;
-
-var grid_module_size = 110;
-var module_center_pos;
-var module_center_offset = new THREE.Vector3(-0.5 * grid_module_size * grid_module_nr_x, -0.5 * grid_module_size * grid_module_nr_y, 0.5 * grid_module_size * grid_module_nr_z);
-//var module_center_offset = new THREE.Vector3(-0.5 * 110 * 3, -0.5 * 110 * 3, 0.5 * 110 * 3);
-
-for (var nx = 0; nx < grid_module_nr_x; nx++) {
-  for (var ny = 0; ny < grid_module_nr_y; ny++) {
-    for (var nz = 0; nz < grid_module_nr_z; nz++) {
-
-      module_center_pos = new THREE.Vector3(grid_module_size * nx, grid_module_size * ny, grid_module_size * nz);
-      module_center_pos.add(module_center_offset); // offset the whole grid so it's in the center of the scene
-      module_params = generate_module_params(position = module_center_pos); // all input parameters are optional, they will be chosen at random if not passed into the function
-      gData = generate_lattice(module_params);
-      gDatas.push(gData);
-
-    }
-  }
-}
-
-
-
-
-
+var light_source_type = 'west'; // quick fix while refactoring code, not needed in the final version
 
 
 //var { stage, transformation_index, steps } = lattice_params; // WORKAROUND FOR NOW - all the params we need in main.js to make it run, but in the end we will have multiple lattices with multiple params
 var stage = 6; // workaround, not actually needed
 var steps = get_steps(stage); // workaround, not actually needed
-
 
 
 
@@ -895,19 +842,12 @@ View.prototype.addMoon = function ()
   var hasStarShine, star_shine;
 
   var celestial_plane_distance = -1800; // z coordinate of the plane where stars reside (they also recieve no shadow)
-  var monteCarloHit = true; // this will draw the triangle and is true by default, except for nebula case where it can become false
-  var nr_of_tries = 100; // number of tries to try to displace the center of the celestial (used in a for loop)
-  var cent_offset = center_piece_type != 'none' ? 100 : 0; // center offset is set if there is a lattice in the center, otherwise it's zero
 
   // define moon parameters
   radius_moon_x = gene_range(5, 50);
   radius_moon_y = radius_moon_x;
-  // here we are trying to choose the center until at least one coordinate is not close to the center (so it doesn't overlap with the lattice in the center)
-  for (var i = 0; i < nr_of_tries; i++) {
-    cent_moon_x = gene_range(-100 - cent_offset/2, 100 + cent_offset/2);
-    cent_moon_y = gene_range(-100 - cent_offset/2, 100 + cent_offset/2);
-    if (Math.max(Math.abs(cent_x), Math.abs(cent_y)) > cent_offset) {break;}
-  }
+  cent_moon_x = gene_range(-100, 100);
+  cent_moon_y = gene_range(-100, 100);
 
   // define shiny star parameters
   radius_star_x = 50;
