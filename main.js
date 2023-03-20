@@ -267,10 +267,6 @@ function View(viewArea) {
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
 
-  // SAO - Scalable Ambient Occlusion
-  saoPass = new THREE.SAOPass(this.scene, this.camera, false, true);
-  //this.composer.addPass(saoPass);
-
   // FXAA antialiasing
   effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
   effectFXAA.uniforms['resolution'].value.x = 1 / (window.innerWidth * window.devicePixelRatio);
