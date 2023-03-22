@@ -569,7 +569,8 @@ View.prototype.addDenseMatter = function  () {
     dummy.quaternion.setFromUnitVectors(axis_z, element_axis.clone().normalize());
     dummy.position.set(element_position.x, element_position.y, element_position.z);
 
-    if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.25, 0.15];} // rotation jitter will be applied
+    if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.25 * jitter_reduction, 0.15 * jitter_reduction];} // rotation jitter will be applied
+    //if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.12, 0.07];} // rotation jitter will be applied
     else {var rot_jitter_factors = [0, 0];} // rotation jitter will NOT be applied - we will get a smooth and shiny surface
 
     dummy.rotateY(Math.PI * 0.28 + (gene() - 0.5) * rot_jitter_factors[0]); // rotate member around its axis to align with the grid, plus a random jitter (Math.PI * 0.28 + (gene() - 0.5) * 0.25)

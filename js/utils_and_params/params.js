@@ -347,6 +347,7 @@ var noise_form = $fx.getParam("noise_form_id"); // noise form is chosen using fx
 var noise_form_scales = noise_form == "expressive" ? [1.0, 1.0] : [0.1, 0.25]; // factors which will scale noise sampling dimensions
 var noise_cull_rule = $fx.getParam("noise_cull_id"); // noise cull rule is chosen using fxhash params
 var dimension_type = $fx.getParam("dimension_id"); // element dimensions are chosen using fxhash params
+var jitter_reduction = dimension_type == "straw" ? 0.5 : 1.0; // if dimension type is "straw" there will be less random jitter of the elements
 var attachment_type = $fx.getParam("attachment_id"); // attachment type is chosen using fxhash params
 
 var c_type = dimensions[dimension_type][0]; // profile type
