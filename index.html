@@ -2,6 +2,7 @@
   <style> body { margin: 0; } </style>
   <script src="js/unpkg/three.js"></script>
   <script src="js/unpkg/OrbitControls.js"></script>
+  <script src="js/unpkg/p5.js"></script>
   <script src="js/unpkg/perlin.min.js"></script>
   <script src="js/postprocessing/EffectComposer.js"></script>
   <script src="js/postprocessing/RenderPass.js"></script>
@@ -18,6 +19,7 @@
   <script src="js/subdivision_module/subdivision.js"></script>
   <script src="js/subdivision_module/lattice_generation.js"></script>
   <script src="js/capture/CCapture.all.min.js"></script>
+
 
   <link rel="stylesheet" href="style.css">
 
@@ -368,9 +370,10 @@
 
   <!-- LOADING SCREEN -->
   <div id="loading">
+      <div id="p5loader"></div>
       <div id="loading_background"></div>
       <!--img src="loading/protocell_labs_lattice_200pix_20fps_4col_v5.gif" class="spinner" style="display: block;"-->
-      <img src="loading/stochastic_color_grading_dessau_04.gif" class="spinner" style="display: block;">
+      <!--img src="loading/stochastic_color_grading_dessau_04.gif" class="spinner" style="display: block;"-->
       <div id="loading_overlay"></div>
       <span id="loading_text" style="font-weight: bold;">
         T E C T O N I C A
@@ -420,6 +423,7 @@
   <!-- MAIN CODE GOES HERE -->
   <script src="js/utils_and_params/utils.js"></script>
   <script src="js/utils_and_params/params.js"></script>
+  <script src="js/utils_and_params/loading.js"></script>
   <script defer="defer" src="main.js"></script>
 
 </body>
