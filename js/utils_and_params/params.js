@@ -73,7 +73,7 @@ $fx.params([
 var dynamic_track = false;
 var linewidth_scale = 0.00001; // 0.00001, line width to line length ratio
 var loading_start_time = new Date().getTime();
-var min_loading_time = 1000; // this is the minimum that the loading screen will be shown, in miliseconds
+var min_loading_time = 2000; // this is the minimum that the loading screen will be shown, in miliseconds
 var debug = true;
 var cam_factor = 4; //controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
