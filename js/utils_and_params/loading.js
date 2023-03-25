@@ -1,7 +1,7 @@
 //////LOADER ANIMATION//////
 
 const loader_element_dim = {
-  "pixel": [5, 5],  // ['square 1x1', 5, 5, 110, 130, 30]
+  "pixel": [10, 10],  // ['square 1x1', 5, 5, 110, 130, 30]
   "pin": [5, 25],   // ['square 1x1', 5, 25, 110, 31, 30]
   "stick": [5, 50], // ['square 1x1', 5, 50, 110, 16, 30]
   "beam": [5, 100], // ['square 1x1', 5, 100, 110, 9, 30]
@@ -16,23 +16,12 @@ const offset_x = x_step / 2;
 const offset_y = y_step / 2;
 const nr_in_width = Math.floor(canvasWidth / x_step);
 const nr_in_height = Math.floor(canvasHeight / y_step);
-const prob_to_rand = 0.05;
-
-var elements = {};
 
 
 function setup() {
     const cnv = createCanvas(canvasWidth, canvasHeight);
     cnv.parent('p5loader');
-
     frameRate(10);
-    
-    for (var i = 0; i < nr_in_width; i++) {
-      for (var j = 0; j < nr_in_height; j++) {
-        var coords = i.toString() + " " + j.toString();
-        elements[coords] = {color: chosen_palette[0]};
-      }
-    }
   }
   
 
