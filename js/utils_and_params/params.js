@@ -52,8 +52,7 @@ $fx.params([
     name: "Dimension",
     type: "select",
     options: {
-      options: ["pixel", "pin", "stick", "beam", "straw"],
-      //options: ["pixel"],
+      options: ["voxel", "pin", "stick", "needle", "wire"],
     }
   },
   {
@@ -64,6 +63,23 @@ $fx.params([
     options: {
       options: ["dense", "tight", "detached", "loose", "floating"],
     }
+  },
+  {
+    id: "explosion_id",
+    name: "Exploded",
+    type: "boolean",
+    default: false,
+  },
+  {
+    id: "power_id",
+    name: "Power",
+    type: "number",
+    default: 2,
+    options: {
+      min: 0, // 1
+      max: 5, // 5
+      step: 0.1, // 1
+    },
   },
 ]);
 
@@ -77,7 +93,7 @@ var min_loading_time = 2000; // this is the minimum that the loading screen will
 var debug = true;
 var cam_factor = 4; //controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
-var aspect_ratio = '0.75'; ////OVERRIDE//// 0.75 - portrait
+var aspect_ratio = "0.5625"; //// 0.5625 - 16:9 aspect ratio, 0.75 - portrait (used in O B S C V R V M)
 var global_rot_x = -Math.PI/16; // global rotation of the model around the X axis
 var global_rot_y = Math.PI/16; // global rotation of the model around the Y axis
 
@@ -311,11 +327,11 @@ const allel_quadrant_div = [
 
 // profile type, element thickness, element length, number in x (width), number in y (height), number in z (depth)
 const dimensions = {
-  "pixel": ['square 1x1', 5, 5, 110, 130, 30],
-  "pin": ['square 1x1', 5, 25, 110, 31, 30],
-  "stick": ['square 1x1', 5, 50, 110, 16, 30],
-  "beam": ['square 1x1', 5, 100, 110, 9, 30],
-  "straw": ['square 1x1', 2, 100, 180, 9, 30]
+  "voxel": ["square 1x1", 5, 5, 115, 190, 30], // ["square 1x1", 5, 5, 110, 130, 30]
+  "pin": ["square beam", 5, 25, 115, 37, 30], // ["square 1x1", 5, 25, 110, 31, 30]
+  "stick": ["square beam", 5, 50, 115, 20, 30], // ["square 1x1", 5, 50, 110, 16, 30]
+  "needle": ["square beam", 2.5, 75, 220, 15, 30], // ["square 1x1", 5, 100, 110, 9, 30]
+  "wire": ["square beam", 2.5, 100, 110, 11, 30] // ["square 1x1", 2, 100, 180, 9, 30]
 }
 
 const attachment_values = {
@@ -327,12 +343,10 @@ const attachment_values = {
 }
 
 const cylinder_params = {
-  'standard' : [0.5, 0.5, 1, 6, 1],
-  'square beam' : [0.5, 0.5, 1, 4, 1],
-  'square 1x1' : [0.7, 0.7, 1, 4, 1] // first parameter is the radius, which gives us a square with a side close to 1.0
+  "standard" : [0.5, 0.5, 1, 6, 1],
+  "square beam" : [0.5, 0.5, 1, 4, 1], // here the side length is less than 1.0 as the first parameter is radius
+  "square 1x1" : [0.7, 0.7, 1, 4, 1] // first parameter is the radius, which gives us a square with a side close to 1.0
 }
-
-
 
 
 
@@ -347,8 +361,11 @@ var noise_form = $fx.getParam("noise_form_id"); // noise form is chosen using fx
 var noise_form_scales = noise_form == "expressive" ? [1.0, 1.0] : [0.1, 0.25]; // factors which will scale noise sampling dimensions
 var noise_cull_rule = $fx.getParam("noise_cull_id"); // noise cull rule is chosen using fxhash params
 var dimension_type = $fx.getParam("dimension_id"); // element dimensions are chosen using fxhash params
-var jitter_reduction = dimension_type == "straw" ? 0.5 : 1.0; // if dimension type is "straw" there will be less random jitter of the elements
+var jitter_reduction = (dimension_type == "voxel" || dimension_type == "needle") ? 0.5 : 1.0; // if dimension type is "voxel" or "needle" there will be less random jitter of the elements
+if (dimension_type == "wire") {jitter_reduction = 0.75}; // for dimension type "wire" random jitter is set to medium value between min and max
 var attachment_type = $fx.getParam("attachment_id"); // attachment type is chosen using fxhash params
+var exploded = $fx.getParam("explosion_id"); // explosion is chosen using fxhash params
+var explosion_power = $fx.getParam("power_id"); // explosion is chosen using fxhash params
 
 var c_type = dimensions[dimension_type][0]; // profile type
 var c_xy_scale = dimensions[dimension_type][1]; // element thickness
@@ -359,11 +376,15 @@ var grid_nr_z = dimensions[dimension_type][5]; // number in z (depth)
 
 
 var y_gap = attachment_values[attachment_type]; // y_gap will depend on the attachment type
-var x_gap = dimension_type == "pixel" ? 0 : 1; // x_gap is 0 for pixel dimension, otherwise it's always 1
+var x_gap = dimension_type == "wire" ? 3.0 : 0; // x_gap is larger for wire dimension, otherwise it's always zero
 
+// slight additional offset added to center the grid to the screen vertically
+if (dimension_type == "stick") {var extra_offset = 12;}
+else if (dimension_type == "needle" || dimension_type == "wire") {var extra_offset = -10;}
+else {var extra_offset = 0;}
 
 var grid_offset_x = -(grid_nr_x * (c_xy_scale + x_gap)) / 2.0;
-var grid_offset_y = -(grid_nr_y * (c_length + y_gap)) / 2.0;
+var grid_offset_y = extra_offset -(grid_nr_y * (c_length + y_gap)) / 2.0;
 var grid_offset_z = -(grid_nr_z * (c_xy_scale + x_gap)) / 2.0;
 var total_elements_existing = 0; // will be calculated later
 var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
@@ -405,6 +426,9 @@ var shift_sign_horiz = gene() < 0.5 ? 1 : -1; // chance for horizontal stripes t
 var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the opposite from horizontal ones
 
 
+
+// NOISE PARAMETERS
+
 //var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
 //var noise_feature = "unbiased";
 
@@ -433,19 +457,23 @@ if (noise_feature == "cracks") {
 }
 
 
-//var noise_scale_x = 0.01; // 0.01, increase this factor to 0.2 to get narrow cracks
-//var noise_scale_x = gene_weighted_choice(allel_noise_scale_x);
-//var noise_scale_y = 0.5; // 0.01
-//var noise_scale_y = 0.01; // 0.01
-//var noise_scale_z = 0.01; // 0.01, increase this factor to 0.5 to get thinner layers in depth, 0.05 avoids too low density when using noise_cull_rule = "clean"
-//var noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01; // var noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
-
-
 
 // random shift of noise to get a different pattern every time
 var noise_shift_x = gene_range(-100, 100);
 var noise_shift_y = gene_range(-100, 100);
 var noise_shift_z = gene_range(-100, 100);
+
+
+
+// EXPLOSION PARAMETERS
+
+var explosion_center_a = new THREE.Vector3(gene_range(-200, 200), gene_range(-200, 200), 0);
+var explosion_strength = 200000 * explosion_power; //200k - 1M when, falls with the square of distance
+var explosion_rot_range = Math.PI/2;
+var explosion_rot_factor = 0.1;
+
+
+// CONSOLE PRINT
 
 console.log("%cCOLOR", "color: white; background: #000000;");
 console.log("palette ->", palette_name, "\n"); // chosen_palette is where the colors are stores

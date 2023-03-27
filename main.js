@@ -33,7 +33,8 @@ $fx.features({
   "Form": noise_form,
   "Dissipation": noise_cull_rule,
   "Dimension": dimension_type,
-  "Attachment": attachment_type
+  "Attachment": attachment_type,
+  "Exploded": exploded
 });
 
 console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
@@ -43,7 +44,8 @@ console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
             'Form -> ' + noise_form, '\n',
             'Dissipation -> ' + noise_cull_rule, '\n',
             'Dimension -> ' + dimension_type, '\n',
-            'Attachment -> ' + attachment_type, '\n');
+            'Attachment -> ' + attachment_type, '\n',
+            'Exploded -> ' + exploded, '\n');
 
 /*window.$fxhashFeatures = {
   'Dimension': feature_dimension,
@@ -575,6 +577,30 @@ View.prototype.addDenseMatter = function  () {
 
     dummy.rotateY(Math.PI * 0.28 + (gene() - 0.5) * rot_jitter_factors[0]); // rotate member around its axis to align with the grid, plus a random jitter (Math.PI * 0.28 + (gene() - 0.5) * 0.25)
     dummy.rotateOnWorldAxis(axis_x, (gene() - 0.5) * rot_jitter_factors[1]); // add a slight random rotation jitter around the X axis
+
+
+
+    //// EXPLODING ELEMENTS ////
+
+    if (exploded) {
+
+      // calculate explosion parameters for each element
+      var strength_perturbance = gene_range(0.5, 1.0); // explosion strength will be randomly modified by this factor
+      var direction_perturbance = new THREE.Vector3(gene_range(-1, 1), gene_range(-1, 1), gene_range(-1, 1)).multiplyScalar(0.2); // explosion direction will be randomly modified by this vector
+      var explosion_axis = new THREE.Vector3().subVectors(element_position, explosion_center_a).normalize().add(direction_perturbance);
+      var dist_to_cent_a = element_position.distanceTo(explosion_center_a);
+
+      // apply explosion offset and random rotation for exploded elements
+      dummy.translateOnAxis(explosion_axis, strength_perturbance * explosion_strength / Math.pow(dist_to_cent_a, 2));
+      dummy.rotateX(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+      dummy.rotateY(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+      dummy.rotateZ(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    
+    }
+    //// END EXPLOSION PART ////
+
+
+
 
     dummy.updateMatrix();
     imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix);

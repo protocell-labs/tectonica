@@ -1,11 +1,11 @@
 //////LOADER ANIMATION//////
 
 const loader_element_dim = {
-  "pixel": [10, 10],  // ['square 1x1', 5, 5, 110, 130, 30]
+  "voxel": [10, 10],  // ['square 1x1', 5, 5, 110, 130, 30]
   "pin": [5, 25],   // ['square 1x1', 5, 25, 110, 31, 30]
   "stick": [5, 50], // ['square 1x1', 5, 50, 110, 16, 30]
-  "beam": [5, 100], // ['square 1x1', 5, 100, 110, 9, 30]
-  "straw": [2, 100] // ['square 1x1', 2, 100, 180, 9, 30]
+  "needle": [2, 50], // ['square 1x1', 5, 100, 110, 9, 30]
+  "wire": [2, 100] // ['square 1x1', 2, 100, 180, 9, 30]
 }
 
 const canvasWidth = 400
