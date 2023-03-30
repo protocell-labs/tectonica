@@ -29,6 +29,7 @@ var imeshes_object = {}; // color is the key, imesh is the value
 $fx.features({
   "Pigments": pigments,
   "Palette": palette_name,
+  "Pattern": pattern,
   "Dimension": dimension_type,
   "Structure": noise_feature,
   "Form": noise_form,
@@ -40,6 +41,7 @@ $fx.features({
 console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
             'Pigments -> ' + pigments, '\n',
             'Palette -> ' + palette_name, '\n',
+            'Pattern -> ' + pattern, '\n',
             'Dimension -> ' + dimension_type, '\n',
             'Structure -> ' + noise_feature, '\n',
             'Form -> ' + noise_form, '\n',

@@ -20,6 +20,14 @@ $fx.params([
       }
     },
     {
+      id: "pattern_id",
+      name: "Pattern",
+      type: "select",
+      options: {
+        options: ["noisy", "graded", "layered", "stacked", "composed"],
+      }
+    },
+    {
       id: "dimension_id",
       name: "Dimension",
       type: "select",
@@ -89,3 +97,10 @@ $fx.params([
       }
     },
   ]);
+
+
+/*
+  const allel_color_gradient = [
+    ["solid sprinkled", "uniform", "vertical grading", "horizontal grading", "height stack", "depth stack"]
+  ];
+  */

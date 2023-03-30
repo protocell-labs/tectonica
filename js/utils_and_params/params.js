@@ -173,10 +173,6 @@ const allel_color_features_horiz = [
   ["horizontal stripe solid", 5]
 ];
 
-/*const allel_noise_cull_rule = [
-  ["clean", 65],
-  ["fuzzy", 35]
-];*/
 
 const allel_noise_scale_x = [
   [0.05, 2],
@@ -201,27 +197,6 @@ const allel_noise_scale_z = [
   [0.50, 1]
 ];
 
-/*const allel_noise_features = [
-  ["cracks", 20],
-  ["bands", 20],
-  ["sheets", 30],
-  ["unbiased", 30]
-];*/
-
-// taken out:
-//["solid", 1],
-//["vertical grading clean", 1],
-//["horizontal grading clean", 1],
-//["width stack", 10],
-
-const allel_color_gradient = [
-  ["solid sprinkled", 15],
-  ["uniform", 15],
-  ["vertical grading", 15],
-  ["horizontal grading", 15],
-  ["height stack", 15],
-  ["depth stack", 25]
-];
 
 const allel_color_gradient_quadrants = [
   ["solid sprinkled", 1],
@@ -266,11 +241,26 @@ const cylinder_params = {
 
 
 
-
 var pigments = $fx.getParam("pigments_id"); // pigments are chosen using fxhash params
 var palette_name = gene_pick_key(palette_pigments[pigments]); // choose palette name at random from a palette pigment list
 var chosen_palette = palette_pigments[pigments][palette_name].slice(0); // make a copy of the chosen color palette
 shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
+
+var pattern = $fx.getParam("pattern_id"); // pattern is chosen using fxhash params
+if (pattern == "noisy") {var color_gradient_default = "uniform";}
+if (pattern == "graded") {var color_gradient_default = gene() < 0.5 ? "vertical grading" : "horizontal grading";}
+if (pattern == "layered") {var color_gradient_default = gene() < 0.5 ? "solid sprinkled" : "depth stack";}
+if (pattern == "stacked") {var color_gradient_default = "height stack";}
+if (pattern == "composed") {var color_gradient_default = "solid sprinkled";} // this one is just a placeholder, patterns for quadrants will be determined separately
+
+var quadrants = pattern == "composed" ? true : false; // if the color gradient is "composed", quadrants will be triggered
+var quadrant_div_x = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
+var quadrant_div_y = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
+// determines the color grading for each segment of the QUADRANT
+var color_gradient_quadrants = [gene_weighted_choice(allel_color_gradient_quadrants),
+                                gene_weighted_choice(allel_color_gradient_quadrants),
+                                gene_weighted_choice(allel_color_gradient_quadrants),
+                                gene_weighted_choice(allel_color_gradient_quadrants)];
 
 var noise_feature = $fx.getParam("noise_feature_id"); // noise feature is chosen using fxhash params
 var noise_form = $fx.getParam("noise_form_id"); // noise form is chosen using fxhash params
@@ -307,28 +297,10 @@ var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
 
 
 
-var color_gradient_default = gene_weighted_choice(allel_color_gradient); // "solid", "solid sprinkled", "uniform", "vertical grading", "horizontal grading", "vertical grading clean", "horizontal grading clean", "width stack", "height stack", "depth stack"
-//var color_gradient_default = "uniform"; //"vertical grading layered", "depth stack"
-
-var quadrants = gene() < 0.35 ? true : false; // trigger for color grading according to QUADRANTS
-//var quadrant_div_x = gene_range(1.5, 4.0); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
-//var quadrant_div_y = gene_range(1.5, 4.0); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
-var quadrant_div_x = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
-var quadrant_div_y = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
-// determines the color grading for each segment of the QUADRANT
-var color_gradient_quadrants = [gene_weighted_choice(allel_color_gradient_quadrants),
-                                gene_weighted_choice(allel_color_gradient_quadrants),
-                                gene_weighted_choice(allel_color_gradient_quadrants),
-                                gene_weighted_choice(allel_color_gradient_quadrants)];
-
-//var noise_cull_rule = gene_weighted_choice(allel_noise_cull_rule); // rule for culling elements using noise
-//var noise_cull_rule = "clean";
-
 // additional color features appearing
 var color_features_vert = gene_weighted_choice(allel_color_features_vert);
 var color_features_horiz = gene_weighted_choice(allel_color_features_horiz);
 var color_features = [color_features_vert, color_features_horiz];
-//color_features = ["horizontal stripe solid", "vertical stripe blocks"];
 
 var stripe_param_a = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
 var stripe_param_b = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
@@ -344,9 +316,6 @@ var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the oppo
 
 
 // NOISE PARAMETERS
-
-//var noise_feature = gene_weighted_choice(allel_noise_features); // "cracks", "bands", "sheets", "unbiased"
-//var noise_feature = "unbiased";
 
 var noise_height_f = c_length/c_xy_scale; // noise height factor
 
