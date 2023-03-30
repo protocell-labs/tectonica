@@ -1,95 +1,11 @@
 //////PARAMS//////
 
 
-//////FXHASH PARAMS//////
-// we can use $fx.getParam("param_id") to get the selected param in the code
-
-$fx.params([
-  {
-    id: "pigments_id",
-    name: "Pigments",
-    type: "select",
-    options: {
-      options: ["horizon, sunshine, grapefruit",
-                "night, embers, citrus",
-                "ivy, apatite, tourmaline",
-                "sodalite, glacier, rust",
-                "ocean, lapis, sulphur",
-                "moss, cedar, algae",
-                "ink, steel, salt",
-                "charcoal, papyrus, marble",
-                "murex, rhodochrosite, marshmallow",
-                "furnace, ruby, soot"],
-    }
-  },
-  {
-    id: "noise_feature_id",
-    name: "Structure",
-    type: "select",
-    options: {
-      options: ["cracks", "bands", "sheets", "unbiased"],
-    }
-  },
-  {
-    id: "noise_form_id",
-    name: "Form",
-    type: "select",
-    default: "expressive",
-    options: {
-      options: ["expressive", "monolithic"],
-    }
-  },
-  {
-    id: "noise_cull_id",
-    name: "Dissipation",
-    type: "select",
-    options: {
-      options: ["clean", "fuzzy"],
-    }
-  },
-  {
-    id: "dimension_id",
-    name: "Dimension",
-    type: "select",
-    options: {
-      options: ["voxel", "pin", "stick", "needle", "wire"],
-    }
-  },
-  {
-    id: "attachment_id",
-    name: "Attachment",
-    type: "select",
-    default: "tight",
-    options: {
-      options: ["dense", "tight", "detached", "loose", "floating"],
-    }
-  },
-  {
-    id: "explosion_id",
-    name: "Exploded",
-    type: "boolean",
-    default: false,
-  },
-  {
-    id: "power_id",
-    name: "Power",
-    type: "number",
-    default: 2,
-    options: {
-      min: 0, // 1
-      max: 5, // 5
-      step: 0.1, // 1
-    },
-  },
-]);
-
-
-
 //////SETTINGS//////
 var dynamic_track = false;
 var linewidth_scale = 0.00001; // 0.00001, line width to line length ratio
 var loading_start_time = new Date().getTime();
-var min_loading_time = 2000; // this is the minimum that the loading screen will be shown, in miliseconds
+var min_loading_time = 1000; // this is the minimum that the loading screen will be shown, in miliseconds
 var debug = true;
 var cam_factor = 4; //controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
@@ -436,33 +352,32 @@ var noise_height_f = c_length/c_xy_scale; // noise height factor
 
 var noise_scale_x, noise_scale_y, noise_scale_z;
 if (noise_feature == "cracks") {
-  noise_scale_x = gene_weighted_choice(allel_noise_scale_x) * noise_form_scales[1];
-  noise_scale_y = 0.01 * noise_form_scales[0]; //0.01
-  noise_scale_z = 0.025; //0.025
+  noise_scale_x = gene_weighted_choice_seeded(allel_noise_scale_x) * noise_form_scales[1];
+  noise_scale_y = 0.01 * noise_form_scales[0];
+  noise_scale_z = 0.025;
 
 } else if (noise_feature == "bands") {
-  noise_scale_x = 0.01 * noise_form_scales[0]; //0.01
-  noise_scale_y = gene_weighted_choice(allel_noise_scale_y);
-  noise_scale_z = 0.05 * noise_form_scales[0]; //0.05
+  noise_scale_x = 0.01 * noise_form_scales[0];
+  noise_scale_y = gene_weighted_choice_seeded(allel_noise_scale_y);
+  noise_scale_z = 0.05 * noise_form_scales[0];
 
 } else if (noise_feature == "sheets") {
-  noise_scale_x = 0.01 * noise_form_scales[0]; //0.01
-  noise_scale_y = 0.01 * noise_form_scales[0]; //0.01
-  noise_scale_z = gene_weighted_choice(allel_noise_scale_z);
+  noise_scale_x = 0.01 * noise_form_scales[0];
+  noise_scale_y = 0.01 * noise_form_scales[0];
+  noise_scale_z = gene_weighted_choice_seeded(allel_noise_scale_z);
 
 } else { // in any other case, noise_feature == "unbiased"
-  noise_scale_x = 0.01 * noise_form_scales[0]; //0.01
-  noise_scale_y = 0.01 * noise_form_scales[0]; //0.01
+  noise_scale_x = 0.01 * noise_form_scales[0];
+  noise_scale_y = 0.01 * noise_form_scales[0];
   noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
 }
 
 
-
-// random shift of noise to get a different pattern every time
-var noise_shift_x = gene_range(-100, 100);
-var noise_shift_y = gene_range(-100, 100);
-var noise_shift_z = gene_range(-100, 100);
-
+// random shift of noise to get a different pattern based on the seed string from the params
+// coordinates for the noise are chosen using fxhash params and interpreted as a prng seed - defined in utils.js
+var noise_shift_x = gene_range_seeded(-100, 100);
+var noise_shift_y = gene_range_seeded(-100, 100);
+var noise_shift_z = gene_range_seeded(-100, 100);
 
 
 // EXPLOSION PARAMETERS

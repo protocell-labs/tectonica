@@ -50,6 +50,12 @@ function memcpy(src, srcOffset, dst, dstOffset, length) {
 //FXHASH random function for specific implimentation
 gene = fxrand;
 
+// creating a custom, seeded PRNG for getting a noise shift and scale in a deterministic way
+// coordinates for the noise are chosen using fxhash params and interpreted as a prng seed
+var noise_coordinates = $fx.getParam("coordinates_id");
+var seeded_gene = new Math.seedrandom(noise_coordinates);
+
+
 //rand functions for random generator. Assumes generator producing float point between 0 and 1
 function generateRandomInt(min,max){
   return Math.floor((gene() * (max-min)) +min);
@@ -57,6 +63,11 @@ function generateRandomInt(min,max){
 
 function gene_range(min, max){
   return (gene() * (max - min)) + min;
+}
+
+// seeded version
+function gene_range_seeded(min, max){
+  return (seeded_gene() * (max - min)) + min;
 }
 
 function gene_pick_n(min, max, n){
@@ -73,6 +84,23 @@ function gene_weighted_choice(data){
       total += data[i][1];
   }
   const threshold = gene() * total;
+  total = 0;
+  for (let i = 0; i < data.length - 1; ++i) {
+      total += data[i][1];
+      if (total >= threshold) {
+          return data[i][0];
+      }
+  }
+  return data[data.length - 1][0];
+}
+
+// seeded version
+function gene_weighted_choice_seeded(data){
+  let total = 0;
+  for (let i = 0; i < data.length; ++i) {
+      total += data[i][1];
+  }
+  const threshold = seeded_gene() * total;
   total = 0;
   for (let i = 0; i < data.length - 1; ++i) {
       total += data[i][1];

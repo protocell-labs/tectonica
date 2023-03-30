@@ -29,10 +29,10 @@ var imeshes_object = {}; // color is the key, imesh is the value
 $fx.features({
   "Pigments": pigments,
   "Palette": palette_name,
+  "Dimension": dimension_type,
   "Structure": noise_feature,
   "Form": noise_form,
   "Dissipation": noise_cull_rule,
-  "Dimension": dimension_type,
   "Attachment": attachment_type,
   "Exploded": exploded
 });
@@ -40,10 +40,10 @@ $fx.features({
 console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
             'Pigments -> ' + pigments, '\n',
             'Palette -> ' + palette_name, '\n',
+            'Dimension -> ' + dimension_type, '\n',
             'Structure -> ' + noise_feature, '\n',
             'Form -> ' + noise_form, '\n',
             'Dissipation -> ' + noise_cull_rule, '\n',
-            'Dimension -> ' + dimension_type, '\n',
             'Attachment -> ' + attachment_type, '\n',
             'Exploded -> ' + exploded, '\n');
 
