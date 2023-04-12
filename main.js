@@ -20,8 +20,10 @@ var dense_matter_object = {}; // grid coordinates are the key, dense matter data
 var elements_per_palette_object = {}; // color is the key, nr of elements is the value
 var imesh_index_tracker = {}; // color is the key, index nr is the value
 var imeshes_object = {}; // color is the key, imesh is the value
-
-
+var animation_frametime = 0;
+var gif_frame_n = 10;
+var explosion_state_t = null;
+var palette_state_t = null;
 
 
 //////FXHASH FEATURES//////
@@ -216,19 +218,41 @@ function View(viewArea) {
   var shadow = 8192; //2048; //Default
   var paramsAssigned = false;
   // URL PARAMS
-  // Usage: add this to the url ?shadow=4096
+
+  // Usage: add this to the url =>    ?shadow=4096&explosion=0.5&palette=3&gif=10
   try {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const shadowString = urlParams.get('shadow');
-
-  if (shadowString!=null) {
-      shadow = Math.abs(parseInt(shadowString));
-      paramsAssigned = true;
-    }
+    try {
+      const explosionState = urlParams.get('explosion');
+      if (explosionState!=null) {
+        explosion_state_t = Math.abs(parseFloat(explosionState));
+      }
+    } 
+    catch (error) {"Error in explosion state URL Param. State should be a float number between 0 and 1."}
+    try {
+      const paletteState = urlParams.get('palette');
+      if (paletteState!=null) {
+        palette_state_t = Math.abs(parseInt(paletteState));
+      }
+    } 
+    catch (error) {"Error in palette state URL Param. Pallette needs to be an Int number"}
+    try {
+      const gifFrames = urlParams.get('gif');
+      if (gifFrames!=null) {
+        gif_frame_n = Math.abs(parseInt(gifFrames));
+      }
+    } 
+    catch (error) {}
+    if (shadowString!=null) {
+        shadow = Math.abs(parseInt(shadowString));
+        paramsAssigned = true;
+      }
   } catch (error) {
     //console.log("shadow variable must be a positive integer")
   }
+
   if (Number.isInteger(shadow) & paramsAssigned) { //If values are overiden by urlParams  for a minimum overide add: & shadow > 2048
     console.log("Using custom url parmater for shadow map size: " + shadow.toString())
     light.shadow.mapSize.width = shadow;
@@ -284,7 +308,6 @@ function View(viewArea) {
   bloomPass.threshold = 0.0;
   this.composer.addPass(bloomPass)
 }
-
 
 View.prototype.addDenseMatter = function  () {
 
@@ -480,9 +503,14 @@ View.prototype.addDenseMatter = function  () {
         // this data will be later used to create instanced meshes with all the elements
         var dense_matter_element = {exists: element_exists,
                                     position: element_position,
+                                    dist_to_ctr: null,
+                                    exp_vectors: null,
+                                    str_perturbance: null,
+                                    rotation_gene: null,
                                     grid_pos: element_grid_position,
                                     color: element_color,
                                     smooth: element_smooth,
+                                    base_matrix: null,
                                     imesh_idx: imesh_idx};
         dense_matter_object[element_grid_position_str] = dense_matter_element;
 
@@ -567,6 +595,7 @@ View.prototype.addDenseMatter = function  () {
     var imesh = imeshes_object[dense_matter_element['color']];
 
     imesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); // will be updated every frame
+    imesh.frustumCulled = false;
 
     var element_position = dense_matter_element['position'];
     dummy.scale.set(c_xy_scale, c_length, c_xy_scale);
@@ -580,16 +609,23 @@ View.prototype.addDenseMatter = function  () {
     dummy.rotateY(Math.PI * 0.28 + (gene() - 0.5) * rot_jitter_factors[0]); // rotate member around its axis to align with the grid, plus a random jitter (Math.PI * 0.28 + (gene() - 0.5) * 0.25)
     dummy.rotateOnWorldAxis(axis_x, (gene() - 0.5) * rot_jitter_factors[1]); // add a slight random rotation jitter around the X axis
 
+    dummy.updateMatrix();
+    dense_matter_element['base_matrix'] = dummy.matrix;
+    imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix);
 
+    // add one to the index tracker for the imesh of that color
+    imesh_index_tracker[dense_matter_element['color']] += 1;
 
-    //// EXPLODING ELEMENTS ////
-
+    //// EXPLODING ELEMENTS LEGACY////
+    
+    /*
     if (exploded) {
 
       // calculate explosion parameters for each element
       var strength_perturbance = gene_range(0.5, 1.0); // explosion strength will be randomly modified by this factor
       var direction_perturbance = new THREE.Vector3(gene_range(-1, 1), gene_range(-1, 1), gene_range(-1, 1)).multiplyScalar(0.2); // explosion direction will be randomly modified by this vector
       var explosion_axis = new THREE.Vector3().subVectors(element_position, explosion_center_a).normalize().add(direction_perturbance);
+      
       var dist_to_cent_a = element_position.distanceTo(explosion_center_a);
 
       // apply explosion offset and random rotation for exploded elements
@@ -597,19 +633,19 @@ View.prototype.addDenseMatter = function  () {
       dummy.rotateX(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
       dummy.rotateY(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
       dummy.rotateZ(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+
+      dummy.updateMatrix();
+      imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix); //Update position 
     
     }
+    */
     //// END EXPLOSION PART ////
 
 
 
-
-    dummy.updateMatrix();
-    imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix);
-
-    // add one to the index tracker for the imesh of that color
-    imesh_index_tracker[dense_matter_element['color']] += 1;
   }
+
+  View.prototype.DenseMatterCreateExplosionVectors(explosion_center_a); //always create
 
   // add instance meshes to the scene
   var sceneMeshes = []
@@ -648,12 +684,84 @@ View.prototype.addDenseMatter = function  () {
   const total_width = c_xy_scale*grid_nr_x
   //const sigmoid_amplitude = 0.05;
 
-  setInterval(function () {
+  if (palette_state_t == null) {
+    setInterval(function () {
 
-    if(cycleTime<=flickerDuration){ //During State Change
+      if(cycleTime<=flickerDuration){ //During State Change
+        var k=0;
+        var stateChangeProb = cycleTime/flickerDuration;
+        //console.log(stateChangeProb);
+        for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
+          var selectedColor;
+
+          //var test = [0,0]
+          for (let i=0; i<imeshx.count; i++){
+            
+            let matrix = new THREE.Matrix4()
+            sceneMeshes[k].getMatrixAt(i, matrix)  //X is index 12,
+
+            //let tempObj = new THREE.Object3D()
+            //matrix.decompose(tempObj.position, tempObj.quaternion, tempObj.scale)
+            //console.log(tempObj.position.x)
+
+            var prop = matrix.elements[12]/total_width;
+
+            //Check Bounds
+            /*
+            if (test[0]==0 & test[1]==0) {
+              test = [prop,prop]
+            }
+
+            if (prop>test[1]) {
+              test[1] = prop
+            } else {
+              if (prop<test[0]) {
+                test[0]= prop
+              }
+            }*/
+            //var sigmoidValue = sigmoid(cycleTime-flickerDuration/2,500)+0.08; //non linear activation
+            var xMod = prop+0.5 //X position modifier. 
+            xMod = xMod*(1-stateChangeProb) //sigmoidValue OR stateChangeProb //For a full transition the stateChange Prob needs to take over
+            //console.log(xMod);
+            if (stateChangeProb-xMod > gene()){
+              selectedColor = copyPalette[k]; //Update State with shifted palette
+            } else {
+              selectedColor = chosen_palette_array[k]; //Recede State
+            }
+            sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
+          };
+
+          //imeshx.instanceMatrix.needsUpdate = true;
+          
+          /*
+          if (sigmoidValue > gene()){
+            selectedColor = copyPalette[k]; //Update State with shifted palette
+          } else {
+            selectedColor = chosen_palette_array[k]; //Recede State
+          }*/
+
+          sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
+          //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
+          k++;
+        }
+      }//Else: State Stable
+
+      cycleTime += flickerInterval;
+
+      if (cycleTime>=cycleDuration){
+        chosen_palette_array=[...copyPalette];
+        copyPalette = shiftArrayCopy(chosen_palette_array);
+        //console.log(chosen_palette_array,copyPalette)
+        cycleTime = 0;
+      }
+    }, flickerInterval);
+
+  } else {
+
+    for (let i = 0; i < palette_state_t % copyPalette.length; i++) {
+      chosen_palette_array=[...copyPalette];
+      copyPalette = shiftArrayCopy(chosen_palette_array);     
       var k=0;
-      var stateChangeProb = cycleTime/flickerDuration;
-      //console.log(stateChangeProb);
       for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
         var selectedColor;
 
@@ -661,72 +769,76 @@ View.prototype.addDenseMatter = function  () {
         for (let i=0; i<imeshx.count; i++){
           
           let matrix = new THREE.Matrix4()
-          sceneMeshes[k].getMatrixAt(i, matrix)  //X is index 12,
-
-          //let tempObj = new THREE.Object3D()
-          //matrix.decompose(tempObj.position, tempObj.quaternion, tempObj.scale)
-          //console.log(tempObj.position.x)
+          sceneMeshes[k].getMatrixAt(i, matrix)  
 
           var prop = matrix.elements[12]/total_width;
 
-          //Check Bounds
-          /*
-          if (test[0]==0 & test[1]==0) {
-            test = [prop,prop]
-          }
-
-          if (prop>test[1]) {
-            test[1] = prop
-          } else {
-            if (prop<test[0]) {
-              test[0]= prop
-            }
-          }*/
-          
-          var xMod = prop+0.5 //X position modifier. 
-          xMod = xMod*(1-stateChangeProb) //For a full transition the stateChange Prob needs to take over
-          //console.log(xMod);
-          if (stateChangeProb-xMod > gene()){
-            selectedColor = copyPalette[k]; //Update State with shifted palette
-          } else {
-            selectedColor = chosen_palette_array[k]; //Recede State
-          }
+          //selectedColor = copyPalette[k]; //Update State with shifted palette
+          selectedColor = chosen_palette_array[k]; //Recede State
           sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
         };
-        //console.log(test)
 
-        //imeshx.instanceMatrix.needsUpdate = true;
-        var sigmoidValue = sigmoid(cycleTime-flickerDuration/2,500)+0.08; //non linear activation
-        if (sigmoidValue > gene()){
-        ////if (stateChangeProb > gene()){
-          selectedColor = copyPalette[k]; //Update State with shifted palette
-        } else {
-          selectedColor = chosen_palette_array[k]; //Recede State
-        }
+        //selectedColor = copyPalette[k]; //Update State with shifted palette
+        //selectedColor = chosen_palette_array[k]; //Recede State
+
         sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
-        //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
         k++;
       }
-    }//Else: State Stable
-
-    cycleTime += flickerInterval;
-
-    if (cycleTime>=cycleDuration){
-      chosen_palette_array=[...copyPalette];
-      copyPalette = shiftArrayCopy(chosen_palette_array);
-      //console.log(chosen_palette_array,copyPalette)
-      cycleTime = 0;
     }
-  }, flickerInterval);
-
-  //  chosen_palette_array=copyPalette;
-  //}, cycleDuration)
+  }
 
 
 
 }
 
+View.prototype.DenseMatterCreateExplosionVectors = function (cntr_pt) {
+  for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
+    if (dense_matter_element['exists'] == false) {continue;}
+    var element_position = dense_matter_element['position'];
 
+    dense_matter_element['rotation_gene'] = {'x':gene(), 'y':gene(), 'z':gene()};
+  //for (let i = 0; i < imesh.count; i++) {
+    // calculate explosion parameters for each element
+    dense_matter_element['dist_to_ctr'] = element_position.distanceTo(cntr_pt);
+    dense_matter_element['str_perturbance'] = gene_range(0.5, 1.0); // explosion strength will be randomly modified by this factor
+    var direction_perturbance = new THREE.Vector3(gene_range(-1, 1), gene_range(-1, 1), gene_range(-1, 1)).multiplyScalar(0.2); // explosion direction will be randomly modified by this vector
+    var explosion_axis = new THREE.Vector3().subVectors(element_position, cntr_pt).normalize().add(direction_perturbance); //vectors should be computed once per animation, refreshed only when user changes center
+    dense_matter_element['exp_vector'] = explosion_axis; 
+  }
+}
+
+View.prototype.DenseMatterUpdateT = function (t) {
+  
+  // apply explosion offset and random rotation for exploded elements
+  for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
+    if (dense_matter_element['exists'] == false) {continue;}
+    var dummy = new THREE.Object3D();
+    //dummy.matrix = dense_matter_element['base_matrix']; //start relative from base position 
+    var explosion_axis = dense_matter_element['exp_vector'];
+    var dist_to_cent_a = dense_matter_element['dist_to_ctr']; //OPT: Does not need to be calculated every time
+    var imesh_idx = dense_matter_element['imesh_idx'];
+    var imesh = imeshes_object[dense_matter_element['color']]
+    //imesh.setMatrixAt(imesh_idx, dense_matter_element['base_matrix'])
+    //imesh.getMatrixAt(imesh_idx, dummy.matrix);
+    dummy.applyMatrix4(dense_matter_element['base_matrix']);
+    var strength_perturbance = dense_matter_element['str_perturbance'];
+    dummy.translateOnAxis(explosion_axis, strength_perturbance * t * explosion_strength / Math.pow(dist_to_cent_a, 2)); //Change this to fixed positions + explosion translations
+    dummy.rotateX(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].x * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    dummy.rotateY(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].y * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    dummy.rotateZ(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].z * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    dummy.updateMatrix();
+    imesh.setMatrixAt(imesh_idx, dummy.matrix); //Update position 
+  }
+
+  //Update imeshes
+  
+  for (const [key, imesh] of Object.entries(imeshes_object)) {
+    //imesh.rotateX(global_rot_x); //Is this already rotated?
+    //imesh.rotateY(global_rot_y);
+    imesh.instanceMatrix.needsUpdate = true;
+    //imesh.computeBoundingSphere();
+  }
+}
 
 View.prototype.addStarsRandom = function (bounds, qty)
 {
@@ -776,13 +888,12 @@ View.prototype.addStarsRandom = function (bounds, qty)
   //const vector = new THREE.Vector3(0,0,1);
   //const rotMatrixStaticIncrement = new THREE.Matrix4();
   //rotMatrixStaticIncrement.makeRotationAxis(vector, rotThetaDelta)
-
+  /*
   setInterval(function () {
-    //console.log("r_random");
     //imesh.applyMatrix4(rotMatrixStaticIncrement);
     imesh.rotateZ(rotThetaDelta);
     imesh.instanceMatrix.needsUpdate = true;
-  }, cycleBackgroundUpdate)
+  }, cycleBackgroundUpdate)*/
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
@@ -856,13 +967,13 @@ View.prototype.addStarDust = function ()
   imesh.instanceMatrix.needsUpdate = true
 
 
-
+  /*
   setInterval(function () {
     //console.log("r_star dust");
     //imesh.applyMatrix4(rotMatrixStaticIncrement);
     imesh.rotateZ(rotThetaDelta)
     imesh.instanceMatrix.needsUpdate = true;
-  }, cycleBackgroundUpdate)
+  }, cycleBackgroundUpdate)*/
   //imesh.castShadow = true; // remove for performance
   //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
@@ -1001,10 +1112,25 @@ View.prototype.addMoon = function ()
 
 }
 
-
-
-
 View.prototype.render = function () {
+
+    //Animation
+    const animation_time = 1;
+    const animation_increment = 0.001;
+
+
+    if (explosion_state_t != null) {
+      animation_frametime = explosion_state_t; //Fix t to URL param
+    }
+
+
+    if (animation_frametime < animation_time) {
+      View.prototype.DenseMatterUpdateT(animation_frametime);
+    }
+
+    if (debug){
+      var start_timer = new Date().getTime();
+    }
 
     this.composer.render();
     //this.renderer.clear();  //
@@ -1012,10 +1138,21 @@ View.prototype.render = function () {
     requestAnimationFrame(this.render.bind(this));
     this.controls.update();
 
-    //this.renderer.clear();  //
-    if (debug){
-      var start_timer = new Date().getTime();
+
+
+
+    if (animation_frametime < animation_time) {
+      animation_frametime += animation_increment;
+      //console.log(animation_frametime)
+    } else {
+      //console.log("** animation finished **")
     }
+
+    //Add an on click event to update vectors
+    //Reset animation t and update vectors using DenseMatterCreateExplosionVectors(cntr_pt)
+
+    //this.renderer.clear();  //
+
 
     if (debug){
       var end_timer = new Date().getTime();
@@ -1038,15 +1175,10 @@ function Controller(viewArea) {
   view.cam_distance = 700 //1000 for ortho
   this.view = view; //referenced outside
 
-
-
   view.addDenseMatter(); // dense grid of colored elements
-
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
   view.addStarDust(); // star dust (made with random walk algorithm)
   view.addMoon(); // adds a large glowing moon with few shiny stars around
-
-
   view.render();
 
 
@@ -1205,7 +1337,7 @@ function doc_keyUp(e) {
         display: false,
         //quality: 99,
         //name: variant_name,
-        //framerate:,
+        framerate: gif_frame_n,
         //autoSaveTime:, //does not work for gif
         //timeLimit: 10000,
         format: 'gif',
