@@ -645,6 +645,7 @@ View.prototype.addDenseMatter = function  () {
 
   }
 
+  console.log(explosion_center_a)
   View.prototype.DenseMatterCreateExplosionVectors(explosion_center_a); //always create
 
   // add instance meshes to the scene
@@ -797,7 +798,6 @@ View.prototype.DenseMatterCreateExplosionVectors = function (cntr_pt) {
     var element_position = dense_matter_element['position'];
 
     dense_matter_element['rotation_gene'] = {'x':gene(), 'y':gene(), 'z':gene()};
-  //for (let i = 0; i < imesh.count; i++) {
     // calculate explosion parameters for each element
     dense_matter_element['dist_to_ctr'] = element_position.distanceTo(cntr_pt);
     dense_matter_element['str_perturbance'] = gene_range(0.5, 1.0); // explosion strength will be randomly modified by this factor
@@ -1120,7 +1120,7 @@ View.prototype.render = function () {
 
 
     if (explosion_state_t != null) {
-      animation_frametime = explosion_state_t; //Fix t to URL param
+      animation_frametime = explosion_state_t; //Fix explosion t to URL param
     }
 
 
@@ -1207,6 +1207,35 @@ function Controller(viewArea) {
     }
 
     window.addEventListener( 'resize', onWindowResize );
+
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    
+  function onPointerClick( event ) {
+  
+    // calculate pointer position in normalized device coordinates
+    // (-1 to +1) for both components
+  
+    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+  
+    const intersects = raycaster.intersectObjects( view.scene.children );
+    
+    for ( let i = 0; i < intersects.length; i ++ ) {
+      //console.log(intersects[ i ]);
+      intersects[ i ].point.z = 0; //find the middle plane
+      console.log(intersects[ i ].point);
+      View.prototype.DenseMatterCreateExplosionVectors(intersects[ i ].point)
+      break;
+  
+    }
+  
+    
+    animation_frametime = 0; //Reset animation
+  
+  }
+  
+  window.addEventListener( 'click', onPointerClick );
 }
 
 function obscvrvm () {
@@ -1376,6 +1405,9 @@ function doc_keyUp(e) {
     }
 
   }
+  else if (e.keyCode === 69) { //"e" = reset explosion 
+    animation_frametime = 0;
+  }
   else if (e.keyCode === 73 && !e.ctrlKey) {  //i and not ctrl
     document.getElementById("keybinding").style.display = "block";
     document.querySelector("#keybinding").style.opacity = 1
@@ -1401,6 +1433,8 @@ function doc_keyUp(e) {
 const handler = (e) => {
     obscvrvm();
 };
+
+
 
 const capture = (contx) => {
   ///DOCSIZE
