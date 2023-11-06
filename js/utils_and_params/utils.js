@@ -48,7 +48,7 @@ function memcpy(src, srcOffset, dst, dstOffset, length) {
 
 
 //FXHASH random function for specific implimentation
-gene = fxrand;
+gene = $fx.rand; // $fx.rand was called fxrand in the old version of the snippet
 
 // creating a custom, seeded PRNG for getting a noise shift and scale in a deterministic way
 // coordinates for the noise are chosen using fxhash params and interpreted as a prng seed

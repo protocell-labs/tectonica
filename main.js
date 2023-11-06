@@ -1198,7 +1198,7 @@ function Controller(viewArea) {
     }
     setTimeout(function () {document.querySelector("#loading").style.display = "none";}, min_loading_time - loading_time + 2000);
   }
-  setTimeout(function () {fxpreview();}, min_loading_time+3000)
+  setTimeout(function () {$fx.preview();}, min_loading_time+3000)
 
   function onWindowResize() {
     //console.log("resize")
