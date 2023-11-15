@@ -15,7 +15,7 @@ __/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\________/\\\\\\\\\__/\\\\\\\\\\\\\\\_______/
 */
 
 
-
+var dense_matter_memory = {}; //memory object that has a key timestamp and matrix value
 var dense_matter_object = {}; // grid coordinates are the key, dense matter data is the value
 var elements_per_palette_object = {}; // color is the key, nr of elements is the value
 var imesh_index_tracker = {}; // color is the key, index nr is the value
@@ -25,6 +25,10 @@ var gif_frame_n = 10;
 var explosion_state_t = null;
 var palette_state_t = null;
 
+
+//Animation Settings
+const animation_time = 1;
+const animation_increment = 0.1;
 
 //////FXHASH FEATURES//////
 
@@ -808,7 +812,7 @@ View.prototype.DenseMatterCreateExplosionVectors = function (cntr_pt) {
 }
 
 View.prototype.DenseMatterUpdateT = function (t) {
-  
+  dense_matter_memory[t] = {}; //holder for element wise objects
   // apply explosion offset and random rotation for exploded elements
   for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
     if (dense_matter_element['exists'] == false) {continue;}
@@ -816,8 +820,8 @@ View.prototype.DenseMatterUpdateT = function (t) {
     //dummy.matrix = dense_matter_element['base_matrix']; //start relative from base position 
     var explosion_axis = dense_matter_element['exp_vector'];
     var dist_to_cent_a = dense_matter_element['dist_to_ctr']; //OPT: Does not need to be calculated every time
-    var imesh_idx = dense_matter_element['imesh_idx'];
-    var imesh = imeshes_object[dense_matter_element['color']]
+    //var imesh_idx = dense_matter_element['imesh_idx'];
+    //var imesh = imeshes_object[dense_matter_element['color']]
     //imesh.setMatrixAt(imesh_idx, dense_matter_element['base_matrix'])
     //imesh.getMatrixAt(imesh_idx, dummy.matrix);
     dummy.applyMatrix4(dense_matter_element['base_matrix']);
@@ -827,16 +831,25 @@ View.prototype.DenseMatterUpdateT = function (t) {
     dummy.rotateY(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].y * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
     dummy.rotateZ(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].z * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
     dummy.updateMatrix();
-    imesh.setMatrixAt(imesh_idx, dummy.matrix); //Update position 
+    //imesh.setMatrixAt(imesh_idx, dummy.matrix); //Update position 
+    dense_matter_memory[t][key] = dummy.matrix;
+  }
+}
+
+View.prototype.DenseMatterUpdateFromMemory = function (t) {
+  
+  // apply explosion offset and random rotation for exploded elements
+  for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
+    if (dense_matter_element['exists'] == false) {continue;}
+    var imesh_idx = dense_matter_element['imesh_idx'];
+    var imesh = imeshes_object[dense_matter_element['color']]
+    imesh.setMatrixAt(imesh_idx, dense_matter_memory[t][key]); //Update position 
+    
   }
 
   //Update imeshes
-  
   for (const [key, imesh] of Object.entries(imeshes_object)) {
-    //imesh.rotateX(global_rot_x); //Is this already rotated?
-    //imesh.rotateY(global_rot_y);
     imesh.instanceMatrix.needsUpdate = true;
-    //imesh.computeBoundingSphere();
   }
 }
 
@@ -1112,11 +1125,19 @@ View.prototype.addMoon = function ()
 
 }
 
-View.prototype.render = function () {
+View.prototype.preRender = function () {
+  //Empty cache
+  dense_matter_memory = {};
 
-    //Animation
-    const animation_time = 1;
-    const animation_increment = 0.001;
+  //Cycle frames and pre-calc matrices
+  for (let animation_frametime_x = 0; animation_frametime_x < animation_time; animation_frametime_x+=animation_increment) {
+    if (animation_frametime_x < animation_time) {
+      View.prototype.DenseMatterUpdateT(animation_frametime_x);
+    }
+  }
+}
+
+View.prototype.render = function () {
 
 
     if (explosion_state_t != null) {
@@ -1125,7 +1146,7 @@ View.prototype.render = function () {
 
 
     if (animation_frametime < animation_time) {
-      View.prototype.DenseMatterUpdateT(animation_frametime);
+      View.prototype.DenseMatterUpdateFromMemory(animation_frametime);
     }
 
     if (debug){
@@ -1179,7 +1200,8 @@ function Controller(viewArea) {
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
   view.addStarDust(); // star dust (made with random walk algorithm)
   view.addMoon(); // adds a large glowing moon with few shiny stars around
-  view.render();
+  view.preRender();
+ 
 
 
   // remove loading screen once the app is loaded to this point and min_loading_time has elapsed
@@ -1191,12 +1213,14 @@ function Controller(viewArea) {
       setTimeout(function () {document.querySelector("#loading").style.opacity = 1.00 - k * 0.05;}, 100 * k);
     }
     setTimeout(function () {document.querySelector("#loading").style.display = "none";}, 2000);
+    view.render();
   } else {
     for (i = 0; i < 21; i++) {
       let k = i; // we need to do this because: https://codehandbook.org/understanding-settimeout-inside-for-loop-in-javascript/
       setTimeout(function () {document.querySelector("#loading").style.opacity = 1.00 - k * 0.05;}, min_loading_time - loading_time + 100 * k);
     }
     setTimeout(function () {document.querySelector("#loading").style.display = "none";}, min_loading_time - loading_time + 2000);
+    view.render();
   }
   setTimeout(function () {$fx.preview();}, min_loading_time+3000)
 
