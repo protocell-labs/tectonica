@@ -174,16 +174,16 @@ function View(viewArea) {
   var camera = new THREE.OrthographicCamera( -viewportWidth/cam_factor_mod, viewportWidth/cam_factor_mod, viewportHeight/cam_factor_mod, -viewportHeight/cam_factor_mod, 0, 5000 );
 
   //controls
-  const controls = new THREE.OrbitControls( camera, renderer.domElement );
-  controls.enableZoom = true;
+  //const controls = new THREE.OrbitControls( camera, renderer.domElement );
+  //controls.enableZoom = true;
   //controls.smoothZoom = true;
   //controls.zoomDampingFactor = 0.2;
   //controls.smoothZoomSpeed = 5.0;
 
 
   camera.position.set(0, 0, 2000);
-  controls.update();
-  this.controls = controls;
+  //controls.update();
+  //this.controls = controls;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   //composer = new THREE.EffectComposer( renderer );
@@ -1157,7 +1157,7 @@ View.prototype.render = function () {
     //this.renderer.clear();  //
 
     requestAnimationFrame(this.render.bind(this));
-    this.controls.update();
+    //this.controls.update();
 
 
 
