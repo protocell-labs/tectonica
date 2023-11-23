@@ -21,13 +21,17 @@ var elements_per_palette_object = {}; // color is the key, nr of elements is the
 var imesh_index_tracker = {}; // color is the key, index nr is the value
 var imeshes_object = {}; // color is the key, imesh is the value
 var animation_frametime = 0;
+var animation_direction = true;
+var animation_initiated = false;
+var animation_center_comm = false;
 var gif_frame_n = 10;
 var explosion_state_t = null;
 var palette_state_t = null;
 
 
 //Animation Settings
-const animation_time = 1;
+const nDecimal = 10;
+const animation_time = 1; 
 const animation_increment = 0.1;
 
 //////FXHASH FEATURES//////
@@ -843,8 +847,10 @@ View.prototype.DenseMatterUpdateFromMemory = function (t) {
     if (dense_matter_element['exists'] == false) {continue;}
     var imesh_idx = dense_matter_element['imesh_idx'];
     var imesh = imeshes_object[dense_matter_element['color']]
+    if (dense_matter_memory[t] == undefined) {
+      console.log(dense_matter_memory, t);
+    }
     imesh.setMatrixAt(imesh_idx, dense_matter_memory[t][key]); //Update position 
-    
   }
 
   //Update imeshes
@@ -1125,27 +1131,33 @@ View.prototype.addMoon = function ()
 
 }
 
-View.prototype.preRender = function () {
-  //Empty cache
-  dense_matter_memory = {};
-
-  //Cycle frames and pre-calc matrices
+View.prototype.calculateFrames = function () {
   for (let animation_frametime_x = 0; animation_frametime_x < animation_time; animation_frametime_x+=animation_increment) {
     if (animation_frametime_x < animation_time) {
+      animation_frametime_x = Math.round(animation_frametime_x * Math.pow(10, nDecimal)) / Math.pow(10, nDecimal);
       View.prototype.DenseMatterUpdateT(animation_frametime_x);
     }
   }
 }
 
-View.prototype.render = function () {
+View.prototype.preRender = function () {
+  //Empty cache
+  dense_matter_memory = {};
 
+  //Cycle frames and pre-calc matrices
+  View.prototype.calculateFrames();
+}
+
+View.prototype.render = function () {
+    animation_frametime = Math.round(animation_frametime * Math.pow(10, nDecimal)) / Math.pow(10, nDecimal);
 
     if (explosion_state_t != null) {
       animation_frametime = explosion_state_t; //Fix explosion t to URL param
     }
 
-
+    //console.log(animation_frametime)
     if (animation_frametime < animation_time) {
+      
       View.prototype.DenseMatterUpdateFromMemory(animation_frametime);
     }
 
@@ -1160,14 +1172,21 @@ View.prototype.render = function () {
     //this.controls.update();
 
 
-
-
-    if (animation_frametime < animation_time) {
-      animation_frametime += animation_increment;
-      //console.log(animation_frametime)
-    } else {
-      //console.log("** animation finished **")
+    //console.log(animation_frametime);
+    if (animation_initiated) {
+      if (animation_direction){
+        if (animation_frametime < animation_time){
+          animation_frametime += animation_increment;
+        } 
+      }
+      else {
+        if (animation_frametime > 0) {
+          animation_frametime -= animation_increment;
+        }
+      }
     }
+
+
 
     //Add an on click event to update vectors
     //Reset animation t and update vectors using DenseMatterCreateExplosionVectors(cntr_pt)
@@ -1236,27 +1255,40 @@ function Controller(viewArea) {
     const pointer = new THREE.Vector2();
     
   function onPointerClick( event ) {
+
+    if (animation_initiated) {
+
+      animation_direction = !animation_direction;
+      
+      //animation_frametime = 0; //Reset animation
+      
+    } else {
+      animation_initiated = true; //This is to start animation the first time, second time it's already set to true. 
+      console.log("initiated");
+    }
   
     // calculate pointer position in normalized device coordinates
     // (-1 to +1) for both components
-  
-    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-  
-    const intersects = raycaster.intersectObjects( view.scene.children );
+    if (animation_center_comm) {
+      pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+      raycaster.setFromCamera(pointer, view.camera);
     
-    for ( let i = 0; i < intersects.length; i ++ ) {
-      //console.log(intersects[ i ]);
-      intersects[ i ].point.z = 0; //find the middle plane
-      console.log(intersects[ i ].point);
-      View.prototype.DenseMatterCreateExplosionVectors(intersects[ i ].point)
-      break;
-  
+      const intersects = raycaster.intersectObjects( view.scene.children, true );
+      console.log(intersects)
+      for ( let i = 0; i < intersects.length; i ++ ) {
+        intersects[ i ].point.z = 0; //find the middle plane
+        console.log(intersects[ i ].point);
+        View.prototype.DenseMatterCreateExplosionVectors(intersects[ i ].point)
+        break;
+      }
+
+      View.prototype.preRender(); //clear and recalculate frames
+
+      animation_center_comm = false; //wait for p to be pressed again
+      
     }
-  
-    
-    animation_frametime = 0; //Reset animation
-  
   }
   
   window.addEventListener( 'click', onPointerClick );
@@ -1427,7 +1459,6 @@ function doc_keyUp(e) {
       document.body.style.backgroundColor = "white";
       console.log("Background: white")
     }
-
   }
   else if (e.keyCode === 69) { //"e" = reset explosion 
     animation_frametime = 0;
@@ -1451,6 +1482,10 @@ function doc_keyUp(e) {
         }
       }, 100);
     },3000);
+  }
+  else if (e.keyCode === 80) { //"p" = reset explosion center
+    console.log("pick point for explosion")
+    animation_center_comm = true;
   }
 }
 
@@ -1496,8 +1531,18 @@ const capture = (contx) => {
   composer.render();
 };
 
+/*
+function onMouseMove(event) {
+  // calculate mouse position in normalized device coordinates
+  // (-1 to +1) for both components
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}*/
+
 // register the capture key handler
 document.addEventListener('keyup', doc_keyUp, false);
+
+//document.addEventListener('mousemove', onMouseMove, false);
 
 document.addEventListener('DOMContentLoaded', () => {
   handler();
