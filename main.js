@@ -1018,7 +1018,7 @@ View.prototype.addMoon = function ()
   hasStarShine = [];
   centers_x = [];
   centers_y = [];
-  nr_of_stars = generateRandomInt(1, 10);
+  nr_of_stars = gene_rand_int(1, 10);
   constellation_bounds = gene_range(150, 300);
   for (var i = 0; i < nr_of_stars; i++) {
     centers_x.push(gene_range(-constellation_bounds, constellation_bounds));
@@ -1057,7 +1057,7 @@ View.prototype.addMoon = function ()
   // main loop that calculates positions of all triangles
   for (var i = 0; i < nr_of_triangles; i++) {
 
-    rand_idx = generateRandomInt(0, centers_x.length); // we choose a random index from the list that holds meteor coordinates
+    rand_idx = gene_rand_int(0, centers_x.length); // we choose a random index from the list that holds meteor coordinates
     angle = gene_range(0, Math.PI * 2); // full 360 degrees
     r = gene_range(0, gene_range(0, gene_range(0, gene_range(0, gene_range(0, 1))))); // more dense in the middle - CONSTELLATION
     cent_x = centers_x[rand_idx]; // draw random star from the coordinate list

@@ -321,19 +321,19 @@ var noise_height_f = c_length/c_xy_scale; // noise height factor
 
 var noise_scale_x, noise_scale_y, noise_scale_z;
 if (noise_feature == "cracks") {
-  noise_scale_x = gene_weighted_choice_seeded(allel_noise_scale_x) * noise_form_scales[1];
+  noise_scale_x = gene_weighted_choice(allel_noise_scale_x) * noise_form_scales[1];
   noise_scale_y = 0.01 * noise_form_scales[0];
   noise_scale_z = 0.025;
 
 } else if (noise_feature == "bands") {
   noise_scale_x = 0.01 * noise_form_scales[0];
-  noise_scale_y = gene_weighted_choice_seeded(allel_noise_scale_y);
+  noise_scale_y = gene_weighted_choice(allel_noise_scale_y);
   noise_scale_z = 0.05 * noise_form_scales[0];
 
 } else if (noise_feature == "sheets") {
   noise_scale_x = 0.01 * noise_form_scales[0];
   noise_scale_y = 0.01 * noise_form_scales[0];
-  noise_scale_z = gene_weighted_choice_seeded(allel_noise_scale_z);
+  noise_scale_z = gene_weighted_choice(allel_noise_scale_z);
 
 } else { // in any other case, noise_feature == "unbiased"
   noise_scale_x = 0.01 * noise_form_scales[0];
@@ -342,12 +342,10 @@ if (noise_feature == "cracks") {
 }
 
 
-// random shift of noise to get a different pattern based on the seed string from the params
-// coordinates for the noise are chosen using fxhash params and interpreted as a prng seed - defined in utils.js
-var noise_shift_x = gene_range_seeded(-100, 100);
-var noise_shift_y = gene_range_seeded(-100, 100);
-var noise_shift_z = gene_range_seeded(-100, 100);
-
+// random shift of noise to get a different pattern
+var noise_shift_x = gene_range(-100, 100);
+var noise_shift_y = gene_range(-100, 100);
+var noise_shift_z = gene_range(-100, 100);
 
 // EXPLOSION PARAMETERS
 

@@ -47,81 +47,133 @@ function memcpy(src, srcOffset, dst, dstOffset, length) {
   }
 
 
-//FXHASH random function for specific implimentation
-gene = $fx.rand; // $fx.rand was called fxrand in the old version of the snippet
 
-// creating a custom, seeded PRNG for getting a noise shift and scale in a deterministic way
-// coordinates for the noise are chosen using fxhash params and interpreted as a prng seed
-var noise_coordinates = $fx.getParam("coordinates_id");
-var seeded_gene = new Math.seedrandom(noise_coordinates);
+// rand functions for random generator. Assumes generator producing float point between 0 and 1
 
-
-//rand functions for random generator. Assumes generator producing float point between 0 and 1
-function generateRandomInt(min,max){
-  return Math.floor((gene() * (max-min)) +min);
+function gene_rand_int_proto(gene){
+  function gene_rand_int(min,max){
+    return Math.floor((gene() * (max-min)) + min);
+  }
+  return gene_rand_int;
 }
 
-function gene_range(min, max){
-  return (gene() * (max - min)) + min;
+function gene_range_proto(gene){
+  function gene_range(min, max){
+    return (gene() * (max - min)) + min;
+  }
+  return gene_range;
 }
 
-// seeded version
-function gene_range_seeded(min, max){
-  return (seeded_gene() * (max - min)) + min;
+function gene_pick_n_proto(gene){
+  function gene_pick_n(min, max, n){
+    var unique_list = [];
+    for (var i = 0; i < n; i++) {
+      unique_list.push(Math.floor((gene() * (max-min)) + min));
+    }
+    return unique_list;
+  }
+  return gene_pick_n;
 }
 
-function gene_pick_n(min, max, n){
-  var unique_list = [];
-  for (var i = 0; i < n; i++) {
-    unique_list.push(Math.floor((gene() * (max-min)) + min));
+function gene_weighted_choice_proto(gene){
+  function gene_weighted_choice(data){
+    let total = 0;
+    for (let i = 0; i < data.length; ++i) {
+        total += data[i][1];
+    }
+    const threshold = gene() * total;
+    total = 0;
+    for (let i = 0; i < data.length - 1; ++i) {
+        total += data[i][1];
+        if (total >= threshold) {
+            return data[i][0];
+        }
+    }
+    return data[data.length - 1][0];
   }
-  return unique_list
-}
-
-function gene_weighted_choice(data){
-  let total = 0;
-  for (let i = 0; i < data.length; ++i) {
-      total += data[i][1];
-  }
-  const threshold = gene() * total;
-  total = 0;
-  for (let i = 0; i < data.length - 1; ++i) {
-      total += data[i][1];
-      if (total >= threshold) {
-          return data[i][0];
-      }
-  }
-  return data[data.length - 1][0];
-}
-
-// seeded version
-function gene_weighted_choice_seeded(data){
-  let total = 0;
-  for (let i = 0; i < data.length; ++i) {
-      total += data[i][1];
-  }
-  const threshold = seeded_gene() * total;
-  total = 0;
-  for (let i = 0; i < data.length - 1; ++i) {
-      total += data[i][1];
-      if (total >= threshold) {
-          return data[i][0];
-      }
-  }
-  return data[data.length - 1][0];
+return gene_weighted_choice;
 }
 
 // choose a random property name (key) from an object
-function gene_pick_key(obj) {
-  var keys = Object.keys(obj);
-  return keys[keys.length * gene() << 0];
+function gene_pick_key_proto(gene) {
+  function gene_pick_key(obj) {
+    var keys = Object.keys(obj);
+    return keys[keys.length * gene() << 0];
+  }
+  return gene_pick_key;
 }
 
 // choose a random property from an object
-function gene_pick_property(obj) {
-  var keys = Object.keys(obj);
-  return obj[keys[keys.length * gene() << 0]];
+function gene_pick_property_proto(gene) {
+  function gene_pick_property(obj) {
+    var keys = Object.keys(obj);
+    return obj[keys[keys.length * gene() << 0]];
+  }
+  return gene_pick_property;
 }
+
+// returns a gaussian random function with the given mean and standard deviation (normal distribution has a mean of 0 and the standard deviation of 1)
+function gaussian_proto(gene) {
+  function gaussian(mean, stdev) {
+    var y2;
+    var use_last = false;
+    return function() {
+      var y1;
+      if (use_last) {
+        y1 = y2;
+        use_last = false;
+      } else {
+        var x1, x2, w;
+        do {
+          x1 = 2.0 * gene() - 1.0;
+          x2 = 2.0 * gene() - 1.0;
+          w = x1 * x1 + x2 * x2;
+        } while (w >= 1.0);
+        w = Math.sqrt((-2.0 * Math.log(w)) / w);
+        y1 = x1 * w;
+        y2 = x2 * w;
+        use_last = true;
+      }
+      var retval = mean + stdev * y1;
+      if (retval > 0)
+        return retval;
+      return -retval;
+    }
+  }
+  return gaussian;
+}
+
+// randomize array in-place using Durstenfeld shuffle algorithm, an optimized version of Fisher-Yates
+function shuffleArray_proto(gene) {
+  function shuffleArray(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(gene() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+  }
+return shuffleArray;
+}
+
+
+// random functions for specific implementation
+//var gene = $fx.rand; // fxhash version of Math.random(), uses the unique hash injected into the code as a seed
+let seed = $fx.getParam("seed");
+let artwork_seed = $fx.minter + "_seed_" + seed.toString(); // artwork seed is composed of minter wallet address and chosen effect number
+const gene = new Math.seedrandom(artwork_seed); // creating a seeded PRNG
+
+
+// random functions seeded with artwork_seed
+const gene_rand_int = gene_rand_int_proto(gene);
+const gene_range = gene_range_proto(gene);
+const gene_pick_n = gene_pick_n_proto(gene);
+const gene_weighted_choice = gene_weighted_choice_proto(gene);
+const gene_pick_key = gene_pick_key_proto(gene);
+const gene_pick_property = gene_pick_property_proto(gene);
+const gaussian = gaussian_proto(gene);
+const shuffleArray = shuffleArray_proto(gene);
+
 
 function calculate_size(mode, node) {
     if (mode == 0) {
@@ -159,48 +211,11 @@ function createCircleTexture(color, size) {
 }
 
 
-// returns a gaussian random function with the given mean and standard deviation (normal distribution has a mean of 0 and the standard deviation of 1)
-function gaussian(mean, stdev) {
-  var y2;
-  var use_last = false;
-  return function() {
-    var y1;
-    if (use_last) {
-      y1 = y2;
-      use_last = false;
-    } else {
-      var x1, x2, w;
-      do {
-        x1 = 2.0 * gene() - 1.0;
-        x2 = 2.0 * gene() - 1.0;
-        w = x1 * x1 + x2 * x2;
-      } while (w >= 1.0);
-      w = Math.sqrt((-2.0 * Math.log(w)) / w);
-      y1 = x1 * w;
-      y2 = x2 * w;
-      use_last = true;
-    }
-    var retval = mean + stdev * y1;
-    if (retval > 0)
-      return retval;
-    return -retval;
-  }
-}
-
 // calculates a number between two numbers at a specific increment
 function lerp(start, end, amt){
   return (1 - amt) * start + amt * end;
 }
 
-// randomize array in-place using Durstenfeld shuffle algorithm, an optimized version of Fisher-Yates
-function shuffleArray(array) {
-  for (var i = array.length - 1; i > 0; i--) {
-      var j = Math.floor(gene() * (i + 1));
-      var temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-  }
-}
 
 
 function shiftArray(arr){
