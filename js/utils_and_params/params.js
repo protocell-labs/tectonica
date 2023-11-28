@@ -240,6 +240,7 @@ const cylinder_params = {
 }
 
 
+var triptych = $fx.getParam("triptych_id"); // type of triptych, default is "middle"
 
 var pigments = $fx.getParam("pigments_id"); // pigments are chosen using fxhash params
 var palette_name = gene_pick_key(palette_pigments[pigments]); // choose palette name at random from a palette pigment list
@@ -288,6 +289,16 @@ var x_gap = dimension_type == "wire" ? 3.0 : 0; // x_gap is larger for wire dime
 if (dimension_type == "stick") {var extra_offset = 12;}
 else if (dimension_type == "needle" || dimension_type == "wire") {var extra_offset = -10;}
 else {var extra_offset = 0;}
+
+// left and right triptych pieces also get an additional vertical offset to align better
+if ((triptych == "left") && (dimension_type == "pin")) {extra_offset -= 5;}
+else if ((triptych == "right") && (dimension_type == "pin")) {extra_offset += 5;}
+else if ((triptych == "left") && (dimension_type == "stick")) {extra_offset += 18;}
+else if ((triptych == "right") && (dimension_type == "stick")) {extra_offset += 31;}
+else if ((triptych == "left") && (dimension_type == "needle")) {extra_offset += 20;}
+else if ((triptych == "right") && (dimension_type == "needle")) {extra_offset -= 20;}
+else if ((triptych == "left") && (dimension_type == "wire")) {extra_offset += 20;}
+else if ((triptych == "right") && (dimension_type == "wire")) {extra_offset -= 20;}
 
 var grid_offset_x = -(grid_nr_x * (c_xy_scale + x_gap)) / 2.0;
 var grid_offset_y = extra_offset -(grid_nr_y * (c_length + y_gap)) / 2.0;
@@ -342,9 +353,27 @@ if (noise_feature == "cracks") {
 }
 
 
+
+// triptych type determines the shift in noise pattern so three triptychs can align
+var triptych_shift_x, triptych_shift_y;
+var triptych_shift_amplitude_x = 500 * noise_scale_x / c_xy_scale;
+var triptych_shift_amplitude_y = 125 * noise_scale_y / c_length;
+
+if (triptych == "right") {
+  triptych_shift_x = triptych_shift_amplitude_x;
+  triptych_shift_y = triptych_shift_amplitude_y;
+} else if (triptych == "left") {
+  triptych_shift_x = -triptych_shift_amplitude_x;
+  triptych_shift_y = -triptych_shift_amplitude_y;
+} else {
+  triptych_shift_x = 0;
+  triptych_shift_y = 0;
+}
+
+
 // random shift of noise to get a different pattern
-var noise_shift_x = gene_range(-100, 100);
-var noise_shift_y = gene_range(-100, 100);
+var noise_shift_x = gene_range(-100, 100) + triptych_shift_x;
+var noise_shift_y = gene_range(-100, 100) + triptych_shift_y;
 var noise_shift_z = gene_range(-100, 100);
 
 // EXPLOSION PARAMETERS

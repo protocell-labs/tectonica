@@ -3,7 +3,7 @@
 
 $fx.params([
     {
-      id: "seed",
+      id: "seed_id",
       name: "Seed",
       type: "number",
       update: "page-reload",
@@ -13,6 +13,18 @@ $fx.params([
         max: 999,
         step: 1,
       },
+    },
+    {
+      id: "triptych_id",
+      name: "Triptych",
+      type: "select",
+      update: "page-reload",
+      default: "left",
+      options: {
+        options: ["left",
+                  "middle",
+                  "right"],
+      }
     },
     {
       id: "pigments_id",

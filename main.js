@@ -37,6 +37,8 @@ const animation_increment = 0.1;
 //////FXHASH FEATURES//////
 
 $fx.features({
+  "Seed": seed,
+  "Triptych": triptych,
   "Pigments": pigments,
   "Palette": palette_name,
   "Pattern": pattern,
@@ -49,6 +51,8 @@ $fx.features({
 });
 
 console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
+            'Seed -> ' + seed,  '\n',
+            'Triptych -> ' + triptych,   '\n',
             'Pigments -> ' + pigments, '\n',
             'Palette -> ' + palette_name, '\n',
             'Pattern -> ' + pattern, '\n',
