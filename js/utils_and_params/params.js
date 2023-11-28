@@ -218,11 +218,11 @@ const allel_quadrant_div = [
 
 // profile type, element thickness, element length, number in x (width), number in y (height), number in z (depth)
 const dimensions = {
-  "voxel": ["square 1x1", 5, 5, 115, 190, 30], // ["square 1x1", 5, 5, 110, 130, 30]
-  "pin": ["square beam", 5, 25, 115, 37, 30], // ["square 1x1", 5, 25, 110, 31, 30]
-  "stick": ["square beam", 5, 50, 115, 20, 30], // ["square 1x1", 5, 50, 110, 16, 30]
-  "needle": ["square beam", 2.5, 75, 220, 15, 30], // ["square 1x1", 5, 100, 110, 9, 30]
-  "wire": ["square beam", 2.5, 100, 110, 11, 30] // ["square 1x1", 2, 100, 180, 9, 30]
+  "voxel": ["square 1x1", 8, 8, 70, 110, 20], // ["square 1x1", 5, 5, 115, 190, 30], ["square 1x1", 10, 10, 58, 95, 20], ["square 1x1", 8, 8, 72, 120, 15]
+  "pin": ["square beam", 5, 25, 115, 37, 30],
+  "stick": ["square beam", 5, 50, 115, 20, 30],
+  "needle": ["square beam", 2.5, 75, 220, 15, 30],
+  "wire": ["square beam", 2.5, 100, 110, 11, 30]
 }
 
 const attachment_values = {
@@ -291,10 +291,12 @@ else if (dimension_type == "needle" || dimension_type == "wire") {var extra_offs
 else {var extra_offset = 0;}
 
 // left and right triptych pieces also get an additional vertical offset to align better
-if ((triptych == "left") && (dimension_type == "pin")) {extra_offset -= 5;}
+if ((triptych == "left") && (dimension_type == "voxel")) {extra_offset -= 5;}
+else if ((triptych == "right") && (dimension_type == "voxel")) {extra_offset += 5;}
+else if ((triptych == "left") && (dimension_type == "pin")) {extra_offset -= 5;}
 else if ((triptych == "right") && (dimension_type == "pin")) {extra_offset += 5;}
-else if ((triptych == "left") && (dimension_type == "stick")) {extra_offset += 18;}
-else if ((triptych == "right") && (dimension_type == "stick")) {extra_offset += 31;}
+else if ((triptych == "left") && (dimension_type == "stick")) {extra_offset += 20;}
+else if ((triptych == "right") && (dimension_type == "stick")) {extra_offset -= 20;}
 else if ((triptych == "left") && (dimension_type == "needle")) {extra_offset += 20;}
 else if ((triptych == "right") && (dimension_type == "needle")) {extra_offset -= 20;}
 else if ((triptych == "left") && (dimension_type == "wire")) {extra_offset += 20;}
@@ -358,6 +360,9 @@ if (noise_feature == "cracks") {
 var triptych_shift_x, triptych_shift_y;
 var triptych_shift_amplitude_x = 500 * noise_scale_x / c_xy_scale;
 var triptych_shift_amplitude_y = 125 * noise_scale_y / c_length;
+
+if (dimension_type == "voxel") {triptych_shift_amplitude_y = 25 * noise_scale_y / c_length;}
+
 
 if (triptych == "right") {
   triptych_shift_x = triptych_shift_amplitude_x;
