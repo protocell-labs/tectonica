@@ -239,6 +239,16 @@ const cylinder_params = {
   "square 1x1" : [0.7, 0.7, 1, 4, 1] // first parameter is the radius, which gives us a square with a side close to 1.0
 }
 
+// one triangle
+const star_vertices = [
+  0, 1, 0, // top
+  1, 0, 0, // right
+  -1, 0, 0 // left
+];
+
+const star_face = [ 2, 1, 0 ]; // one face
+const star_radius = 0.30;
+
 
 var triptych = $fx.getParam("triptych_id"); // type of triptych, default is "middle"
 
