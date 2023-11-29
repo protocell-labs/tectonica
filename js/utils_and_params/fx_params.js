@@ -19,7 +19,7 @@ $fx.params([
       name: "Triptych",
       type: "select",
       update: "page-reload",
-      default: "left",
+      default: "middle",
       options: {
         options: ["left",
                   "middle",

@@ -995,21 +995,50 @@ View.prototype.addStarDust = function ()
 
 View.prototype.addMoon = function ()
 {
-  var radius_moon_x, cent_moon_x, cent_moon_y;
+  var radius_moon, cent_moon_x, cent_moon_y, tilt_angle, phase_start;
   var celestial_plane_distance = -1800; // z coordinate of the plane where stars reside (they also recieve no shadow)
 
+  var time = loading_start_time; // this will be continuously updated for every frame later
+  var mills_of_day = loading_start_time % 86400000; // how many milliseconds have passed in a day
+  var phase_of_day = mills_of_day / 86400000; // how many milliseconds have passed in a day in %
+
   // define moon parameters
-  radius_moon_x = gene_range(5, 50);
+  radius_moon = gene_range(5, 50);
   cent_moon_x = gene_range(-100, 100);
   cent_moon_y = gene_range(-100, 100);
+  phase_start = gene_range(-Math.PI, Math.PI) + 2 * Math.PI * phase_of_day; // each part of the day will have a specific time offset, it takes 24h to complete a full moon transition
+  tilt_angle = gene_range(-Math.PI/2, Math.PI/2); // rotation axis tilt angle: -+ 90 deg
 
-  // place glowing disk in front of the stars - FULL MOON
-  const light_disc_geo = new THREE.CircleGeometry(radius_moon_x, 128);
-  const light_disc_material = new THREE.MeshBasicMaterial({color: '#f9f0de'});
-  const light_disc_mesh = new THREE.Mesh(light_disc_geo, light_disc_material);
-  light_disc_mesh.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
+  // place glowing hemisphere in front of the stars - MOON LIGHT SIDE
+  const hemisphere_light = new THREE.SphereGeometry( radius_moon, 32, 16, 0, Math.PI*2, 0, Math.PI/2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const material_light = new THREE.MeshBasicMaterial( { color: '#f9f0de' } );
+  const moon_light = new THREE.Mesh( hemisphere_light, material_light );
+  moon_light.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
+  moon_light.rotation.z += Math.PI/2  + tilt_angle;
+  moon_light.rotateX(-phase_start); 
 
-  this.scene.add(light_disc_mesh);
+  // place dark hemisphere in front of the stars - MOON DARK SIDE
+  const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 32, 16, 0, Math.PI*2, 0, Math.PI/2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const material_dark = new THREE.MeshBasicMaterial( { color: '#080808' } );
+  const moon_dark = new THREE.Mesh( hemisphere_dark, material_dark );
+  moon_dark.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
+  moon_dark.rotation.z -= Math.PI/2 - tilt_angle;
+  moon_dark.rotateX(phase_start);
+
+  // rotate moon hemispheres to cycle through moon phases
+  // full cycle lasts 24h and is synced with the clock
+  setInterval(function () {
+    const currentTime = Date.now();
+    const deltaTime = currentTime - time;
+    time = currentTime;
+    // apply a rotation transform around the mesh object's local frame
+    // mesh.rotation.y applies it to the global frame
+    moon_light.rotateX(-2 * Math.PI * deltaTime / 86400000); 
+    moon_dark.rotateX(2 * Math.PI * deltaTime / 86400000);
+  }, cycleBackgroundUpdate)
+
+  this.scene.add(moon_light);
+  this.scene.add(moon_dark);
 
 }
 
@@ -1098,7 +1127,7 @@ function Controller(viewArea) {
   view.cam_distance = 700 //1000 for ortho
   this.view = view; //referenced outside
 
-  view.addDenseMatter(); // dense grid of colored elements
+  //view.addDenseMatter(); // dense grid of colored elements
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
   
   // star dust and the moon appear only in the middle (default) triptych
