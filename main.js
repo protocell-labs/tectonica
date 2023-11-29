@@ -50,7 +50,7 @@ $fx.features({
   "Exploded": exploded
 });
 
-console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
+console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
             'Seed -> ' + seed,  '\n',
             'Triptych -> ' + triptych,   '\n',
             'Pigments -> ' + pigments, '\n',
@@ -995,7 +995,7 @@ View.prototype.addStarDust = function ()
 
 View.prototype.addMoon = function ()
 {
-  var radius_moon, cent_moon_x, cent_moon_y, tilt_angle, phase_start;
+  var radius_moon, cent_moon_x, cent_moon_y, tilt_angle, phase_start, phase_deg, moon_phase, deg_to_next;
   var celestial_plane_distance = -1800; // z coordinate of the plane where stars reside (they also recieve no shadow)
 
   var time = loading_start_time; // this will be continuously updated for every frame later
@@ -1009,8 +1009,26 @@ View.prototype.addMoon = function ()
   phase_start = gene_range(-Math.PI, Math.PI) + 2 * Math.PI * phase_of_day; // each part of the day will have a specific time offset, it takes 24h to complete a full moon transition
   tilt_angle = gene_range(-Math.PI/2, Math.PI/2); // rotation axis tilt angle: -+ 90 deg
 
+  phase_deg = ((phase_start + 2 * Math.PI) * (180 / Math.PI)) % 360;
+
+  // determine the name of the moon phase
+  if ((phase_deg >= 0) && (phase_deg < 15)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 15 - phase_deg; }
+  else if ((phase_deg >= 15) && (phase_deg < 75))  { moon_phase = "🌘 Waning Crescent"; deg_to_next = 75 - phase_deg; }
+  else if ((phase_deg >= 75) && (phase_deg < 105))  { moon_phase = "🌑 New Moon"; deg_to_next = 105 - phase_deg; }
+  else if ((phase_deg >= 105) && (phase_deg < 165))  { moon_phase = "🌒 Waxing Crescent"; deg_to_next = 165 - phase_deg; }
+  else if ((phase_deg >= 165) && (phase_deg < 195))  { moon_phase = "🌓 First Quarter"; deg_to_next = 195 - phase_deg; }
+  else if ((phase_deg >= 195) && (phase_deg < 255))  { moon_phase = "🌔 Waxing Gibbous"; deg_to_next = 255 - phase_deg; }
+  else if ((phase_deg >= 255) && (phase_deg < 285))  { moon_phase = "🌕 Full Moon"; deg_to_next = 285 - phase_deg; }
+  else if ((phase_deg >= 285) && (phase_deg < 345))  { moon_phase = "🌖 Waning Gibbous"; deg_to_next = 345 - phase_deg; }
+  else if ((phase_deg >= 345) && (phase_deg < 360)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 375 - phase_deg; } // 375 degrees to the next phase because we have to go over 0 degrees up to 15 again
+
+  // print moon info to the console
+  console.log('%c MOON ', 'color: white; background: #000000;', '\n',
+            'Phase -> ' + moon_phase,  '\n',
+            'Time to next -> ' + Math.floor(deg_to_next * 4) + ' min', '\n');
+
   // place glowing hemisphere in front of the stars - MOON LIGHT SIDE
-  const hemisphere_light = new THREE.SphereGeometry( radius_moon, 32, 16, 0, Math.PI*2, 0, Math.PI/2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const hemisphere_light = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
   const material_light = new THREE.MeshBasicMaterial( { color: '#f9f0de' } );
   const moon_light = new THREE.Mesh( hemisphere_light, material_light );
   moon_light.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
@@ -1018,11 +1036,11 @@ View.prototype.addMoon = function ()
   moon_light.rotateX(-phase_start); 
 
   // place dark hemisphere in front of the stars - MOON DARK SIDE
-  const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 32, 16, 0, Math.PI*2, 0, Math.PI/2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
   const material_dark = new THREE.MeshBasicMaterial( { color: '#080808' } );
   const moon_dark = new THREE.Mesh( hemisphere_dark, material_dark );
   moon_dark.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
-  moon_dark.rotation.z -= Math.PI/2 - tilt_angle;
+  moon_dark.rotation.z -= Math.PI / 2 - tilt_angle;
   moon_dark.rotateX(phase_start);
 
   // rotate moon hemispheres to cycle through moon phases
@@ -1033,7 +1051,7 @@ View.prototype.addMoon = function ()
     time = currentTime;
     // apply a rotation transform around the mesh object's local frame
     // mesh.rotation.y applies it to the global frame
-    moon_light.rotateX(-2 * Math.PI * deltaTime / 86400000); 
+    moon_light.rotateX(-2 * Math.PI * deltaTime / 86400000); // 86400000 is number of milliseconds in a day
     moon_dark.rotateX(2 * Math.PI * deltaTime / 86400000);
   }, cycleBackgroundUpdate)
 
