@@ -1127,7 +1127,7 @@ function Controller(viewArea) {
   view.cam_distance = 700 //1000 for ortho
   this.view = view; //referenced outside
 
-  //view.addDenseMatter(); // dense grid of colored elements
+  view.addDenseMatter(); // dense grid of colored elements
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
   
   // star dust and the moon appear only in the middle (default) triptych
