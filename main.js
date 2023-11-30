@@ -1276,10 +1276,10 @@ function Controller(viewArea) {
       raycaster.setFromCamera(pointer, view.camera);
     
       const intersects = raycaster.intersectObjects( view.scene.children, true );
-      console.log(intersects)
+      //console.log(intersects)
       for ( let i = 0; i < intersects.length; i ++ ) {
         intersects[ i ].point.z = 0; //find the middle plane
-        console.log(intersects[ i ].point);
+        //console.log(intersects[ i ].point);
         View.prototype.DenseMatterCreateExplosionVectors(intersects[ i ].point)
         break;
       }
