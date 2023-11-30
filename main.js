@@ -685,17 +685,10 @@ View.prototype.addDenseMatter = function  () {
     console.log(col);
     chosen_palette_array.push(col)
   }
-
-  //var imesh = this.scene.getObjectByName(element_color);
-
-  //setInterval(function(){
-  //let matrix = new THREE.Matrix4();
-  //matrix.makeScale(1, 1, 1);
-  //console.log(this.scene);
   var copyPalette = shiftArrayCopy(chosen_palette_array);
   var cycleTime = 0;
   const total_width = c_xy_scale*grid_nr_x
-  //const sigmoid_amplitude = 0.05;
+
 
   if (palette_state_t == null) {
     setInterval(function () {
@@ -703,55 +696,23 @@ View.prototype.addDenseMatter = function  () {
       if(cycleTime<=flickerDuration){ //During State Change
         var k=0;
         var stateChangeProb = cycleTime/flickerDuration;
-        //console.log(stateChangeProb);
+
         for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
           var selectedColor;
-
-          //var test = [0,0]
           for (let i=0; i<imeshx.count; i++){
-            
             let matrix = new THREE.Matrix4()
             sceneMeshes[k].getMatrixAt(i, matrix)  //X is index 12,
-
-            //let tempObj = new THREE.Object3D()
-            //matrix.decompose(tempObj.position, tempObj.quaternion, tempObj.scale)
-            //console.log(tempObj.position.x)
-
-            var prop = matrix.elements[12]/total_width;
-
-            //Check Bounds
-            /*
-            if (test[0]==0 & test[1]==0) {
-              test = [prop,prop]
-            }
-
-            if (prop>test[1]) {
-              test[1] = prop
-            } else {
-              if (prop<test[0]) {
-                test[0]= prop
-              }
-            }*/
-            //var sigmoidValue = sigmoid(cycleTime-flickerDuration/2,500)+0.08; //non linear activation
-            var xMod = prop+0.5 //X position modifier. 
-            xMod = xMod*(1-stateChangeProb) //sigmoidValue OR stateChangeProb //For a full transition the stateChange Prob needs to take over
-            //console.log(xMod);
-            if (stateChangeProb-xMod > gene()){
+            var prop = matrix.elements[12]/total_width; //Normalizing the x/width this leads to -0.5 to 0.5
+            var xMod = prop+0.5 //XMod is now running from  0=>1
+            var sigmoidValue = 1-1.1*sigmoid((xMod-2.5*(cycleTime/cycleDuration)*1.4+0.2),0.05); 
+            //xMod = xMod*(1-stateChangeProb) //sigmoidValue OR stateChangeProb //For a full transition the stateChange Prob needs to take over
+            if (sigmoidValue > gene()){   //stateChangeProb-xMod
               selectedColor = copyPalette[k]; //Update State with shifted palette
             } else {
               selectedColor = chosen_palette_array[k]; //Recede State
             }
             sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
           };
-
-          //imeshx.instanceMatrix.needsUpdate = true;
-          
-          /*
-          if (sigmoidValue > gene()){
-            selectedColor = copyPalette[k]; //Update State with shifted palette
-          } else {
-            selectedColor = chosen_palette_array[k]; //Recede State
-          }*/
 
           sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
           //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
