@@ -3,9 +3,34 @@
 
 $fx.params([
     {
+      id: "seed_id",
+      name: "Seed",
+      type: "number",
+      update: "page-reload",
+      default: 0,
+      options: {
+        min: 0,
+        max: 999,
+        step: 1,
+      },
+    },
+    {
+      id: "triptych_id",
+      name: "Triptych",
+      type: "select",
+      update: "page-reload",
+      default: "middle",
+      options: {
+        options: ["left",
+                  "middle",
+                  "right"],
+      }
+    },
+    {
       id: "pigments_id",
       name: "Pigments",
       type: "select",
+      update: "page-reload",
       options: {
         options: ["horizon, sunshine, grapefruit",
                   "night, embers, citrus",
@@ -23,6 +48,7 @@ $fx.params([
       id: "pattern_id",
       name: "Pattern",
       type: "select",
+      update: "page-reload",
       options: {
         options: ["noisy", "graded", "layered", "stacked", "composed"],
       }
@@ -31,6 +57,7 @@ $fx.params([
       id: "dimension_id",
       name: "Dimension",
       type: "select",
+      update: "page-reload",
       options: {
         options: ["voxel", "pin", "stick", "needle", "wire"],
       }
@@ -39,6 +66,7 @@ $fx.params([
       id: "noise_feature_id",
       name: "Structure",
       type: "select",
+      update: "page-reload",
       options: {
         options: ["cracks", "bands", "sheets", "unbiased"],
       }
@@ -47,6 +75,7 @@ $fx.params([
       id: "noise_form_id",
       name: "Form",
       type: "select",
+      update: "page-reload",
       default: "expressive",
       options: {
         options: ["expressive", "monolithic"],
@@ -56,6 +85,7 @@ $fx.params([
       id: "noise_cull_id",
       name: "Dissipation",
       type: "select",
+      update: "page-reload",
       options: {
         options: ["clean", "fuzzy"],
       }
@@ -64,6 +94,7 @@ $fx.params([
       id: "attachment_id",
       name: "Attachment",
       type: "select",
+      update: "page-reload",
       default: "tight",
       options: {
         options: ["dense", "tight", "detached", "loose", "floating"],
@@ -73,12 +104,14 @@ $fx.params([
       id: "explosion_id",
       name: "Exploded",
       type: "boolean",
+      update: "page-reload",
       default: false,
     },
     {
       id: "power_id",
       name: "Power",
       type: "number",
+      update: "page-reload",
       default: 2,
       options: {
         min: 0, // 1
@@ -86,21 +119,4 @@ $fx.params([
         step: 0.1, // 1
       },
     },
-    {
-      id: "coordinates_id",
-      name: "Coordinates",
-      type: "string",
-      //default: "hello",
-      options: {
-        minLength: 64,
-        maxLength: 64
-      }
-    },
   ]);
-
-
-/*
-  const allel_color_gradient = [
-    ["solid sprinkled", "uniform", "vertical grading", "horizontal grading", "height stack", "depth stack"]
-  ];
-  */

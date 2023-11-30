@@ -37,6 +37,8 @@ const animation_increment = 0.1;
 //////FXHASH FEATURES//////
 
 $fx.features({
+  "Seed": seed,
+  "Triptych": triptych,
   "Pigments": pigments,
   "Palette": palette_name,
   "Pattern": pattern,
@@ -48,7 +50,9 @@ $fx.features({
   "Exploded": exploded
 });
 
-console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
+console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
+            'Seed -> ' + seed,  '\n',
+            'Triptych -> ' + triptych,   '\n',
             'Pigments -> ' + pigments, '\n',
             'Palette -> ' + palette_name, '\n',
             'Pattern -> ' + pattern, '\n',
@@ -863,17 +867,16 @@ View.prototype.addStarsRandom = function (bounds, qty)
 {
   var star_plane_distance = -2000; // z coordinate of the plane where stars reside (they also recieve no shadow)
 
-  // one triangle
-  const vertices = [
-    0, 1, 0, // top
-    1, 0, 0, // right
-    -1, 0, 0 // left
-  ];
-  // only one face
-  const faces = [ 2, 1, 0 ];
-  const triangle_radius = 0.30; //0.5
-
-  const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
+  // for each triptych part we will have different random stars so we need to assign a different seeded prng
+  if (triptych == "left") {
+    var gene_stars = gene_t_l;
+  } else if (triptych == "right") {
+    var gene_stars = gene_t_r;
+  } else { // triptych == "middle"
+    var gene_stars = gene;
+  }
+  
+  const geometry = new THREE.PolyhedronGeometry(star_vertices, star_face, star_radius, 0);
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
 
@@ -883,13 +886,13 @@ View.prototype.addStarsRandom = function (bounds, qty)
   for (var i = 0; i < qty; i++) {
     const dummy = new THREE.Object3D();
 
-    var uniscale = 0.5 + gene();
+    var uniscale = 0.5 + gene_stars();
     dummy.scale.set(uniscale,uniscale,uniscale);
-    dummy.position.set(gene() * bounds - bounds/2, gene() * bounds - bounds/2,  star_plane_distance);
+    dummy.position.set(gene_stars() * bounds - bounds/2, gene_stars() * bounds - bounds/2,  star_plane_distance);
 
-    dummy.rotateX(gene() * Math.PI/3 - Math.PI/6);
-    dummy.rotateY(gene() * Math.PI/3 - Math.PI/6);
-    dummy.rotateZ(gene() * Math.PI/3 - Math.PI/6);
+    dummy.rotateX(gene_stars() * Math.PI/3 - Math.PI/6);
+    dummy.rotateY(gene_stars() * Math.PI/3 - Math.PI/6);
+    dummy.rotateZ(gene_stars() * Math.PI/3 - Math.PI/6);
 
     dummy.updateMatrix();
     imesh.setMatrixAt( i, dummy.matrix );
@@ -950,17 +953,7 @@ View.prototype.addStarDust = function ()
   // this is important to calculate for instanced mesh!
   var total_number_of_stars = branch_points * nr_of_branches;
 
-  // one triangle
-  const vertices = [
-    0, 1, 0, // top
-    1, 0, 0, // right
-    -1, 0, 0 // left
-  ];
-  // only one face
-  const faces = [ 2, 1, 0 ];
-  const triangle_radius = 0.30; //0.5
-
-  const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
+  const geometry = new THREE.PolyhedronGeometry(star_vertices, star_face, star_radius, 0);
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
 
@@ -999,137 +992,74 @@ View.prototype.addStarDust = function ()
 
 }
 
+
 View.prototype.addMoon = function ()
 {
-  var radius_x, radius_y, radius_moon_x, radius_moon_y, radius_star_x, radius_star_y, radius_elongation, radius_factors;
-  var cent_x, cent_y, cent_moon_x, cent_moon_y, celestial_x, celestial_y, centers_x, centers_y;
-  var angle, r, tilt_angle, nr_of_triangles, nr_of_stars, constellation_bounds;
-  var hasStarShine, star_shine;
-
+  var radius_moon, cent_moon_x, cent_moon_y, tilt_angle, phase_start, phase_deg, moon_phase, deg_to_next;
   var celestial_plane_distance = -1800; // z coordinate of the plane where stars reside (they also recieve no shadow)
 
+  var time = loading_start_time; // this will be continuously updated for every frame later
+  var mills_of_day = loading_start_time % 86400000; // how many milliseconds have passed in a day
+  var phase_of_day = mills_of_day / 86400000; // how many milliseconds have passed in a day in %
+
   // define moon parameters
-  radius_moon_x = gene_range(5, 50);
-  radius_moon_y = radius_moon_x;
+  radius_moon = gene_range(5, 50);
   cent_moon_x = gene_range(-100, 100);
   cent_moon_y = gene_range(-100, 100);
+  phase_start = gene_range(-Math.PI, Math.PI) + 2 * Math.PI * phase_of_day; // each part of the day will have a specific time offset, it takes 24h to complete a full moon transition
+  tilt_angle = gene_range(-Math.PI/2, Math.PI/2); // rotation axis tilt angle: -+ 90 deg
 
-  // define shiny star parameters
-  radius_star_x = 50;
-  radius_star_y = 50;
-  radius_x = radius_star_x;
-  radius_y = radius_star_y;
-  radius_elongation = 0.05;
-  radius_factors = [];
-  hasStarShine = [];
-  centers_x = [];
-  centers_y = [];
-  nr_of_stars = generateRandomInt(1, 10);
-  constellation_bounds = gene_range(150, 300);
-  for (var i = 0; i < nr_of_stars; i++) {
-    centers_x.push(gene_range(-constellation_bounds, constellation_bounds));
-    centers_y.push(gene_range(-constellation_bounds, constellation_bounds));
-    radius_factors.push(gene_range(0.05, 0.95)); // every star has a different size
-    star_shine = gene() < 0.25 ? true : false;
-    hasStarShine.push(star_shine); // determines if the star shine (like a plus sign) will be drawn for that star
-  }
-  tilt_angle = 0;
-  nr_of_triangles = nr_of_stars * 1000;
+  phase_deg = ((phase_start + 2 * Math.PI) * (180 / Math.PI)) % 360;
 
-  // place glowing disk in front of the stars - FULL MOON
-  const light_disc_geo = new THREE.CircleGeometry(radius_moon_x, 128);
-  const light_disc_material = new THREE.MeshBasicMaterial({color: '#f9f0de'});
-  const light_disc_mesh = new THREE.Mesh(light_disc_geo, light_disc_material);
-  light_disc_mesh.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
+  // determine the name of the moon phase
+  if ((phase_deg >= 0) && (phase_deg < 15)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 15 - phase_deg; }
+  else if ((phase_deg >= 15) && (phase_deg < 75))  { moon_phase = "🌘 Waning Crescent"; deg_to_next = 75 - phase_deg; }
+  else if ((phase_deg >= 75) && (phase_deg < 105))  { moon_phase = "🌑 New Moon"; deg_to_next = 105 - phase_deg; }
+  else if ((phase_deg >= 105) && (phase_deg < 165))  { moon_phase = "🌒 Waxing Crescent"; deg_to_next = 165 - phase_deg; }
+  else if ((phase_deg >= 165) && (phase_deg < 195))  { moon_phase = "🌓 First Quarter"; deg_to_next = 195 - phase_deg; }
+  else if ((phase_deg >= 195) && (phase_deg < 255))  { moon_phase = "🌔 Waxing Gibbous"; deg_to_next = 255 - phase_deg; }
+  else if ((phase_deg >= 255) && (phase_deg < 285))  { moon_phase = "🌕 Full Moon"; deg_to_next = 285 - phase_deg; }
+  else if ((phase_deg >= 285) && (phase_deg < 345))  { moon_phase = "🌖 Waning Gibbous"; deg_to_next = 345 - phase_deg; }
+  else if ((phase_deg >= 345) && (phase_deg < 360)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 375 - phase_deg; } // 375 degrees to the next phase because we have to go over 0 degrees up to 15 again
 
+  // print moon info to the console
+  console.log('%c MOON ', 'color: white; background: #000000;', '\n',
+            'Phase -> ' + moon_phase,  '\n',
+            'Time to next -> ' + Math.floor(deg_to_next * 4) + ' min', '\n');
 
-  // one triangle
-  const vertices = [
-    0, 1, 0, // top
-    1, 0, 0, // right
-    -1, 0, 0 // left
-  ];
-  // only one face
-  const faces = [ 2, 1, 0 ];
-  const triangle_radius = 0.30; //0.5
+  // place glowing hemisphere in front of the stars - MOON LIGHT SIDE
+  const hemisphere_light = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const material_light = new THREE.MeshBasicMaterial( { color: '#f9f0de' } );
+  const moon_light = new THREE.Mesh( hemisphere_light, material_light );
+  moon_light.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
+  moon_light.rotation.z += Math.PI/2  + tilt_angle;
+  moon_light.rotateX(-phase_start); 
 
-  const geometry = new THREE.PolyhedronGeometry(vertices, faces, triangle_radius, 0);
-  geometry.scale(1, 1.5, 1);
-  const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
+  // place dark hemisphere in front of the stars - MOON DARK SIDE
+  const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const material_dark = new THREE.MeshBasicMaterial( { color: '#080808' } );
+  const moon_dark = new THREE.Mesh( hemisphere_dark, material_dark );
+  moon_dark.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
+  moon_dark.rotation.z -= Math.PI / 2 - tilt_angle;
+  moon_dark.rotateX(phase_start);
 
-  const imesh = new THREE.InstancedMesh( geometry, material, nr_of_triangles )
-  imesh.instanceMatrix.setUsage( THREE.DynamicDrawUsage ); // will be updated every frame
-
-  // main loop that calculates positions of all triangles
-  for (var i = 0; i < nr_of_triangles; i++) {
-
-    rand_idx = generateRandomInt(0, centers_x.length); // we choose a random index from the list that holds meteor coordinates
-    angle = gene_range(0, Math.PI * 2); // full 360 degrees
-    r = gene_range(0, gene_range(0, gene_range(0, gene_range(0, gene_range(0, 1))))); // more dense in the middle - CONSTELLATION
-    cent_x = centers_x[rand_idx]; // draw random star from the coordinate list
-    cent_y = centers_y[rand_idx]; // same as above
-
-    if (hasStarShine[rand_idx] == true) {
-      // shine part of the star (like a plus sign)
-      if (gene() < 0.5) {
-        radius_x = radius_star_x * radius_elongation * radius_factors[rand_idx]; // here radius_elongation is actually shortening
-        radius_y = radius_star_y * radius_factors[rand_idx] * 5.0; // this last factor will additionally elongate the shine
-      } else {
-        radius_x = radius_star_x * radius_factors[rand_idx] * 5.0; // this last factor will additionally elongate the shine
-        radius_y = radius_star_y * radius_elongation * radius_factors[rand_idx]; // here radius_elongation is actually shortening
-      }
-      // fuzzy spherical part of the star
-      if (gene() < 0.25) {
-        radius_x = radius_star_x * radius_factors[rand_idx];
-        radius_y = radius_star_y * radius_factors[rand_idx];
-      }
-
-    } else {
-      // fuzzy spherical part of the star
-      radius_x = radius_star_x * radius_factors[rand_idx] * 0.25;
-      radius_y = radius_star_y * radius_factors[rand_idx] * 0.25;
-    }
-
-    // determining the position of each triangle
-    // general parametrization for a tilted ellipse
-    //https://math.stackexchange.com/questions/2645689/what-is-the-parametric-equation-of-a-rotated-ellipse-given-the-angle-of-rotatio
-    celestial_x = cent_x + r * radius_x * Math.cos(angle) * Math.cos(tilt_angle) - r * radius_y * Math.sin(angle) * Math.sin(tilt_angle);
-    celestial_y = cent_y + r * radius_x * Math.cos(angle) * Math.sin(tilt_angle) + r * radius_y * Math.sin(angle) * Math.cos(tilt_angle);
-
-    const dummy = new THREE.Object3D();
-    var uniscale = 0.5 + gene();
-    dummy.scale.set(uniscale, uniscale, uniscale); // dynamically assign this to give different sizes (eg add attribute to nData.nodes and call it here)
-    dummy.position.set(celestial_x, celestial_y, celestial_plane_distance);
-
-    dummy.rotateX(gene() * Math.PI/3 - Math.PI/6);
-    dummy.rotateY(gene() * Math.PI/3 - Math.PI/6);
-    dummy.rotateZ(gene() * Math.PI/3 - Math.PI/6);
-
-    dummy.updateMatrix();
-    // if any triangle ends up too far from the center, we don't draw it
-    if (Math.max(Math.abs(celestial_x), Math.abs(celestial_y)) < 1000) {
-      imesh.setMatrixAt( i, dummy.matrix );
-    }
-  }
-
-  imesh.instanceMatrix.needsUpdate = true
-  //imesh.castShadow = true; // remove for performance
-  //imesh.receiveShadow = true; // stars recieve no shadow
-
+  // rotate moon hemispheres to cycle through moon phases
+  // full cycle lasts 24h and is synced with the clock
   setInterval(function () {
-    //console.log("r_moon");
-    imesh.rotateZ(rotThetaDelta);
-    //light_disc_mesh.rotateZ(rotThetaDelta);
-    light_disc_mesh.applyMatrix4(rotMatrixStaticIncrement);
-    //light_disc_mesh.updateMatrix();
-    //light_disc_mesh.matrixWorldNeedsUpdate = true;
-    //imesh.instanceMatrix.needsUpdate = true;
+    const currentTime = Date.now();
+    const deltaTime = currentTime - time;
+    time = currentTime;
+    // apply a rotation transform around the mesh object's local frame
+    // mesh.rotation.y applies it to the global frame
+    moon_light.rotateX(-2 * Math.PI * deltaTime / 86400000); // 86400000 is number of milliseconds in a day
+    moon_dark.rotateX(2 * Math.PI * deltaTime / 86400000);
   }, cycleBackgroundUpdate)
 
-  this.scene.add(light_disc_mesh);
-  this.scene.add(imesh);
+  this.scene.add(moon_light);
+  this.scene.add(moon_dark);
 
 }
+
 
 View.prototype.calculateFrames = function () {
   for (let animation_frametime_x = 0; animation_frametime_x < animation_time; animation_frametime_x+=animation_increment) {
@@ -1217,8 +1147,13 @@ function Controller(viewArea) {
 
   view.addDenseMatter(); // dense grid of colored elements
   view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
-  view.addStarDust(); // star dust (made with random walk algorithm)
-  view.addMoon(); // adds a large glowing moon with few shiny stars around
+  
+  // star dust and the moon appear only in the middle (default) triptych
+  if (triptych == "middle") {
+    view.addStarDust(); // star dust (made with random walk algorithm)
+    view.addMoon(); // adds a large glowing moon with few shiny stars around
+  }
+
   view.preRender();
  
 
