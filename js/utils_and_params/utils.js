@@ -123,6 +123,12 @@ function sigmoid(z, k) {
   return 1 / (1 + Math.exp(-z/k));
 }
 
+// calculates a number between two numbers at a specific increment
+// noise culling is working differently if we remove this function !!! (leave it in for tectonica)
+function lerp(start, end, amt){
+  return (1 - amt) * start + amt * end;
+}
+
 function shiftArrayCopy(arr){
   arrCopy = [...arr];
   let last = arrCopy.pop();
