@@ -24,30 +24,6 @@ function findNextValueByValue(value, obj) {
 }
 
 
-function memcpy(src, srcOffset, dst, dstOffset, length) {
-    var i
-    src = src.subarray || src.slice ? src : src.buffer
-    dst = dst.subarray || dst.slice ? dst : dst.buffer
-
-    src = srcOffset
-      ? src.subarray
-        ? src.subarray(srcOffset, length && srcOffset + length)
-        : src.slice(srcOffset, length && srcOffset + length)
-      : src
-
-    if (dst.set) {
-      dst.set(src, dstOffset)
-    } else {
-      for (i = 0; i < src.length; i++) {
-        dst[i + dstOffset] = src[i]
-      }
-    }
-
-    return dst
-  }
-
-
-
 // rand functions for random generator. Assumes generator producing float point between 0 and 1
 
 function gene_rand_int_proto(gene){
@@ -173,56 +149,10 @@ const gene_weighted_choice = gene_weighted_choice_proto(gene);
 const gene_pick_key = gene_pick_key_proto(gene);
 const gene_pick_property = gene_pick_property_proto(gene);
 const gaussian = gaussian_proto(gene);
-const shuffleArray = shuffleArray_proto(gene);
-
-
-function calculate_size(mode, node) {
-    if (mode == 0) {
-      return gene() * 50 + 25
-    } else if (mode == 1) {
-      return (node.connectivity/5) * 50 + 25
-    } else if (mode == 2) {
-      return in_case_of_common_size * 50 + 25
-    } else if (mode == 3) {
-      return gene() * 50 + 25
-    }
-  }
+const shuffleArray = shuffleArray_proto(gene)
 
 function sigmoid(z, k) {
   return 1 / (1 + Math.exp(-z/k));
-}
-
-function createCircleTexture(color, size) {
-  var matCanvas = document.createElement('canvas');
-  matCanvas.width = matCanvas.height = size;
-  var matContext = matCanvas.getContext('2d');
-  // create texture object from canvas.
-  var texture = new THREE.Texture(matCanvas);
-  // Draw a circle
-  var center = size / 2;
-  matContext.beginPath();
-  matContext.arc(center, center, size/2, 0, 2 * Math.PI, false);
-  matContext.closePath();
-  matContext.fillStyle = color;
-  matContext.fill();
-  // need to set needsUpdate
-  texture.needsUpdate = true;
-  // return a texture made from the canvas
-  return texture;
-}
-
-
-// calculates a number between two numbers at a specific increment
-function lerp(start, end, amt){
-  return (1 - amt) * start + amt * end;
-}
-
-
-
-function shiftArray(arr){
-  let last = arr.pop();
-  arr.unshift(last);
-  return arr;
 }
 
 function shiftArrayCopy(arr){

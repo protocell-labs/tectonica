@@ -1190,7 +1190,7 @@ function Controller(viewArea) {
   window.addEventListener( 'click', onPointerClick );
 }
 
-function obscvrvm () {
+function tectonica () {
   controller = new Controller('viewport');
 }
 
@@ -1386,7 +1386,7 @@ function doc_keyUp(e) {
 }
 
 const handler = (e) => {
-    obscvrvm();
+    tectonica();
 };
 
 
