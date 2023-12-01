@@ -391,10 +391,55 @@ var noise_shift_x = gene_range(-100, 100) + triptych_shift_x;
 var noise_shift_y = gene_range(-100, 100) + triptych_shift_y;
 var noise_shift_z = gene_range(-100, 100);
 
-
 // EXPLOSION PARAMETERS
 
 var explosion_center_a = new THREE.Vector3(gene_range(-200, 200), gene_range(-200, 200), 0);
 var explosion_strength = 200000 * explosion_power; //200k - 1M when, falls with the square of distance
 var explosion_rot_range = Math.PI/2;
 var explosion_rot_factor = 0.1;
+
+
+// CONSOLE PRINT
+
+console.log("%cCOLOR", "color: white; background: #000000;");
+console.log("palette ->", palette_name, "\n"); // chosen_palette is where the colors are stores
+
+console.log("%c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    %c    ",
+            `color: white; background: ${chosen_palette[0]};`,
+            `color: white; background: ${chosen_palette[1]};`,
+            `color: white; background: ${chosen_palette[2]};`,
+            `color: white; background: ${chosen_palette[3]};`,
+            `color: white; background: ${chosen_palette[4]};`,
+            `color: white; background: ${chosen_palette[5]};`,
+            `color: white; background: ${chosen_palette[6]};`,
+            `color: white; background: ${chosen_palette[7]};`,
+            `color: white; background: ${chosen_palette[8]};`,
+            `color: white; background: ${chosen_palette[9]};`,
+            `color: white; background: ${chosen_palette[10]};`,
+            `color: white; background: ${chosen_palette[11]};`,
+            `color: white; background: ${chosen_palette[12]};`,
+            `color: white; background: ${chosen_palette[13]};`,
+            `color: white; background: ${chosen_palette[14]};`); // overprinting in case there are up to 15 colors (undefined is returned in case the color doesn't exist)
+
+console.log("color gradient default ->", color_gradient_default);
+//console.log("number of palettes -> ", Object.keys(palettes_v3).length); // show the total number of palettes
+console.log("quadrants ->", quadrants);
+console.log("color grading quadrants ->", color_gradient_quadrants);
+console.log("quadrant divs ->", `(${quadrant_div_x}, ${quadrant_div_y})`);
+
+console.log("%cNOISE CULL", "color: white; background: #000000;");
+console.log("noise cull rule ->", noise_cull_rule);
+console.log("noise feature ->", noise_feature);
+console.log("noise scale x ->", noise_scale_x);
+console.log("noise scale y ->", noise_scale_y);
+console.log("noise scale z ->", noise_scale_z);
+
+console.log("%cSTRIPES", "color: white; background: #000000;");
+console.log("color features vert ->", color_features_vert);
+console.log("color features horiz ->", color_features_horiz);
+console.log("stripe width ->", stripe_width);
+console.log("stripe spacing ->", stripe_spacing);
+console.log("stripe shift ->", stripe_shift);
+console.log("block spacing ->", block_spacing);
+console.log("block width ->", block_width);
+
