@@ -88,37 +88,6 @@ function gene_pick_property_proto(gene) {
   return gene_pick_property;
 }
 
-// returns a gaussian random function with the given mean and standard deviation (normal distribution has a mean of 0 and the standard deviation of 1)
-function gaussian_proto(gene) {
-  function gaussian(mean, stdev) {
-    var y2;
-    var use_last = false;
-    return function() {
-      var y1;
-      if (use_last) {
-        y1 = y2;
-        use_last = false;
-      } else {
-        var x1, x2, w;
-        do {
-          x1 = 2.0 * gene() - 1.0;
-          x2 = 2.0 * gene() - 1.0;
-          w = x1 * x1 + x2 * x2;
-        } while (w >= 1.0);
-        w = Math.sqrt((-2.0 * Math.log(w)) / w);
-        y1 = x1 * w;
-        y2 = x2 * w;
-        use_last = true;
-      }
-      var retval = mean + stdev * y1;
-      if (retval > 0)
-        return retval;
-      return -retval;
-    }
-  }
-  return gaussian;
-}
-
 // randomize array in-place using Durstenfeld shuffle algorithm, an optimized version of Fisher-Yates
 function shuffleArray_proto(gene) {
   function shuffleArray(array) {
@@ -148,7 +117,6 @@ const gene_pick_n = gene_pick_n_proto(gene);
 const gene_weighted_choice = gene_weighted_choice_proto(gene);
 const gene_pick_key = gene_pick_key_proto(gene);
 const gene_pick_property = gene_pick_property_proto(gene);
-const gaussian = gaussian_proto(gene);
 const shuffleArray = shuffleArray_proto(gene)
 
 function sigmoid(z, k) {
