@@ -1304,7 +1304,9 @@ function doc_keyUp(e) {
     quality = check_drawing_buffer(5);
   } else if (e.keyCode === 71 ) {  //"g" = Gif
     recording = !recording;
+    
     if(recording){
+      
       //new capturer instance
       capturer = new CCapture( {
         verbose: false,
@@ -1317,6 +1319,9 @@ function doc_keyUp(e) {
         format: 'gif',
         workersPath: 'js/capture/src/'
       } );
+        animation_frametime = 0;
+        animation_direction = true;
+        animation_initiated = true;
       capturer.start();
       setTimeout(() => {
         if (capturer != null) {
