@@ -50,6 +50,40 @@ $fx.features({
   "Exploded": exploded
 });
 
+
+
+//////CONSOLE LOG//////
+
+console.clear(); // clear the console at the beginning
+
+var tectonica_logo =  "%c                                                                           \n"
+                    + "%c     T E C T O N I C A  |  { p r o t o c e l l : l a b s }  |  2 0 2 3     \n"
+                    + "%c                                                                           \n";
+/*
+console.log( tectonica_logo,
+            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;',
+            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;',
+            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;');
+*/
+console.log( tectonica_logo,
+            `color: white; background: ${chosen_palette[0]}; font-weight: bold; font-family: "Courier New", monospace;`,
+            `color: white; background: ${chosen_palette[1]}; font-weight: bold; font-family: "Courier New", monospace;`,
+            `color: white; background: ${chosen_palette[2]}; font-weight: bold; font-family: "Courier New", monospace;`);
+
+//console.log('%cFelix, qui potuit rerum cognoscere causas.\n', 'font-style: italic; font-family: "Courier New", monospace;');
+
+console.log("%c    %c    %c    %c    %c    %c    %c    %c    %c    %c    ",
+            `color: white; background: ${chosen_palette[0]};`,
+            `color: white; background: ${chosen_palette[1]};`,
+            `color: white; background: ${chosen_palette[2]};`,
+            `color: white; background: ${chosen_palette[3]};`,
+            `color: white; background: ${chosen_palette[4]};`,
+            `color: white; background: ${chosen_palette[5]};`,
+            `color: white; background: ${chosen_palette[6]};`,
+            `color: white; background: ${chosen_palette[7]};`,
+            `color: white; background: ${chosen_palette[8]};`,
+            `color: white; background: ${chosen_palette[9]};`); // overprinting in case there are up to 10 colors (undefined is returned in case the color doesn't exist)
+
 console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
             'Seed -> ' + seed,  '\n',
             'Triptych -> ' + triptych,   '\n',
@@ -63,37 +97,7 @@ console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
             'Attachment -> ' + attachment_type, '\n',
             'Exploded -> ' + exploded, '\n');
 
-/*window.$fxhashFeatures = {
-  'Dimension': feature_dimension,
-  'Frame': feature_frame,
-  'Primitive': feature_primitive,
-  'State': feature_state,
-  'Celestial': feature_celestial
-};*/
-
-
-
-/*
-//////CONSOLE LOG//////
-
-var obscvrvm_logo = "%c                                                                         \n"
-                    + "%c     O B S C V R V M  |  { p r o t o c e l l : l a b s }  |  2 0 2 2     \n"
-                    + "%c                                                                         \n";
-
-console.log( obscvrvm_logo,
-            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;',
-            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;',
-            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;');
-
-
-console.log('%cFelix, qui potuit rerum cognoscere causas.\n', 'font-style: italic; font-family: "Courier New", monospace;');
-
-console.log('%cTOKEN FEATURES', 'color: white; background: #000000;', '\n',
-            'Dimension -> ' + feature_dimension, '\n',
-            'State     -> ' + feature_state, '\n',
-            'Celestial -> ' + feature_celestial, '\n');
-
-console.log('%cCONTROLS', 'color: white; background: #000000;', '\n',
+console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
             'a   : jump light angle', '\n',
             'f   : cycle light framerate', '\n',
             't   : cycle light tick', '\n',
@@ -102,16 +106,8 @@ console.log('%cCONTROLS', 'color: white; background: #000000;', '\n',
             'g   : start / stop gif capture', '\n',
             '1-5 : image capture 1-5x resolution', '\n');
 
-console.log('%cURL STRINGS', 'color: white; background: #000000;', '\n',
-            'Shadow map size in pix (default is 4096 pix, 2048 pix on iOS devices)', '\n',
-            '?shadow=size', '\n');
-
-console.log('%cPIXELS', 'color: white; background: #000000;', '\n',
-            "Change pixel density by changing your browser's zoom level (50% zoom doubles the pixels etc.)", '\n');
-
-
 //////END CONSOLE LOG//////
-*/
+
 
 var pre_calc = 0.000;
 var viz_update = 0.00000;
@@ -587,12 +583,10 @@ View.prototype.addDenseMatter = function  () {
     total_elements_existing += elements_per_palette;
   }
 
-  //console.log(dense_matter_object);
-  //console.log(elements_per_palette_object);
-  console.log("%cQUANTITY", "color: white; background: #000000;");
-  console.log("existing elements ->", total_elements_existing);
-  console.log("density ->", Math.round(100 * total_elements_existing / total_possible_elements), "%");
-  //console.log(imeshes_object);
+
+  console.log('%c QUANTITY ', 'color: white; background: #000000;', '\n',
+            'Existing elements -> ' + total_elements_existing,  '\n',
+            'Density -> ' + Math.round(100 * total_elements_existing / total_possible_elements).toString() + "%",   '\n');
 
   var axis_z = new THREE.Vector3(0, 0, 1);
   var axis_x = new THREE.Vector3(1, 0, 0);
@@ -657,7 +651,7 @@ View.prototype.addDenseMatter = function  () {
 
   }
 
-  console.log(explosion_center_a)
+  //console.log(explosion_center_a);
   View.prototype.DenseMatterCreateExplosionVectors(explosion_center_a); //always create
 
   // add instance meshes to the scene
@@ -678,11 +672,10 @@ View.prototype.addDenseMatter = function  () {
 
   //KEDIT
   var chosen_palette_array = [];
-  console.log(chosen_palette);
+
   for(i=0; i<chosen_palette.length; i++){
     var col = new THREE.Color(chosen_palette[i]);
     //col.setHex(chosen_palette[i]);
-    console.log(col);
     chosen_palette_array.push(col)
   }
   var copyPalette = shiftArrayCopy(chosen_palette_array);
@@ -956,7 +949,7 @@ View.prototype.addStarDust = function ()
 
 View.prototype.addMoon = function ()
 {
-  var radius_moon, cent_moon_x, cent_moon_y, tilt_angle, phase_start, phase_deg, moon_phase, deg_to_next;
+  var radius_moon, cent_moon_x, cent_moon_y, tilt_angle, phase_start, phase_deg, moon_phase, deg_to_next, next_phase;
   var celestial_plane_distance = -1800; // z coordinate of the plane where stars reside (they also recieve no shadow)
 
   var time = loading_start_time; // this will be continuously updated for every frame later
@@ -973,20 +966,20 @@ View.prototype.addMoon = function ()
   phase_deg = ((phase_start + 2 * Math.PI) * (180 / Math.PI)) % 360;
 
   // determine the name of the moon phase
-  if ((phase_deg >= 0) && (phase_deg < 15)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 15 - phase_deg; }
-  else if ((phase_deg >= 15) && (phase_deg < 75))  { moon_phase = "🌘 Waning Crescent"; deg_to_next = 75 - phase_deg; }
-  else if ((phase_deg >= 75) && (phase_deg < 105))  { moon_phase = "🌑 New Moon"; deg_to_next = 105 - phase_deg; }
-  else if ((phase_deg >= 105) && (phase_deg < 165))  { moon_phase = "🌒 Waxing Crescent"; deg_to_next = 165 - phase_deg; }
-  else if ((phase_deg >= 165) && (phase_deg < 195))  { moon_phase = "🌓 First Quarter"; deg_to_next = 195 - phase_deg; }
-  else if ((phase_deg >= 195) && (phase_deg < 255))  { moon_phase = "🌔 Waxing Gibbous"; deg_to_next = 255 - phase_deg; }
-  else if ((phase_deg >= 255) && (phase_deg < 285))  { moon_phase = "🌕 Full Moon"; deg_to_next = 285 - phase_deg; }
-  else if ((phase_deg >= 285) && (phase_deg < 345))  { moon_phase = "🌖 Waning Gibbous"; deg_to_next = 345 - phase_deg; }
-  else if ((phase_deg >= 345) && (phase_deg < 360)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 375 - phase_deg; } // 375 degrees to the next phase because we have to go over 0 degrees up to 15 again
+  if ((phase_deg >= 0) && (phase_deg < 15)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 15 - phase_deg; next_phase = "🌘";}
+  else if ((phase_deg >= 15) && (phase_deg < 75))  { moon_phase = "🌘 Waning Crescent"; deg_to_next = 75 - phase_deg; next_phase = "🌑";}
+  else if ((phase_deg >= 75) && (phase_deg < 105))  { moon_phase = "🌑 New Moon"; deg_to_next = 105 - phase_deg; next_phase = "🌒";}
+  else if ((phase_deg >= 105) && (phase_deg < 165))  { moon_phase = "🌒 Waxing Crescent"; deg_to_next = 165 - phase_deg; next_phase = "🌓";}
+  else if ((phase_deg >= 165) && (phase_deg < 195))  { moon_phase = "🌓 First Quarter"; deg_to_next = 195 - phase_deg; next_phase = "🌔";}
+  else if ((phase_deg >= 195) && (phase_deg < 255))  { moon_phase = "🌔 Waxing Gibbous"; deg_to_next = 255 - phase_deg; next_phase = "🌕";}
+  else if ((phase_deg >= 255) && (phase_deg < 285))  { moon_phase = "🌕 Full Moon"; deg_to_next = 285 - phase_deg; next_phase = "🌖";}
+  else if ((phase_deg >= 285) && (phase_deg < 345))  { moon_phase = "🌖 Waning Gibbous"; deg_to_next = 345 - phase_deg; next_phase = "🌗";}
+  else if ((phase_deg >= 345) && (phase_deg < 360)) { moon_phase = "🌗 Third Quarter"; deg_to_next = 375 - phase_deg; next_phase = "🌘";} // 375 degrees to the next phase because we have to go over 0 degrees up to 15 again
 
   // print moon info to the console
   console.log('%c MOON ', 'color: white; background: #000000;', '\n',
             'Phase -> ' + moon_phase,  '\n',
-            'Time to next -> ' + Math.floor(deg_to_next * 4) + ' min', '\n');
+            'Time to ' + next_phase + ' -> ' + Math.floor(deg_to_next * 4) + ' min', '\n');
 
   // place glowing hemisphere in front of the stars - MOON LIGHT SIDE
   const hemisphere_light = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
