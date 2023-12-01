@@ -1087,7 +1087,7 @@ View.prototype.render = function () {
       capture(controller);
       snap = false;
     }
-    if(recording) {
+    if(recording & capturer!=null) {
       capturer.capture( renderer.domElement );
     }
     //this.renderer.render(this.scene, this.camera); // When no layers are used
@@ -1255,6 +1255,7 @@ function fitCameraToViewport(view_instance, w,h, adjust=true) {
 
 
 function capturer_custom_save() {
+  console.log("Saving");
   setTimeout(() => {
     capturer.save(function( blob ) {
       const url = URL.createObjectURL(blob);
