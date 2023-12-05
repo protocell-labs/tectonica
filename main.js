@@ -222,8 +222,9 @@ function View(viewArea) {
   //const helper = new THREE.CameraHelper( light.shadow.camera );
   //scene.add( helper );
 
-  var shadow = 8192; //2048; //Default
+  var shadow = 8192; // multiples of 2 -> 8192, 4096, 2048, 1024... - in TECTONICA we use non-square shadow map (shadow x shadow/2 pix)
   var paramsAssigned = false;
+  
   // URL PARAMS
 
   // Usage: add this to the url =>    ?shadow=4096&explosion=0.5&palette=3&gif=10
@@ -260,21 +261,18 @@ function View(viewArea) {
     //console.log("shadow variable must be a positive integer")
   }
 
-  if (Number.isInteger(shadow) & paramsAssigned) { //If values are overiden by urlParams  for a minimum overide add: & shadow > 2048
+  if (Number.isInteger(shadow) & paramsAssigned) { // if values are overiden by urlParams, for a minimum overide add: & shadow > 2048
     console.log("Using custom url parmater for shadow map size: " + shadow.toString())
     light.shadow.mapSize.width = shadow;
     light.shadow.mapSize.height = shadow;
-  } else if (Number.isInteger(shadow) & iOS()) {
-    //console.log("iOS")
-    light.shadow.mapSize.width = Math.min(shadow, 2048); //increase for better quality of shadow, standard is 2048
+  } else if (Number.isInteger(shadow) & iOS()) { // default on iOS
+    light.shadow.mapSize.width = Math.min(shadow, 2048);
     light.shadow.mapSize.height = Math.min(shadow, 2048);
-  } else if ((Number.isInteger(shadow) & !iOS())){
-    //console.log("!iOS")
+  } else if ((Number.isInteger(shadow) & !iOS())){ // default on desktop
     light.shadow.mapSize.width = Math.max(shadow, 4096);
-    light.shadow.mapSize.height = Math.max(shadow, 4096);
-  } else {
-    //console.log("Using default shadow map.")
-    light.shadow.mapSize.width = 4096;
+    light.shadow.mapSize.height = Math.max(shadow/2, 4096);
+  } else { // only if there was an error while inputing urlParams
+    light.shadow.mapSize.width = 8192;
     light.shadow.mapSize.height = 4096;
   }
 
