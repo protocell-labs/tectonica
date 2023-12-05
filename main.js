@@ -33,6 +33,7 @@ var palette_state_t = null;
 const nDecimal = 10;
 const animation_time = 1; 
 const animation_increment = 0.1;
+var color_animation = true;
 
 //////FXHASH FEATURES//////
 
@@ -123,8 +124,6 @@ var viewportWidth;
 
 
 var light_framerate_change;
-var base_light_angle_step;
-var light_angle;
 var background_toggle = false;
 
 var controller;
@@ -684,43 +683,45 @@ View.prototype.addDenseMatter = function  () {
 
 
   if (palette_state_t == null) {
-    setInterval(function () {
+      setInterval(function () {
 
-      if(cycleTime<=flickerDuration){ //During State Change
-        var k=0;
-        var stateChangeProb = cycleTime/flickerDuration;
+          if (color_animation) {
+              if (cycleTime <= flickerDuration) { //During State Change
+                  var k = 0;
 
-        for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
-          var selectedColor;
-          for (let i=0; i<imeshx.count; i++){
-            let matrix = new THREE.Matrix4()
-            sceneMeshes[k].getMatrixAt(i, matrix)  //X is index 12,
-            var prop = matrix.elements[12]/total_width; //Normalizing the x/width this leads to -0.5 to 0.5
-            var xMod = prop+0.5 //XMod is now running from  0=>1
-            var sigmoidValue = 1-1.1*sigmoid((xMod-2.5*(cycleTime/cycleDuration)*1.4+0.2),0.05); 
-            //xMod = xMod*(1-stateChangeProb) //sigmoidValue OR stateChangeProb //For a full transition the stateChange Prob needs to take over
-            if (sigmoidValue > gene()){   //stateChangeProb-xMod
-              selectedColor = copyPalette[k]; //Update State with shifted palette
-            } else {
-              selectedColor = chosen_palette_array[k]; //Recede State
-            }
-            sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
-          };
+                  for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
+                      var selectedColor;
+                      for (let i = 0; i < imeshx.count; i++) {
+                          let matrix = new THREE.Matrix4()
+                          sceneMeshes[k].getMatrixAt(i, matrix)  //X is index 12,
+                          var prop = matrix.elements[12] / total_width; //Normalizing the x/width this leads to -0.5 to 0.5
+                          var xMod = prop + 0.5 //XMod is now running from  0=>1
+                          var sigmoidValue = 1 - 1.1 * sigmoid((xMod - 3.0 * (cycleTime / cycleDuration) * 1.4 + 0.2), 0.05);
+                          if (sigmoidValue > gene()) {   //stateChangeProb-xMod
+                              selectedColor = copyPalette[k]; //Update State with shifted palette
+                          } else {
+                              selectedColor = chosen_palette_array[k]; //Recede State
+                          }
+                          sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
+                      };
 
-          sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
-          //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
-          k++;
-        }
-      }//Else: State Stable
+                      sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
+                      //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
+                      k++;
+                  }
+              }//Else: State Stable
 
-      cycleTime += flickerInterval;
+              cycleTime += flickerInterval;
 
-      if (cycleTime>=cycleDuration){
-        chosen_palette_array=[...copyPalette];
-        copyPalette = shiftArrayCopy(chosen_palette_array);
-        //console.log(chosen_palette_array,copyPalette)
-        cycleTime = 0;
-      }
+              if (cycleTime >= cycleDuration) {
+                  chosen_palette_array = [...copyPalette];
+                  copyPalette = shiftArrayCopy(chosen_palette_array);
+                  //console.log(chosen_palette_array,copyPalette)
+                  cycleTime = 0;
+              }
+          }
+
+
     }, flickerInterval);
 
   } else {
@@ -731,22 +732,13 @@ View.prototype.addDenseMatter = function  () {
       var k=0;
       for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
         var selectedColor;
-
-        //var test = [0,0]
         for (let i=0; i<imeshx.count; i++){
           
           let matrix = new THREE.Matrix4()
           sceneMeshes[k].getMatrixAt(i, matrix)  
-
-          var prop = matrix.elements[12]/total_width;
-
-          //selectedColor = copyPalette[k]; //Update State with shifted palette
           selectedColor = chosen_palette_array[k]; //Recede State
           sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
         };
-
-        //selectedColor = copyPalette[k]; //Update State with shifted palette
-        //selectedColor = chosen_palette_array[k]; //Recede State
 
         sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
         k++;
@@ -1138,12 +1130,33 @@ function Controller(viewArea) {
     fitCameraToViewport(view, viewportWidth, viewportHeight);
     }
 
-    window.addEventListener( 'resize', onWindowResize );
+   window.addEventListener( 'resize', onWindowResize );
 
-    const raycaster = new THREE.Raycaster();
-    const pointer = new THREE.Vector2();
+   const raycaster = new THREE.Raycaster();
+   const pointer = new THREE.Vector2();
+
+    function resetClickCenter() {
+        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+        raycaster.setFromCamera(pointer, view.camera);
+
+        const intersects = raycaster.intersectObjects(view.scene.children, true);
+        //console.log(intersects)
+        for (let i = 0; i < intersects.length; i++) {
+            intersects[i].point.z = 0; //find the middle plane
+            //console.log(intersects[ i ].point);
+            View.prototype.DenseMatterCreateExplosionVectors(intersects[i].point)
+            break;
+        }
+
+        View.prototype.preRender(); //clear and recalculate frames
+    }
+    function onPointerDoubleClick(event) {
+        resetClickCenter();
+    }
     
-  function onPointerClick( event ) {
+    function onPointerClick( event ) {
 
     if (animation_initiated) {
 
@@ -1159,28 +1172,16 @@ function Controller(viewArea) {
     // calculate pointer position in normalized device coordinates
     // (-1 to +1) for both components
     if (animation_center_comm) {
-      pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-      pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-      raycaster.setFromCamera(pointer, view.camera);
-    
-      const intersects = raycaster.intersectObjects( view.scene.children, true );
-      //console.log(intersects)
-      for ( let i = 0; i < intersects.length; i ++ ) {
-        intersects[ i ].point.z = 0; //find the middle plane
-        //console.log(intersects[ i ].point);
-        View.prototype.DenseMatterCreateExplosionVectors(intersects[ i ].point)
-        break;
-      }
-
-      View.prototype.preRender(); //clear and recalculate frames
+      resetClickCenter();
 
       animation_center_comm = false; //wait for p to be pressed again
       
     }
   }
   
-  window.addEventListener( 'click', onPointerClick );
+    window.addEventListener('click', onPointerClick);
+    window.addEventListener('dblclick', onPointerDoubleClick);
 }
 
 function tectonica () {
@@ -1334,29 +1335,22 @@ function doc_keyUp(e) {
     else if (capturer != null) { //If capturer in ongoing and button press the "g" button again
       capturer.stop();
       capturer_custom_save();
-
     }
-  } else if (e.keyCode === 70 ) {  //"f" = increment light travel framerate
-    light_framerate_change = findNextValueByValue(light_framerate_change, light_frame_speed_param)
-    console.log("light framerate changed to: " + getKeyByValue(light_frame_speed_param, light_framerate_change))
-  } else if (e.keyCode === 84 ) {  //"t" = increase travel speed
-    base_light_angle_step = findNextValueByValue(base_light_angle_step, light_step_size_param)
-    console.log("light angle step changed to: " + getKeyByValue(light_step_size_param, base_light_angle_step))
-  } else if (e.keyCode === 65 ) {  //"a" = jump light angle by 30 degrees
-    light_angle += Math.PI/6; //advance light angle by 30deg
-    console.log("Skipped 30degrees")
   } else if (e.keyCode === 66 ) {  //"b" = flip background from black to white
     background_toggle = !background_toggle;
-    if (background_toggle) {
-      document.body.style.backgroundColor = "black";
-      console.log("Background: black")
-    } else {
-      document.body.style.backgroundColor = "white";
-      console.log("Background: white")
+      if (background_toggle) {
+          document.body.style.backgroundColor = "white";
+          console.log("Background: white")
+
+      } else {
+          document.body.style.backgroundColor = "black";
+          console.log("Background: black")
+
     }
   }
-  else if (e.keyCode === 69) { //"e" = reset explosion 
-    animation_frametime = 0;
+  else if (e.keyCode === 69) { //"e" = reset explosion center
+      console.log("pick point for explosion")
+      animation_center_comm = true;
   }
   else if (e.keyCode === 73 && !e.ctrlKey) {  //i and not ctrl
     document.getElementById("keybinding").style.display = "block";
@@ -1378,9 +1372,8 @@ function doc_keyUp(e) {
       }, 100);
     },3000);
   }
-  else if (e.keyCode === 80) { //"p" = reset explosion center
-    console.log("pick point for explosion")
-    animation_center_comm = true;
+  else if (e.keyCode === 80) { //"p" = pause/unpause color
+      color_animation = !color_animation;
   }
 }
 

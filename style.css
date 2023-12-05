@@ -6,7 +6,8 @@ body {
 }*/
 
 body {
-  overflow: hidden; /* Hide scrollbars */
+    overflow: hidden; /* Hide scrollbars */
+    background-color: black;
 }
 
 #loading{
