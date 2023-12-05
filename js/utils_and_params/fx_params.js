@@ -101,21 +101,14 @@ $fx.params([
       }
     },
     {
-      id: "explosion_id",
-      name: "Exploded",
-      type: "boolean",
-      update: "page-reload",
-      default: false,
-    },
-    {
       id: "power_id",
       name: "Power",
       type: "number",
       update: "page-reload",
-      default: 2,
+      default: 10,
       options: {
         min: 0, // 1
-        max: 5, // 5
+        max: 10, // 5
         step: 0.1, // 1
       },
     },

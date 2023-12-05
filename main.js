@@ -47,8 +47,7 @@ $fx.features({
   "Structure": noise_feature,
   "Form": noise_form,
   "Dissipation": noise_cull_rule,
-  "Attachment": attachment_type,
-  "Exploded": exploded
+  "Attachment": attachment_type
 });
 
 
@@ -95,17 +94,17 @@ console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
             'Structure -> ' + noise_feature, '\n',
             'Form -> ' + noise_form, '\n',
             'Dissipation -> ' + noise_cull_rule, '\n',
-            'Attachment -> ' + attachment_type, '\n',
-            'Exploded -> ' + exploded, '\n');
+            'Attachment -> ' + attachment_type, '\n');
 
 console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
-            'a   : jump light angle', '\n',
-            'f   : cycle light framerate', '\n',
-            't   : cycle light tick', '\n',
-            'i   : info', '\n',
-            'b   : white / black background', '\n',
-            'g   : start / stop gif capture', '\n',
-            '1-5 : image capture 1-5x resolution', '\n');
+            'click    : explode/unexplode', '\n',
+            '2x click : new explosion center', '\n',
+            'e        : new explosion center', '\n',
+            'p        : pause/unpause color cycle', '\n',
+            'i        : info screen', '\n',
+            'b        : white/black background', '\n',
+            'g        : gif capture + explode', '\n',
+            '1-5      : png capture 1-5x res', '\n');
 
 //////END CONSOLE LOG//////
 
@@ -161,7 +160,7 @@ function View(viewArea) {
 
   renderer.setSize( viewportWidth, viewportHeight );
   renderer.shadowMap.enabled = true;
-  renderer.domElement.id = 'obscvrvmcanvas';
+  renderer.domElement.id = 'tectonicacanvas';
   //renderer.setClearColor(0x000000, 0); // we have to set this to get a transparent background
 
   viewport.appendChild(renderer.domElement);
@@ -1260,7 +1259,7 @@ function capturer_custom_save() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `tectonica_${parseInt(Math.random()*10000000)}.gif`;
+      a.download = `tectonica_${palette_name}_anim_${parseInt(Math.random()*10000000)}.gif`;
       a.click();
       URL.revokeObjectURL(url);
       });

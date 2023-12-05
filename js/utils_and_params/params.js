@@ -281,7 +281,6 @@ var dimension_type = $fx.getParam("dimension_id"); // element dimensions are cho
 var jitter_reduction = (dimension_type == "voxel" || dimension_type == "needle") ? 0.5 : 1.0; // if dimension type is "voxel" or "needle" there will be less random jitter of the elements
 if (dimension_type == "wire") {jitter_reduction = 0.75}; // for dimension type "wire" random jitter is set to medium value between min and max
 var attachment_type = $fx.getParam("attachment_id"); // attachment type is chosen using fxhash params
-var exploded = $fx.getParam("explosion_id"); // explosion is chosen using fxhash params
 var explosion_power = $fx.getParam("power_id"); // explosion is chosen using fxhash params
 
 var c_type = dimensions[dimension_type][0]; // profile type
