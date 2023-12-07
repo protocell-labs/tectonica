@@ -819,7 +819,7 @@ View.prototype.addStarsRandom = function (bounds, qty)
     var gene_stars = gene;
   }
   
-  const geometry = new THREE.PolyhedronGeometry(star_vertices, star_face, star_radius, 0);
+  const geometry = new THREE.PolyhedronGeometry(star_vertices, star_face, 0.30, 0); // third parameter is star radius
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
 
@@ -896,7 +896,7 @@ View.prototype.addStarDust = function ()
   // this is important to calculate for instanced mesh!
   var total_number_of_stars = branch_points * nr_of_branches;
 
-  const geometry = new THREE.PolyhedronGeometry(star_vertices, star_face, star_radius, 0);
+  const geometry = new THREE.PolyhedronGeometry(star_vertices, star_face, 0.30, 0); // third parameter is star radius
   geometry.scale(1, 1.5, 1);
   const material = new THREE.MeshPhongMaterial( {color: 0xffffff} );
 

@@ -32,8 +32,8 @@ const light_step_size_param = {
 }
 
 // STARS - random
-var random_starfield_bounds = 1000; // O B S C V R V M - 1500
-var nr_of_random_stars = 15000; // O B S C V R V M - 20000
+var random_starfield_bounds = 1000;
+var nr_of_random_stars = 15000;
 
 // COLOUR CHANGE
 const flickerInterval = 100; //(ms)
@@ -81,6 +81,59 @@ const pigment_codes = {
 }
 
 
+const allel_pigments = [
+  ["horizon, sunshine, grapefruit", 8],
+  ["night, embers, citrus", 4],
+  ["ivy, apatite, tourmaline", 8],
+  ["sodalite, glacier, rust", 7],
+  ["ocean, lapis, sulphur", 4],
+  ["moss, cedar, algae", 3],
+  ["ink, steel, salt", 2],
+  ["charcoal, papyrus, marble", 4],
+  ["murex, rhodochrosite, marshmallow", 8],
+  ["furnace, ruby, soot", 5]
+];
+
+const allel_pattern = [
+  ["noisy", 1],
+  ["graded", 2],
+  ["layered", 2], 
+  ["stacked", 1], 
+  ["composed", 1]
+];
+
+const allel_dimension = [
+  ["voxel", 1],
+  ["pin", 2],
+  ["stick", 2],
+  ["needle", 2],
+  ["wire", 1]
+];
+
+const allel_structure = [
+  ["cracks", 1],
+  ["bands", 1],
+  ["sheets", 1],
+  ["unbiased", 3]
+];
+
+const allel_form = [
+  ["expressive", 9],
+  ["monolithic", 1]
+];
+
+const allel_dissipation = [
+  ["clean", 3],
+  ["fuzzy", 1]
+];
+
+const allel_attachment = [
+  ["tight", 80],
+  ["detached", 10],
+  ["loose", 5],
+  ["floating", 5]
+];
+
 const allel_color_features_vert = [
   ["none", 80],
   ["vertical stripe sparse", 5],
@@ -95,7 +148,6 @@ const allel_color_features_horiz = [
   ["horizontal stripe blocks", 5],
   ["horizontal stripe solid", 5]
 ];
-
 
 const allel_noise_scale_x = [
   [0.05, 2],
@@ -149,7 +201,6 @@ const dimensions = {
 }
 
 const attachment_values = {
-  "dense": 0,
   "tight": 1,
   "detached": 10,
   "loose": 25,
@@ -157,7 +208,6 @@ const attachment_values = {
 }
 
 const cylinder_params = {
-  "standard" : [0.5, 0.5, 1, 6, 1],
   "square beam" : [0.5, 0.5, 1, 4, 1], // here the side length is less than 1.0 as the first parameter is radius
   "square 1x1" : [0.7, 0.7, 1, 4, 1] // first parameter is the radius, which gives us a square with a side close to 1.0
 }
@@ -170,12 +220,11 @@ const star_vertices = [
 ];
 
 const star_face = [ 2, 1, 0 ]; // one face
-const star_radius = 0.30;
 
 
 var triptych = $fx.getParam("triptych_id"); // type of triptych, default is "middle"
 
-var pigments = $fx.getParam("pigments_id"); // pigments are chosen using fxhash params
+var pigments = gene_weighted_choice(allel_pigments); // choose pigments with probability proportional to the number of palettes in them (so each color palette has an equal probability of being chosen later)
 var chosen_code = pigment_codes[pigments][0]; // palette code is picked based on the pigment name
 var decoded_palettes = chosen_code.split(":").map(s=>s.split("").map(k=>'#'+`00${k.charCodeAt(0).toString(16)}`.slice(-3))); // decode pigment code into a set of palettes
 var palette_idx = gene_rand_int(0, decoded_palettes.length); // choose random number as a palette index - equal probability
@@ -183,7 +232,7 @@ var chosen_palette = decoded_palettes[palette_idx]; // choose palette based on t
 var palette_name =  pigment_codes[pigments][1][palette_idx]; // choose corresponding palette name from a list (matched with a palette through ordering)
 shuffleArray(chosen_palette); // randomly shuffle the colors in the palette - this way we can keep the order of probabilities the same in the loop below
 
-var pattern = $fx.getParam("pattern_id"); // pattern is chosen using fxhash params
+var pattern = gene_weighted_choice(allel_pattern);
 if (pattern == "noisy") {var color_gradient_default = "uniform";}
 if (pattern == "graded") {var color_gradient_default = gene() < 0.5 ? "vertical grading" : "horizontal grading";}
 if (pattern == "layered") {var color_gradient_default = gene() < 0.5 ? "solid sprinkled" : "depth stack";}
@@ -199,15 +248,15 @@ var color_gradient_quadrants = [gene_weighted_choice(allel_color_gradient_quadra
                                 gene_weighted_choice(allel_color_gradient_quadrants),
                                 gene_weighted_choice(allel_color_gradient_quadrants)];
 
-var noise_feature = $fx.getParam("noise_feature_id"); // noise feature is chosen using fxhash params
-var noise_form = $fx.getParam("noise_form_id"); // noise form is chosen using fxhash params
+var noise_feature = gene_weighted_choice(allel_structure); // overall structure of elements determined by non-uniform scaling of noise
+var noise_form = gene_weighted_choice(allel_form); // expressive vs monolithic
 var noise_form_scales = noise_form == "expressive" ? [1.0, 1.0] : [0.1, 0.25]; // factors which will scale noise sampling dimensions
-var noise_cull_rule = $fx.getParam("noise_cull_id"); // noise cull rule is chosen using fxhash params
-var dimension_type = $fx.getParam("dimension_id"); // element dimensions are chosen using fxhash params
+var noise_cull_rule = gene_weighted_choice(allel_dissipation); // clean vs fuzzy edges
+var dimension_type = gene_weighted_choice(allel_dimension); // size of elements
 var jitter_reduction = (dimension_type == "voxel" || dimension_type == "needle") ? 0.5 : 1.0; // if dimension type is "voxel" or "needle" there will be less random jitter of the elements
 if (dimension_type == "wire") {jitter_reduction = 0.75}; // for dimension type "wire" random jitter is set to medium value between min and max
-var attachment_type = $fx.getParam("attachment_id"); // attachment type is chosen using fxhash params
-var explosion_power = $fx.getParam("power_id"); // explosion is chosen using fxhash params
+var attachment_type = gene_weighted_choice(allel_attachment); // gap between the vertical layers
+var explosion_power = gene_range(5, 15); // explosion strength
 
 var c_type = dimensions[dimension_type][0]; // profile type
 var c_xy_scale = dimensions[dimension_type][1]; // element thickness
