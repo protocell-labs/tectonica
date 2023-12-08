@@ -13,17 +13,6 @@ function iOS() {
   || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 }
 
-
-function getKeyByValue(obj, value) {
-  return Object.keys(obj).find(key => obj[key] === value);
-}
-
-function findNextValueByValue(value, obj) {
-  var keys = Object.keys(obj);
-  return obj[keys[(keys.indexOf(getKeyByValue(obj, value)) + 1) % keys.length]];
-}
-
-
 // rand functions for random generator. Assumes generator producing float point between 0 and 1
 
 function gene_rand_int_proto(gene){

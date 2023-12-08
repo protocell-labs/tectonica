@@ -59,18 +59,11 @@ console.clear(); // clear the console at the beginning
 var tectonica_logo =  "%c                                                                           \n"
                     + "%c     T E C T O N I C A  |  { p r o t o c e l l : l a b s }  |  2 0 2 3     \n"
                     + "%c                                                                           \n";
-/*
-console.log( tectonica_logo,
-            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;',
-            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;',
-            'color: white; background: #000000; font-weight: bold; font-family: "Courier New", monospace;');
-*/
+
 console.log( tectonica_logo,
             `color: white; background: ${chosen_palette[0]}; font-weight: bold; font-family: "Courier New", monospace;`,
             `color: white; background: ${chosen_palette[1]}; font-weight: bold; font-family: "Courier New", monospace;`,
             `color: white; background: ${chosen_palette[2]}; font-weight: bold; font-family: "Courier New", monospace;`);
-
-//console.log('%cFelix, qui potuit rerum cognoscere causas.\n', 'font-style: italic; font-family: "Courier New", monospace;');
 
 console.log("%c    %c    %c    %c    %c    %c    %c    %c    %c    %c    ",
             `color: white; background: ${chosen_palette[0]};`,
@@ -121,8 +114,6 @@ var margin_top = 0;
 var viewportHeight;
 var viewportWidth;
 
-
-var light_framerate_change;
 var background_toggle = false;
 
 var controller;
@@ -161,49 +152,28 @@ function View(viewArea) {
   renderer.setSize( viewportWidth, viewportHeight );
   renderer.shadowMap.enabled = true;
   renderer.domElement.id = 'tectonicacanvas';
-  //renderer.setClearColor(0x000000, 0); // we have to set this to get a transparent background
 
   viewport.appendChild(renderer.domElement);
 
   var scene = new THREE.Scene();
 
-  //var camera = new THREE.PerspectiveCamera( 75, viewportWidth / viewportHeight, 0.1, 10000 );
-  //camera.position.set(0,0, 100);
-
-
-
-  //cam_factor controls the "zoom" when using orthographic camera
+  // cam_factor controls the "zoom" when using orthographic camera
   var camera = new THREE.OrthographicCamera( -viewportWidth/cam_factor_mod, viewportWidth/cam_factor_mod, viewportHeight/cam_factor_mod, -viewportHeight/cam_factor_mod, 0, 5000 );
 
-  //controls
-  //const controls = new THREE.OrbitControls( camera, renderer.domElement );
-  //controls.enableZoom = true;
-  //controls.smoothZoom = true;
-  //controls.zoomDampingFactor = 0.2;
-  //controls.smoothZoomSpeed = 5.0;
-
-
   camera.position.set(0, 0, 2000);
-  //controls.update();
-  //this.controls = controls;
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  //composer = new THREE.EffectComposer( renderer );
   composer.setSize(window.innerWidth, window.innerHeight)
 
   // change scene background to solid color
-  scene.background = new THREE.Color('#080808'); //0xffffff, 0x000000
+  scene.background = new THREE.Color('#080808');
 
-  const color = 0xffffff; //0xffffff
+  const color = 0xffffff;
   const intensity = 0.9;
   const amb_intensity = 0.1; //0-1, zero works great for shadows with strong contrast
 
   // ADD LIGHTING
-  var light = new THREE.DirectionalLight(0xffffff, intensity); //new THREE.PointLight(0xffffff);
-  //scene.add( light.target ); //Needs to be added to change target
-  //light.target = //ASSIGN NEW TARGET
-
-
+  var light = new THREE.DirectionalLight(0xffffff, intensity);
 
   light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
@@ -217,13 +187,10 @@ function View(viewArea) {
   light.shadow.camera.top = d;
   light.shadow.camera.bottom = - d
 
-  //Create a helper for the shadow camera (optional)
-  //const helper = new THREE.CameraHelper( light.shadow.camera );
-  //scene.add( helper );
-
   var shadow = 8192; // multiples of 2 -> 8192, 4096, 2048, 1024... - in TECTONICA we use non-square shadow map (shadow x shadow/2 pix)
   var paramsAssigned = false;
   
+
   // URL PARAMS
 
   // Usage: add this to the url =>    ?shadow=4096&explosion=0.5&palette=3&gif=10
@@ -315,6 +282,213 @@ function View(viewArea) {
 
 View.prototype.addDenseMatter = function  () {
 
+  // PARAMETERS
+
+  const allel_color_gradient_quadrants = [
+    ["sol", 1], // solid sprinkled
+    ["uni", 1], // uniform
+    ["ver", 1], // vertical grading
+    ["hor", 1], // horizontal grading
+    ["wid", 1], // width stack
+    ["hei", 1], // height stack
+    ["dep", 1] // depth stack
+  ];
+  
+  const allel_quadrant_div = [
+    [1.5, 1],
+    [1.75, 1],
+    [2.0, 1],
+    [3.0, 1],
+    [4.0, 1]
+  ];
+
+  const allel_color_features_vert = [
+    ["non", 80], // none
+    ["vspa", 5], // vertical stripe sparse
+    ["vdas", 5], // vertical stripe dashed
+    ["vblo", 5], // vertical stripe blocks
+    ["vsol", 5] // vertical stripe solid
+  ];
+  
+  const allel_color_features_horiz = [
+    ["non", 85], // none
+    ["hdas", 5], // horizontal stripe dashed
+    ["hblo", 5], // horizontal stripe blocks
+    ["hsol", 5] // horizontal stripe solid
+  ];
+  
+  const allel_noise_scale_x = [
+    [0.05, 2],
+    [0.10, 1],
+    [0.15, 1],
+    [0.20, 1]
+  ];
+  
+  const allel_noise_scale_y = [
+    [0.10, 1],
+    [0.20, 1],
+    [0.30, 1],
+    [0.40, 1],
+    [0.50, 1]
+  ];
+  
+  const allel_noise_scale_z = [
+    [0.10, 1],
+    [0.20, 1],
+    [0.30, 1],
+    [0.40, 1],
+    [0.50, 1]
+  ];
+
+  // profile type, element thickness, element length, number in x (width), number in y (height), number in z (depth)
+  const dimensions = {
+    "voxel": ["square 1x1", 8, 8, 70, 110, 20], // ["square 1x1", 5, 5, 115, 190, 30], ["square 1x1", 10, 10, 58, 95, 20], ["square 1x1", 8, 8, 72, 120, 15]
+    "pin": ["square beam", 5, 25, 115, 37, 30],
+    "stick": ["square beam", 5, 50, 115, 20, 30],
+    "needle": ["square beam", 2.5, 75, 220, 15, 30],
+    "wire": ["square beam", 2.5, 100, 110, 11, 30]
+  }
+
+  const attachment_values = {
+    "tight": 1,
+    "detached": 10,
+    "loose": 25,
+    "floating": 50
+  }
+
+  const cylinder_params = {
+    "square beam" : [0.5, 0.5, 1, 4, 1], // here the side length is less than 1.0 as the first parameter is radius
+    "square 1x1" : [0.7, 0.7, 1, 4, 1] // first parameter is the radius, which gives us a square with a side close to 1.0
+  }
+
+
+  // pattern parameters
+  if (pattern == "noisy") {var color_gradient_default = "uni";}
+  if (pattern == "graded") {var color_gradient_default = gene() < 0.5 ? "ver" : "hor";}
+  if (pattern == "layered") {var color_gradient_default = gene() < 0.5 ? "sol" : "dep";}
+  if (pattern == "stacked") {var color_gradient_default = "hei";}
+  if (pattern == "composed") {var color_gradient_default = "sol";} // this one is just a placeholder, patterns for quadrants will be determined separately
+
+  // quadrant parameters
+  var quadrants = pattern == "composed" ? true : false; // if the color gradient is "composed", quadrants will be triggered
+  var quadrant_div_x = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the vertical division line with QUADRANTS
+  var quadrant_div_y = gene_weighted_choice(allel_quadrant_div); // 1.5 - 4.0, controls the horizontal division line with QUADRANTS
+
+  // determines the color grading for each segment of the QUADRANT
+  var color_gradient_quadrants = [gene_weighted_choice(allel_color_gradient_quadrants),
+                                  gene_weighted_choice(allel_color_gradient_quadrants),
+                                  gene_weighted_choice(allel_color_gradient_quadrants),
+                                  gene_weighted_choice(allel_color_gradient_quadrants)];
+                            
+  // jitter parameters
+  var jitter_reduction = (dimension_type == "voxel" || dimension_type == "needle") ? 0.5 : 1.0; // if dimension type is "voxel" or "needle" there will be less random jitter of the elements
+  if (dimension_type == "wire") {jitter_reduction = 0.75}; // for dimension type "wire" random jitter is set to medium value between min and max
+  
+  // element and composition dimensions
+  var c_type = dimensions[dimension_type][0]; // profile type
+  var c_xy_scale = dimensions[dimension_type][1]; // element thickness
+  var c_length = dimensions[dimension_type][2]; // element length
+  var grid_nr_x = dimensions[dimension_type][3]; // number in x (width)
+  var grid_nr_y = dimensions[dimension_type][4]; // number in y (height)
+  var grid_nr_z = dimensions[dimension_type][5]; // number in z (depth)
+  var y_gap = attachment_values[attachment_type]; // y_gap will depend on the attachment type
+  var x_gap = dimension_type == "wire" ? 3.0 : 0; // x_gap is larger for wire dimension, otherwise it's always zero
+
+  // slight additional offset added to center the grid to the screen vertically
+  if (dimension_type == "stick") {var extra_offset = 12;}
+  else if (dimension_type == "needle" || dimension_type == "wire") {var extra_offset = -10;}
+  else {var extra_offset = 0;}
+
+  // left and right triptych pieces also get an additional vertical offset to align better
+  if ((triptych == "left") && (dimension_type == "voxel")) {extra_offset -= 5;}
+  else if ((triptych == "right") && (dimension_type == "voxel")) {extra_offset += 5;}
+  else if ((triptych == "left") && (dimension_type == "pin")) {extra_offset -= 5;}
+  else if ((triptych == "right") && (dimension_type == "pin")) {extra_offset += 5;}
+  else if ((triptych == "left") && (dimension_type == "stick")) {extra_offset += 20;}
+  else if ((triptych == "right") && (dimension_type == "stick")) {extra_offset -= 20;}
+  else if ((triptych == "left") && (dimension_type == "needle")) {extra_offset += 20;}
+  else if ((triptych == "right") && (dimension_type == "needle")) {extra_offset -= 20;}
+  else if ((triptych == "left") && (dimension_type == "wire")) {extra_offset += 20;}
+  else if ((triptych == "right") && (dimension_type == "wire")) {extra_offset -= 20;}
+
+  // grid offsets
+  var grid_offset_x = -(grid_nr_x * (c_xy_scale + x_gap)) / 2.0;
+  var grid_offset_y = extra_offset -(grid_nr_y * (c_length + y_gap)) / 2.0;
+  var grid_offset_z = -(grid_nr_z * (c_xy_scale + x_gap)) / 2.0;
+  var total_elements_existing = 0; // will be calculated later
+  var total_possible_elements = grid_nr_x * grid_nr_y * grid_nr_z;
+
+  // additional color features appearing
+  var color_features_vert = gene_weighted_choice(allel_color_features_vert);
+  var color_features_horiz = gene_weighted_choice(allel_color_features_horiz);
+  var color_features = [color_features_vert, color_features_horiz];
+
+  // stripe parameters
+  var stripe_param_a = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
+  var stripe_param_b = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
+  var stripe_param_c = Math.floor(gene_range(2, 20)); // affects width, period and position of extra stripes
+  var stripe_width = Math.floor(gene_range(2, 20)); // stripe width
+  var stripe_spacing = Math.floor(gene_range(5, 15)); // stripe spacing
+  var stripe_shift = Math.floor(gene_range(1, stripe_spacing)); // stripe shift, needs to be smaller than stripe spacing
+  var block_spacing = Math.floor(gene_range(50, 150)); // block spacing in horizontal stripes, (10, 25)
+  var block_width = Math.floor(block_spacing / 2); // block width in horizontal stripes
+  var shift_sign_horiz = gene() < 0.5 ? 1 : -1; // chance for horizontal stripes to be shifted in or out of the grid
+  var shift_sign_vert = -shift_sign_horiz; // vertical stripes are always the opposite from horizontal ones
+
+
+  // noise parameters
+  var noise_form_scales = noise_form == "expressive" ? [1.0, 1.0] : [0.1, 0.25]; // factors which will scale noise sampling dimensions
+  var noise_height_f = c_length/c_xy_scale; // noise height factor
+
+  var noise_scale_x, noise_scale_y, noise_scale_z;
+  if (noise_feature == "cracks") {
+    noise_scale_x = gene_weighted_choice(allel_noise_scale_x) * noise_form_scales[1];
+    noise_scale_y = 0.01 * noise_form_scales[0];
+    noise_scale_z = 0.025;
+
+  } else if (noise_feature == "bands") {
+    noise_scale_x = 0.01 * noise_form_scales[0];
+    noise_scale_y = gene_weighted_choice(allel_noise_scale_y);
+    noise_scale_z = 0.05 * noise_form_scales[0];
+
+  } else if (noise_feature == "sheets") {
+    noise_scale_x = 0.01 * noise_form_scales[0];
+    noise_scale_y = 0.01 * noise_form_scales[0];
+    noise_scale_z = gene_weighted_choice(allel_noise_scale_z);
+
+  } else { // in any other case, noise_feature == "unbiased"
+    noise_scale_x = 0.01 * noise_form_scales[0];
+    noise_scale_y = 0.01 * noise_form_scales[0];
+    noise_scale_z = noise_cull_rule == "clean" ? 0.05 : 0.01;
+  }
+
+  // triptych type determines the shift in noise pattern so three triptychs can align
+  var triptych_shift_x, triptych_shift_y;
+  var triptych_shift_amplitude_x = 500 * noise_scale_x / c_xy_scale;
+  var triptych_shift_amplitude_y = 125 * noise_scale_y / c_length;
+
+  if (dimension_type == "voxel") {triptych_shift_amplitude_y = 25 * noise_scale_y / c_length;}
+
+  if (triptych == "right") {
+    triptych_shift_x = triptych_shift_amplitude_x;
+    triptych_shift_y = triptych_shift_amplitude_y;
+  } else if (triptych == "left") {
+    triptych_shift_x = -triptych_shift_amplitude_x;
+    triptych_shift_y = -triptych_shift_amplitude_y;
+  } else {
+    triptych_shift_x = 0;
+    triptych_shift_y = 0;
+  }
+
+  // random shift of noise to get a different pattern
+  var noise_shift_x = gene_range(-100, 100) + triptych_shift_x;
+  var noise_shift_y = gene_range(-100, 100) + triptych_shift_y;
+  var noise_shift_z = gene_range(-100, 100);
+
+
+
+  // GRID GENERATION
+
   // use elements_per_palette objects to count nr of elements for each color - we need to know this nr when we create instanced mesh
   for (i in chosen_palette) {
     elements_per_palette_object[chosen_palette[i]] = 0; // for each color we set nr of elements to zero
@@ -357,44 +531,44 @@ View.prototype.addDenseMatter = function  () {
         var element_smooth = false; // by default, element will have a slight random rotation assigned to it later
 
         // additional color features
-        if ((color_features.includes("vertical stripe sparse")) && (Math.floor(i/stripe_param_a) % stripe_param_b == i % stripe_param_c)) { //(Math.floor(i/15) % 2 == 1)
-          color_gradient = "width stack";
+        if ((color_features.includes("vspa")) && (Math.floor(i/stripe_param_a) % stripe_param_b == i % stripe_param_c)) {
+          color_gradient = "wid";
           grid_push_z = 0;
           element_smooth = true;
         }
 
-        if ((color_features.includes("vertical stripe dashed")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
-          color_gradient = "width stack";
+        if ((color_features.includes("vdas")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+          color_gradient = "wid";
           grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
         }
 
-        if ((color_features.includes("vertical stripe blocks")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
-          color_gradient = "height stack";
+        if ((color_features.includes("vblo")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+          color_gradient = "hei";
           grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
         }
 
-        if ((color_features.includes("vertical stripe solid")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
-          color_gradient = "depth stack";
+        if ((color_features.includes("vsol")) && (Math.floor(i/stripe_width) % stripe_spacing == stripe_shift)) {
+          color_gradient = "dep";
           grid_push_z = shift_sign_vert * 10;
           element_smooth = true;
         }
 
-        if ((color_features.includes("horizontal stripe dashed")) && (j % stripe_spacing == stripe_shift)) {
-          color_gradient = "width stack";
+        if ((color_features.includes("hdas")) && (j % stripe_spacing == stripe_shift)) {
+          color_gradient = "wid";
           grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
         }
 
-        if ((color_features.includes("horizontal stripe solid")) && (j % stripe_spacing == stripe_shift)) {
-          color_gradient = "height stack";
+        if ((color_features.includes("hsol")) && (j % stripe_spacing == stripe_shift)) {
+          color_gradient = "hei";
           grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
         }
 
-        if ((color_features.includes("horizontal stripe blocks")) && (j % stripe_spacing == stripe_shift) && ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))) { //(i % block_spacing < block_width), ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))
-          color_gradient = "height stack";
+        if ((color_features.includes("hblo")) && (j % stripe_spacing == stripe_shift) && ((i % block_spacing > block_spacing/2) && (i % block_spacing <= block_width + block_spacing/2))) {
+          color_gradient = "hei";
           grid_push_z = shift_sign_horiz * 10;
           element_smooth = true;
         }
@@ -403,40 +577,27 @@ View.prototype.addDenseMatter = function  () {
         // probabilities for each palette color, if there are more probabilities than there are colors these will be ignored
         // we can keep this order the same as the colors in chosen_palette are already shuffled
         var palette_probs, ascending_param, descending_param;
-        if (color_gradient == "solid") {
-          palette_probs = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        if (color_gradient == "sol") {
+          palette_probs = [50, 1, 1, 1, 1, 1, 1, 1, 1, 1];
 
-        } else if (color_gradient == "solid sprinkled") {
-          palette_probs = [50, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-
-        } else if (color_gradient == "uniform") {
+        } else if (color_gradient == "uni") {
           // skipping of one or two colors adds to color differentiation in depth
-          if (chosen_palette.length > 4) {palette_probs = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];}
-          else {palette_probs = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];}
+          if (chosen_palette.length > 4) {palette_probs = [0, 0, 1, 1, 1, 1, 1, 1, 1, 1];}
+          else {palette_probs = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1];}
 
-        } else if (color_gradient == "vertical grading") {
+        } else if (color_gradient == "ver") {
           ascending_param = j;
           descending_param = grid_nr_y - j;
-          palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+          palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1];
 
-        } else if (color_gradient == "horizontal grading") {
+        } else if (color_gradient == "hor") {
           ascending_param = i;
           descending_param = grid_nr_x - i;
-          palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
-
-        } else if (color_gradient == "vertical grading clean") {
-          ascending_param = j;
-          descending_param = grid_nr_y - j;
-          palette_probs = [ascending_param, descending_param, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
-        } else if (color_gradient == "horizontal grading clean") {
-          ascending_param = i;
-          descending_param = grid_nr_x - i;
-          palette_probs = [ascending_param, descending_param, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          palette_probs = [ascending_param, descending_param, 1, 1, 1, 1, 1, 1, 1, 1];
 
         } else {
           // in this case, palette_probs is not used so we assign it dummy values
-          palette_probs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+          palette_probs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         }
 
 
@@ -450,18 +611,18 @@ View.prototype.addDenseMatter = function  () {
 
 
         // assigning element color according to color_gradient type
-        if (color_gradient == "solid" || color_gradient == "solid sprinkled" || color_gradient == "uniform" || color_gradient == "vertical grading" || color_gradient == "horizontal grading" || color_gradient == "vertical grading clean" || color_gradient == "horizontal grading clean") {
+        if (color_gradient == "sol" || color_gradient == "uni" || color_gradient == "ver" || color_gradient == "hor" ) {
           var element_color = gene_weighted_choice(allel_palette_dynamic);
 
-        } else if (color_gradient == "width stack") {
+        } else if (color_gradient == "wid") {
           var color_index = i % chosen_palette.length;
           var element_color = chosen_palette[color_index];
 
-        } else if (color_gradient == "height stack") {
+        } else if (color_gradient == "hei") {
           var color_index = (j + k) % chosen_palette.length;
           var element_color = chosen_palette[color_index];
 
-        } else if (color_gradient == "depth stack") {
+        } else if (color_gradient == "dep") {
           var color_index = k % chosen_palette.length;
           var element_color = chosen_palette[color_index];
 
@@ -810,6 +971,15 @@ View.prototype.addStarsRandom = function (bounds, qty)
 {
   var star_plane_distance = -2000; // z coordinate of the plane where stars reside (they also recieve no shadow)
 
+  // one triangle
+  const star_vertices = [
+    0, 1, 0, // top
+    1, 0, 0, // right
+    -1, 0, 0 // left
+  ];
+
+  const star_face = [ 2, 1, 0 ]; // one face
+
   // for each triptych part we will have different random stars so we need to assign a different seeded prng
   if (triptych == "left") {
     var gene_stars = gene_t_l;
@@ -868,6 +1038,15 @@ View.prototype.addStarsRandom = function (bounds, qty)
 View.prototype.addStarDust = function ()
 {
   var star_plane_distance = -2000; // z coordinate of the plane where stars reside (they also recieve no shadow)
+
+  // one triangle
+  const star_vertices = [
+    0, 1, 0, // top
+    1, 0, 0, // right
+    -1, 0, 0 // left
+  ];
+
+  const star_face = [ 2, 1, 0 ]; // one face
 
   // random walk
   var step_size = 5;
@@ -1089,7 +1268,7 @@ function Controller(viewArea) {
   this.view = view; //referenced outside
 
   view.addDenseMatter(); // dense grid of colored elements
-  view.addStarsRandom(random_starfield_bounds, nr_of_random_stars); // random stars - parameters > (bounds, quantity)
+  view.addStarsRandom(1000, 15000); // random stars - parameters > (bounds, quantity)
   
   // star dust and the moon appear only in the middle (default) triptych
   if (triptych == "middle") {
