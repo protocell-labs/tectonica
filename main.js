@@ -94,7 +94,6 @@ console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
             '2x click : new explosion center', '\n',
             'e        : new explosion center', '\n',
             'p        : pause/unpause color cycle', '\n',
-            'i        : info screen', '\n',
             'b        : white/black background', '\n',
             'g        : gif capture + explode', '\n',
             '1-5      : png capture 1-5x res', '\n');
@@ -102,8 +101,6 @@ console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
 //////END CONSOLE LOG//////
 
 
-var pre_calc = 0.000;
-var viz_update = 0.00000;
 var composer_pass = 0.00000;
 
 ///VIEWPORT SETUP///
@@ -1527,26 +1524,6 @@ function doc_keyUp(e) {
   else if (e.keyCode === 69) { //"e" = reset explosion center
       console.log("pick point for explosion")
       animation_center_comm = true;
-  }
-  else if (e.keyCode === 73 && !e.ctrlKey) {  //i and not ctrl
-    document.getElementById("keybinding").style.display = "block";
-    document.querySelector("#keybinding").style.opacity = 1
-    //Load modal with decription for all the keys for few
-    //seconds and make it fade to invisible after a few seconds.
-    //Each additional non active key press restarts the fade out animation
-    if (typeof fade !== 'undefined') {
-      clearInterval(fade)
-      };
-    var fade;
-    setTimeout(function() {
-      fade = setInterval(function () {
-        document.querySelector("#keybinding").style.opacity -= 0.025;
-        if (document.querySelector("#keybinding").style.opacity <= 0 ) {
-          document.querySelector("#keybinding").style.display = "none";
-          clearInterval(fade)
-        }
-      }, 100);
-    },3000);
   }
   else if (e.keyCode === 80) { //"p" = pause/unpause color
       color_animation = !color_animation;
