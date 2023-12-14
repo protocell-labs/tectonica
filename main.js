@@ -54,7 +54,7 @@ $fx.features({
 
 //////CONSOLE LOG//////
 
-console.clear(); // clear the console at the beginning
+//console.clear(); // clear the console at the beginning
 
 var tectonica_logo =  "%c                                                                           \n"
                     + "%c     T E C T O N I C A  |  { p r o t o c e l l : l a b s }  |  2 0 2 3     \n"
@@ -116,6 +116,10 @@ var background_toggle = false;
 var controller;
 
 var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, preserveDrawingBuffer: true}); //antialias: true
+
+renderer.toneMapping = THREE.LinearToneMapping ; // default is THREE.NoToneMapping, other options: LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping...
+renderer.toneMappingExposure = 10; // default is 1, this affects how colors look like under UnrealBloom effect
+
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
@@ -163,14 +167,11 @@ function View(viewArea) {
   composer.setSize(window.innerWidth, window.innerHeight)
 
   // change scene background to solid color
-  scene.background = new THREE.Color('#080808');
+  scene.background = new THREE.Color('#020202'); // #080808
 
-  const color = 0xffffff;
-  const intensity = 0.9;
-  const amb_intensity = 0.1; //0-1, zero works great for shadows with strong contrast
 
   // ADD LIGHTING
-  var light = new THREE.DirectionalLight(0xffffff, intensity);
+  var light = new THREE.DirectionalLight(0xffffff, 0.9); // color, intensity
 
   light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
@@ -178,11 +179,10 @@ function View(viewArea) {
   light.shadow.camera.far = 3500; //3000
   light.shadow.bias = - 0.000222;
 
-  const d = 1000;
-  light.shadow.camera.left = - d;
-  light.shadow.camera.right = d;
-  light.shadow.camera.top = d;
-  light.shadow.camera.bottom = - d
+  light.shadow.camera.left = - 1000;
+  light.shadow.camera.right = 1000;
+  light.shadow.camera.top = 1000;
+  light.shadow.camera.bottom = - 1000;
 
   var shadow = 8192; // multiples of 2 -> 8192, 4096, 2048, 1024... - in TECTONICA we use non-square shadow map (shadow x shadow/2 pix)
   var paramsAssigned = false;
@@ -241,7 +241,7 @@ function View(viewArea) {
 
   scene.add(light);
 
-  const amblight = new THREE.AmbientLight(color, amb_intensity);
+  const amblight = new THREE.AmbientLight(0xffffff, 0.010); // 0-1, zero works great for shadows with strong contrast, had it at 0.1 for tectonica during testing
   scene.add(amblight);
 
   this.winHeight = viewportHeight;
@@ -259,9 +259,24 @@ function View(viewArea) {
 
   this.curves = [];
 
-  // Renders the Scene
+
+  // original order - renderPass, effectFXAA, bloomPass
+  // changed the order after we introduced OutputPass
+
+  // renders the scene
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
+
+  // bloom
+  const bloomPass = new THREE.UnrealBloomPass();
+  bloomPass.strength = 0.10; // 0.30
+  bloomPass.radius = 0.0; // 0.0
+  bloomPass.threshold = 0.05; // 0.0
+  //this.composer.addPass(bloomPass)
+
+  // output pass
+  const outputPass = new THREE.OutputPass();
+  this.composer.addPass(outputPass);
 
   // FXAA antialiasing
   effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
@@ -269,12 +284,7 @@ function View(viewArea) {
   effectFXAA.uniforms['resolution'].value.y = 1 / (window.innerHeight * window.devicePixelRatio);
   this.composer.addPass(effectFXAA);
 
-  //Bloom
-  const bloomPass = new THREE.UnrealBloomPass();
-  bloomPass.strength = 0.30;
-  bloomPass.radius = 0.0;
-  bloomPass.threshold = 0.0;
-  this.composer.addPass(bloomPass)
+
 }
 
 View.prototype.addDenseMatter = function  () {
@@ -1147,7 +1157,7 @@ View.prototype.addMoon = function ()
             'Time to ' + next_phase + ' -> ' + Math.floor(deg_to_next * 4) + ' min', '\n');
 
   // place glowing hemisphere in front of the stars - MOON LIGHT SIDE
-  const hemisphere_light = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const hemisphere_light = new THREE.SphereGeometry( radius_moon, 64, 32, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
   const material_light = new THREE.MeshBasicMaterial( { color: '#f9f0de' } );
   const moon_light = new THREE.Mesh( hemisphere_light, material_light );
   moon_light.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
@@ -1155,8 +1165,8 @@ View.prototype.addMoon = function ()
   moon_light.rotateX(-phase_start); 
 
   // place dark hemisphere in front of the stars - MOON DARK SIDE
-  const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 32, 16, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
-  const material_dark = new THREE.MeshBasicMaterial( { color: '#080808' } );
+  const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 64, 32, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
+  const material_dark = new THREE.MeshBasicMaterial( { color: '#020202' } );
   const moon_dark = new THREE.Mesh( hemisphere_dark, material_dark );
   moon_dark.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
   moon_dark.rotation.z -= Math.PI / 2 - tilt_angle;
