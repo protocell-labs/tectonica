@@ -54,7 +54,7 @@ $fx.features({
 
 //////CONSOLE LOG//////
 
-//console.clear(); // clear the console at the beginning
+console.clear(); // clear the console at the beginning
 
 var tectonica_logo =  "%c                                                                           \n"
                     + "%c     T E C T O N I C A  |  { p r o t o c e l l : l a b s }  |  2 0 2 3     \n"
