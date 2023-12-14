@@ -118,7 +118,7 @@ var controller;
 var renderer = new THREE.WebGLRenderer({antialias: false, alpha: true, preserveDrawingBuffer: true}); //antialias: true
 
 renderer.toneMapping = THREE.LinearToneMapping ; // default is THREE.NoToneMapping, other options: LinearToneMapping, ReinhardToneMapping, CineonToneMapping, ACESFilmicToneMapping...
-renderer.toneMappingExposure = 10; // default is 1, this affects how colors look like under UnrealBloom effect
+renderer.toneMappingExposure = 10; // default is 1
 
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
@@ -167,11 +167,11 @@ function View(viewArea) {
   composer.setSize(window.innerWidth, window.innerHeight)
 
   // change scene background to solid color
-  scene.background = new THREE.Color('#020202'); // #080808
+  scene.background = new THREE.Color('#020202'); // #080808, #020202
 
 
   // ADD LIGHTING
-  var light = new THREE.DirectionalLight(0xffffff, 0.9); // color, intensity
+  var light = new THREE.DirectionalLight(0xffffff, 1.0); // color, intensity (0.9 before)
 
   light.position.set(2000, 2000, 750); //0, 0, 2000
   light.castShadow = true;
@@ -241,7 +241,7 @@ function View(viewArea) {
 
   scene.add(light);
 
-  const amblight = new THREE.AmbientLight(0xffffff, 0.010); // 0-1, zero works great for shadows with strong contrast, had it at 0.1 for tectonica during testing
+  const amblight = new THREE.AmbientLight(0xffffff, 0.015); // 0-1, zero works great for shadows with strong contrast, had it at 0.1 for tectonica during testing
   scene.add(amblight);
 
   this.winHeight = viewportHeight;
@@ -266,13 +266,6 @@ function View(viewArea) {
   // renders the scene
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
-
-  // bloom
-  const bloomPass = new THREE.UnrealBloomPass();
-  bloomPass.strength = 0.10; // 0.30
-  bloomPass.radius = 0.0; // 0.0
-  bloomPass.threshold = 0.05; // 0.0
-  //this.composer.addPass(bloomPass)
 
   // output pass
   const outputPass = new THREE.OutputPass();
@@ -772,7 +765,7 @@ View.prototype.addDenseMatter = function  () {
     dummy.quaternion.setFromUnitVectors(axis_z, element_axis.clone().normalize());
     dummy.position.set(element_position.x, element_position.y, element_position.z);
 
-    if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.25 * jitter_reduction, 0.15 * jitter_reduction];} // rotation jitter will be applied
+    if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.50 * jitter_reduction, 0.15 * jitter_reduction];} // rotation jitter will be applied - before we had [0.25 * jitter_reduction, 0.15 * jitter_reduction]
     //if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.12, 0.07];} // rotation jitter will be applied
     else {var rot_jitter_factors = [0, 0];} // rotation jitter will NOT be applied - we will get a smooth and shiny surface
 
