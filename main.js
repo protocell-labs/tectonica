@@ -54,7 +54,7 @@ $fx.features({
 
 //////CONSOLE LOG//////
 
-console.clear(); // clear the console at the beginning
+//console.clear(); // clear the console at the beginning
 
 var tectonica_logo =  "%c                                                                           \n"
                     + "%c     T E C T O N I C A  |  { p r o t o c e l l : l a b s }  |  2 0 2 3     \n"
@@ -167,7 +167,7 @@ function View(viewArea) {
   composer.setSize(window.innerWidth, window.innerHeight)
 
   // change scene background to solid color
-  scene.background = new THREE.Color('#020202'); // #080808, #020202
+  scene.background = new THREE.Color('#010102'); // slightly bluish dark sky, #080808, #020202
 
 
   // ADD LIGHTING
@@ -266,6 +266,13 @@ function View(viewArea) {
   // renders the scene
   const renderPass = new THREE.RenderPass(this.scene, this.camera);
   this.composer.addPass(renderPass);
+
+  // bloom
+  const bloomPass = new THREE.UnrealBloomPass();
+  bloomPass.strength = 0.10; // 0.30
+  bloomPass.radius = 0.0; // 0.0
+  bloomPass.threshold = 0.05; // 0.0
+  this.composer.addPass(bloomPass)
 
   // output pass
   const outputPass = new THREE.OutputPass();
@@ -1152,7 +1159,7 @@ View.prototype.addMoon = function ()
 
   // place glowing hemisphere in front of the stars - MOON LIGHT SIDE
   const hemisphere_light = new THREE.SphereGeometry( radius_moon, 64, 32, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
-  const material_light = new THREE.MeshBasicMaterial( { color: '#f9f0de' } );
+  const material_light = new THREE.MeshBasicMaterial( { color: '#ccc5b6' } ); // f9f0de (98% brightness), ccc5b6 (80% brightness) - the goal is to reduce glow from the bloom effect
   const moon_light = new THREE.Mesh( hemisphere_light, material_light );
   moon_light.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
   moon_light.rotation.z += Math.PI/2  + tilt_angle;
@@ -1160,7 +1167,7 @@ View.prototype.addMoon = function ()
 
   // place dark hemisphere in front of the stars - MOON DARK SIDE
   const hemisphere_dark = new THREE.SphereGeometry( radius_moon, 64, 32, 0, 2 * Math.PI, 0, Math.PI / 2 ); // last four arguments are phiStart, phiEnd, thetaStart, thetaEnd
-  const material_dark = new THREE.MeshBasicMaterial( { color: '#020202' } );
+  const material_dark = new THREE.MeshBasicMaterial( { color: '#010102' } );
   const moon_dark = new THREE.Mesh( hemisphere_dark, material_dark );
   moon_dark.position.set(cent_moon_x, cent_moon_y, celestial_plane_distance - 100);
   moon_dark.rotation.z -= Math.PI / 2 - tilt_angle;
