@@ -31,7 +31,7 @@ var palette_state_t = null;
 
 //Animation Settings
 const nDecimal = 10;
-const animation_time = 1; 
+const animation_time = 2; // in seconds, originally 1 sec
 const animation_increment = 0.1;
 var color_animation = true;
 
