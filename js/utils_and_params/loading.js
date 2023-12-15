@@ -54,3 +54,10 @@ function draw() {
     }
   }
 }
+
+function keyPressed() {
+  // this will download the first n seconds of the animation
+  if (key === 's') {
+    saveGif(`tectonica_${palette_name}_loader_${parseInt(Math.random()*10000000)}`, 2);
+  }
+}

@@ -54,7 +54,7 @@ $fx.features({
 
 //////CONSOLE LOG//////
 
-//console.clear(); // clear the console at the beginning
+console.clear(); // clear the console at the beginning
 
 var tectonica_logo =  "%c                                                                           \n"
                     + "%c     T E C T O N I C A  |  { p r o t o c e l l : l a b s }  |  2 0 2 3     \n"
@@ -90,13 +90,15 @@ console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
             'Attachment -> ' + attachment_type, '\n');
 
 console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
-            'click    : explode/unexplode', '\n',
-            '2x click : new explosion center', '\n',
-            'e        : new explosion center', '\n',
-            'p        : pause/unpause color cycle', '\n',
-            'b        : white/black background', '\n',
-            'g        : gif capture + explode', '\n',
-            '1-5      : png capture 1-5x res', '\n');
+            'click      : explode/unexplode', '\n',
+            '2x click',   '\n',
+            '   or      : new explosion center  ', '\n',
+            'E + click   ', '\n',
+            'P          : pause/unpause color cycle', '\n',
+            'B          : white/black background', '\n',
+            'S          : download loader', '\n',
+            'G          : gif capture + explode', '\n',
+            '1-5        : png capture 1-5x res', '\n');
 
 //////END CONSOLE LOG//////
 
