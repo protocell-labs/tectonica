@@ -130,5 +130,5 @@ var explosion_power = gene_range(5, 15); // explosion strength
 // explosion parameters
 var explosion_center_a = new THREE.Vector3(gene_range(-200, 200), gene_range(-200, 200), 0);
 var explosion_strength = 200000 * explosion_power; //200k - 1M when, falls with the square of distance
-var explosion_rot_range = Math.PI/2;
-var explosion_rot_factor = 0.1;
+var explosion_rot_range = Math.PI/2; // Math.PI/2
+var explosion_rot_factor = 20.0; // 0.1

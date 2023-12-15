@@ -916,15 +916,15 @@ View.prototype.DenseMatterCreateExplosionVectors = function (cntr_pt) {
     dense_matter_element['rotation_gene'] = {'x':gene(), 'y':gene(), 'z':gene()};
     // calculate explosion parameters for each element
     dense_matter_element['dist_to_ctr'] = element_position.distanceTo(cntr_pt);
-    dense_matter_element['str_perturbance'] = gene_range(0.5, 1.0); // explosion strength will be randomly modified by this factor
-    var direction_perturbance = new THREE.Vector3(gene_range(-1, 1), gene_range(-1, 1), gene_range(-1, 1)).multiplyScalar(0.2); // explosion direction will be randomly modified by this vector
-    var explosion_axis = new THREE.Vector3().subVectors(element_position, cntr_pt).normalize().add(direction_perturbance); //vectors should be computed once per animation, refreshed only when user changes center
+    dense_matter_element['str_perturbance'] = gene_range(0.95, 1.0); // explosion strength will be randomly modified by this factor - gene_range(0.5, 1.0)
+    var explosion_axis = new THREE.Vector3().subVectors(element_position, cntr_pt).normalize(); //vectors should be computed once per animation, refreshed only when user changes center
     dense_matter_element['exp_vector'] = explosion_axis; 
   }
 }
 
 View.prototype.DenseMatterUpdateT = function (t) {
   dense_matter_memory[t] = {}; //holder for element wise objects
+  var t_sqrt = Math.sqrt(t); // non-linear movement, explosion slowing down with time (sqrt - square root)
   // apply explosion offset and random rotation for exploded elements
   for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
     if (dense_matter_element['exists'] == false) {continue;}
@@ -938,10 +938,11 @@ View.prototype.DenseMatterUpdateT = function (t) {
     //imesh.getMatrixAt(imesh_idx, dummy.matrix);
     dummy.applyMatrix4(dense_matter_element['base_matrix']);
     var strength_perturbance = dense_matter_element['str_perturbance'];
-    dummy.translateOnAxis(explosion_axis, strength_perturbance * t * explosion_strength / Math.pow(dist_to_cent_a, 2)); //Change this to fixed positions + explosion translations
-    dummy.rotateX(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].x * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
-    dummy.rotateY(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].y * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
-    dummy.rotateZ(t * explosion_strength * explosion_rot_factor * (dense_matter_element['rotation_gene'].z * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    var rot_perturbance = explosion_rot_factor / dist_to_cent_a; // elements closer to the explosion will rotate more (and end up flying further away)
+    dummy.translateOnAxis(explosion_axis, strength_perturbance * t_sqrt * explosion_strength / Math.pow(dist_to_cent_a, 2)); //Change this to fixed positions + explosion translations
+    dummy.rotateX(t_sqrt * explosion_strength * rot_perturbance * (dense_matter_element['rotation_gene'].x * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    dummy.rotateY(t_sqrt * explosion_strength * rot_perturbance * (dense_matter_element['rotation_gene'].y * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
+    dummy.rotateZ(t_sqrt * explosion_strength * rot_perturbance * (dense_matter_element['rotation_gene'].z * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
     dummy.updateMatrix();
     //imesh.setMatrixAt(imesh_idx, dummy.matrix); //Update position 
     dense_matter_memory[t][key] = dummy.matrix;
@@ -1314,10 +1315,13 @@ function Controller(viewArea) {
     function resetClickCenter() {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
         raycaster.setFromCamera(pointer, view.camera);
-
         const intersects = raycaster.intersectObjects(view.scene.children, true);
+
+        // randomize explosion power for every click
+        explosion_power = gene_range(5, 15); // explosion strength
+        explosion_strength = 200000 * explosion_power;
+
         //console.log(intersects)
         for (let i = 0; i < intersects.length; i++) {
             intersects[i].point.z = 0; //find the middle plane
@@ -1342,7 +1346,6 @@ function Controller(viewArea) {
       
     } else {
       animation_initiated = true; //This is to start animation the first time, second time it's already set to true. 
-      console.log("initiated");
     }
   
     // calculate pointer position in normalized device coordinates
