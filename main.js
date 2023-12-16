@@ -1341,6 +1341,7 @@ function Controller(viewArea) {
 
         View.prototype.preRender(); //clear and recalculate frames
     }
+
     function onPointerDoubleClick(event) {
         resetClickCenter(event);
     }
@@ -1366,23 +1367,25 @@ function Controller(viewArea) {
       animation_center_comm = false; //wait for p to be pressed again
       
     }
-  }
+    }
   
 
   var mouseTimer;
   function mouseDown(event) { 
       //mouseUp();
       mouseTimer = window.setTimeout(function () {
+        console.log("HoldClick")
         onPointerDoubleClick(event);
         onPointerClick();
-        },2000); //set timeout to fire in 2 seconds when the user presses mouse button down
+        },800); //set timeout to fire in 2 seconds when the user presses mouse button down
   }
 
   function mouseUp(event) { 
       if (mouseTimer) {
         window.clearTimeout(mouseTimer);  //cancel timer when mouse button is released
+        console.log("SingleClick")
         onPointerClick(event);
-      } else {}
+      } 
   }
 
     window.addEventListener("mousedown", mouseDown);
