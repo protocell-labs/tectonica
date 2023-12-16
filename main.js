@@ -1321,7 +1321,7 @@ function Controller(viewArea) {
    const raycaster = new THREE.Raycaster();
    const pointer = new THREE.Vector2();
 
-    function resetClickCenter() {
+    function resetClickCenter(event) {
         pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(pointer, view.camera);
@@ -1342,7 +1342,7 @@ function Controller(viewArea) {
         View.prototype.preRender(); //clear and recalculate frames
     }
     function onPointerDoubleClick(event) {
-        resetClickCenter();
+        resetClickCenter(event);
     }
     
     function onPointerClick( event ) {
@@ -1361,15 +1361,32 @@ function Controller(viewArea) {
     // (-1 to +1) for both components
     if (animation_center_comm) {
 
-      resetClickCenter();
+      resetClickCenter(event);
 
       animation_center_comm = false; //wait for p to be pressed again
       
     }
   }
   
-    window.addEventListener('click', onPointerClick);
-    window.addEventListener('dblclick', onPointerDoubleClick);
+
+  var mouseTimer;
+  function mouseDown(event) { 
+      //mouseUp();
+      mouseTimer = window.setTimeout(function () {
+        onPointerDoubleClick(event);
+        onPointerClick();
+        },2000); //set timeout to fire in 2 seconds when the user presses mouse button down
+  }
+
+  function mouseUp(event) { 
+      if (mouseTimer) {
+        window.clearTimeout(mouseTimer);  //cancel timer when mouse button is released
+        onPointerClick(event);
+      } else {}
+  }
+
+    window.addEventListener("mousedown", mouseDown);
+    window.addEventListener("mouseup", mouseUp);
 }
 
 function tectonica () {
@@ -1587,13 +1604,6 @@ const capture = (contx) => {
   composer.render();
 };
 
-/*
-function onMouseMove(event) {
-  // calculate mouse position in normalized device coordinates
-  // (-1 to +1) for both components
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-}*/
 
 // register the capture key handler
 document.addEventListener('keyup', doc_keyUp, false);
