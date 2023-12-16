@@ -1342,8 +1342,13 @@ function Controller(viewArea) {
         View.prototype.preRender(); //clear and recalculate frames
     }
 
-    function onPointerDoubleClick(event) {
+    function onPointerDoubleClick(event, trigger_after=false) {
         resetClickCenter(event);
+        if (trigger_after) {
+          //onPointerClick(event);
+          console.log("Exploding new node...")
+          animation_initiated = true;
+        }
     }
     
     function onPointerClick( event ) {
@@ -1375,8 +1380,8 @@ function Controller(viewArea) {
       //mouseUp();
       mouseTimer = window.setTimeout(function () {
         console.log("HoldClick")
-        onPointerDoubleClick(event);
-        onPointerClick();
+        onPointerDoubleClick(event, true);
+        
         },800); //set timeout to fire in 2 seconds when the user presses mouse button down
   }
 
