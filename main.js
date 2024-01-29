@@ -91,7 +91,7 @@ console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
 
 console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
             'click      : explode/unexplode', '\n',
-            '2x click',   '\n',
+            'click hold',   '\n',
             '   or      : new explosion center  ', '\n',
             'E + click   ', '\n',
             'P          : pause/unpause color cycle', '\n',

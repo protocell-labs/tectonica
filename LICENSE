@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2022 Kane Borg and Luka Piskorec
+Copyright (c) 2024 {protocell:labs}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,23 +23,33 @@ SOFTWARE.
 
 Attribution of dependencies
 
-Largest code contribution of authors is generative creation of geometry, their
-dynamic transformation and behavior.
-Available from: https://github.com/lukapiskorec/protocelllabs/obscvrvm
-This code is provided under MIT License.
-Copyright (c) 2022 Kane Borg and Luka Piskorec
 
-This code uses three.js library for rendering 3D geometry.
+TECTONICA source code (unminified and unobfuscated).
+Available from: https://github.com/protocell-labs/tectonica
+This code is provided under MIT License.
+Copyright (c) 2024 {protocell:labs}
+
+Three.js for rendering 3D geometry.
 Downloaded from: https://github.com/mrdoob/three.js
 This code is provided under MIT License.
-Copyright (c) 2010-2022 three.js authors.
+Copyright (c) 2010-2024 three.js authors.
 
-CCapture.js is used for capturing animation clips in GIF format.
+p5.js for loader animation.
+Downloaded from: https://github.com/processing/p5.js
+This code is provided under LGPL-2.1 license
+Copyright (c) 2024 p5.js authors.
+
+seedrandom for creating seeded PRNGs.
+Downloaded from: https://github.com/davidbau/seedrandom
+This code is provided under MIT License.
+Copyright (c) 2019 David Bau.
+
+CCapture.js for capturing animation clips in GIF format.
 Downloaded from: https://github.com/spite/ccapture.js
 This code is provided under MIT License.
 Copyright (c) 2012 Jaume Sanchez Elias
 
-Perlin noise implementation from Leonardo de S.L.F
+Perlin noise implementation.
 Downloaded from: https://github.com/leodeslf/perlin-noise
 This code is provided under MIT License.
 Copyright (c) 2022 Leonardo de S.L.F
