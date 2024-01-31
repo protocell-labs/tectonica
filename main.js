@@ -1380,6 +1380,7 @@ function Controller(viewArea) {
   var mouseTimer;
   function mouseDown(event) { 
       //mouseUp();
+      event.preventDefault();
       mouseTimer = window.setTimeout(function () {
         console.log("HoldClick")
         onPointerDoubleClick(event, true);
