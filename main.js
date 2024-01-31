@@ -149,9 +149,11 @@ function View(viewArea) {
   viewport.style.marginLeft=margin_left+'px';
 
 
+  
   ///SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
-
+  console.log("Start Set:", cam_factor_mod, viewportWidth, viewportHeight)
+  
   renderer.setSize( viewportWidth, viewportHeight );
   renderer.shadowMap.enabled = true;
   renderer.domElement.id = 'tectonicacanvas';
@@ -166,7 +168,7 @@ function View(viewArea) {
   camera.position.set(0, 0, 2000);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  composer.setSize(window.innerWidth, window.innerHeight)
+  composer.setSize(viewportWidth, viewportHeight)
 
   // change scene background to solid color
   scene.background = new THREE.Color('#010102'); // slightly bluish dark sky, #080808, #020202
@@ -1426,6 +1428,7 @@ function viewportAdjust(vp, inner=true) {
 
     ///SCALING
     cam_factor_mod = cam_factor * Math.min((viewportWidth/1000)*quality, (viewportHeight/1000)*quality);
+    console.log("if vpa:", cam_factor_mod, viewportWidth, viewportHeight)
 
   } else {
     if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
@@ -1448,6 +1451,7 @@ function viewportAdjust(vp, inner=true) {
 
     ///SCALING
     cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
+    console.log("else vpa:", cam_factor_mod, viewportWidth, viewportHeight)
   }
   vp.style.marginTop=margin_top+'px';
   vp.style.marginLeft=margin_left+'px';
