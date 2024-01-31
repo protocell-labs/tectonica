@@ -124,7 +124,8 @@ renderer.toneMappingExposure = 10; // default is 1
 
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
-let quality = 0;
+let quality = 1;
+let standard_quality = 1;
 var capturer = null;
 let recording = false;
 
@@ -150,9 +151,9 @@ function View(viewArea) {
 
 
   ///SCALING
-  cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
-
-  renderer.setSize( viewportWidth, viewportHeight );
+  cam_factor_mod = cam_factor * Math.min(viewportWidth*standard_quality/1000, viewportHeight*standard_quality/1000);
+  console.log("original"+cam_factor_mod.toString());
+  renderer.setSize( viewportWidth*standard_quality, viewportHeight*standard_quality );
   renderer.shadowMap.enabled = true;
   renderer.domElement.id = 'tectonicacanvas';
 
@@ -166,7 +167,8 @@ function View(viewArea) {
   camera.position.set(0, 0, 2000);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  composer.setSize(window.innerWidth, window.innerHeight)
+  composer.setSize(viewportWidth*standard_quality, viewportHeight*standard_quality)
+  console.log("Original width:"+viewportWidth.toString()+" & height:"+viewportHeight.toString())
 
   // change scene background to solid color
   scene.background = new THREE.Color('#010102'); // slightly bluish dark sky, #080808, #020202
@@ -282,8 +284,8 @@ function View(viewArea) {
 
   // FXAA antialiasing
   effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-  effectFXAA.uniforms['resolution'].value.x = 1 / (window.innerWidth * window.devicePixelRatio);
-  effectFXAA.uniforms['resolution'].value.y = 1 / (window.innerHeight * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (4*viewportWidth * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (4*viewportHeight * window.devicePixelRatio);
   this.composer.addPass(effectFXAA);
 
 
@@ -1378,6 +1380,7 @@ function Controller(viewArea) {
   var mouseTimer;
   function mouseDown(event) { 
       //mouseUp();
+      event.preventDefault();
       mouseTimer = window.setTimeout(function () {
         console.log("HoldClick")
         onPointerDoubleClick(event, true);
@@ -1457,6 +1460,7 @@ function fitCameraToViewport(view_instance, w,h, adjust=true) {
   view_instance.renderer.setSize( w, h);
   view_instance.composer.setSize( w, h);
   //view_instance.camera.aspect = w / h;
+  console.log("width:"+w.toString()+" & height:"+h.toString())
   if (adjust) {
     view_instance.camera.left = -w / cam_factor_mod;
     view_instance.camera.right = w / cam_factor_mod;
@@ -1602,7 +1606,7 @@ const capture = (contx) => {
     return;
   }
   // Set to standard quality
-  quality = 1;
+  quality = standard_quality;
 
   viewportAdjust(document.getElementById('viewport'))
   cam_factor_mod = cam_factor * Math.min(viewportWidth*quality/1000, viewportHeight*quality/1000);
