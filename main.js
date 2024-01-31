@@ -1457,6 +1457,8 @@ function viewportAdjust(vp, inner=true) {
 function fitCameraToViewport(view_instance, w,h, adjust=true) {
   view_instance.renderer.setSize( w, h);
   view_instance.composer.setSize( w, h);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (w);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (h);
   //view_instance.camera.aspect = w / h;
   if (adjust) {
     view_instance.camera.left = -w / cam_factor_mod;
