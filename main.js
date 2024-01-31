@@ -125,6 +125,7 @@ renderer.toneMappingExposure = 10; // default is 1
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
+let standard_quality = 1.5;
 var capturer = null;
 let recording = false;
 
@@ -148,13 +149,15 @@ function View(viewArea) {
   viewport.style.marginTop=margin_top+'px';
   viewport.style.marginLeft=margin_left+'px';
 
+  
+
 
   
   ///SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
   console.log("Start Set:", cam_factor_mod, viewportWidth, viewportHeight)
-  
-  renderer.setSize( viewportWidth, viewportHeight );
+
+  renderer.setSize( viewportWidth*standard_quality, viewportHeight*standard_quality );
   renderer.shadowMap.enabled = true;
   renderer.domElement.id = 'tectonicacanvas';
 
@@ -168,7 +171,9 @@ function View(viewArea) {
   camera.position.set(0, 0, 2000);
   camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-  composer.setSize(viewportWidth, viewportHeight)
+  composer.setSize(viewportWidth*standard_quality, viewportHeight*standard_quality)
+
+
 
   // change scene background to solid color
   scene.background = new THREE.Color('#010102'); // slightly bluish dark sky, #080808, #020202
@@ -264,6 +269,8 @@ function View(viewArea) {
   this.curves = [];
 
 
+
+
   // original order - renderPass, effectFXAA, bloomPass
   // changed the order after we introduced OutputPass
 
@@ -284,10 +291,13 @@ function View(viewArea) {
 
   // FXAA antialiasing
   effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-  effectFXAA.uniforms['resolution'].value.x = 1 / (window.innerWidth * window.devicePixelRatio);
-  effectFXAA.uniforms['resolution'].value.y = 1 / (window.innerHeight * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (viewportWidth * standard_quality * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (viewportHeight * standard_quality * window.devicePixelRatio);
   this.composer.addPass(effectFXAA);
 
+  //fit it.
+  //viewportAdjust(document.getElementById('viewport'), false)
+  //fitCameraToViewport(this, viewportWidth*standard_quality, viewportHeight*standard_quality, true); //Projection Matrix Updated here
 
 }
 
@@ -1278,7 +1288,7 @@ function Controller(viewArea) {
   var view = new View(viewArea);
   view.cam_distance = 700 //1000 for ortho
   this.view = view; //referenced outside
-
+  
   view.addDenseMatter(); // dense grid of colored elements
   view.addStarsRandom(1000, 15000); // random stars - parameters > (bounds, quantity)
   
@@ -1287,7 +1297,7 @@ function Controller(viewArea) {
     view.addStarDust(); // star dust (made with random walk algorithm)
     view.addMoon(); // adds a large glowing moon with few shiny stars around
   }
-
+  onWindowResize();
   view.preRender();
  
 
@@ -1315,6 +1325,7 @@ function Controller(viewArea) {
   function onWindowResize() {
     //console.log("resize")
     viewportAdjust(document.getElementById('viewport'), false);
+    //viewportAdjust(document.getElementById('viewport'), false);
     fitCameraToViewport(view, viewportWidth, viewportHeight);
     }
 
@@ -1404,6 +1415,26 @@ function tectonica () {
   controller = new Controller('viewport');
 }
 
+function viewportAdjustFix(vp, inner=true){
+  if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
+
+    viewportHeight = window.innerHeight; //Force Height to be inner Height
+    viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
+
+    margin_top = 0;
+    margin_left = (window.innerWidth - viewportWidth)/2;
+  } else {  //If target viewport width is larger then inner width
+
+    viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
+    viewportWidth = window.innerWidth; //Force Width  to be inner Height
+
+    margin_top = (window.innerHeight - viewportHeight)/2;
+    margin_left = 0;
+  }
+
+  viewport.style.marginTop=margin_top+'px';
+  viewport.style.marginLeft=margin_left+'px';
+}
 
 function viewportAdjust(vp, inner=true) {
   ///ADJUST SIZE AND MARGIN
@@ -1422,8 +1453,6 @@ function viewportAdjust(vp, inner=true) {
 
       margin_top = (window.innerHeight - viewportHeight)/2;
       margin_left = 0;
-
-
     }
 
     ///SCALING
@@ -1609,14 +1638,15 @@ const capture = (contx) => {
     return;
   }
   // Set to standard quality
-  quality = 1;
-
-  viewportAdjust(document.getElementById('viewport'))
+  quality = standard_quality;
+  //viewportAdjust(document.getElementById('viewport'), false)
   cam_factor_mod = cam_factor * Math.min(viewportWidth*quality/1000, viewportHeight*quality/1000);
-
-  fitCameraToViewport(contx.view, viewportWidth, viewportHeight); //Projection Matrix Updated
-
+  //fitCameraToViewport(contx.view, viewportWidth, viewportHeight); //Projection Matrix Updated
+  
   composer.render();
+
+  viewportAdjust(document.getElementById('viewport'), false);
+  fitCameraToViewport(contx.view, viewportWidth, viewportHeight);
 };
 
 
