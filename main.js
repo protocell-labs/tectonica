@@ -1475,7 +1475,7 @@ function capturer_custom_save() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `tectonica_${palette_name}_anim_${parseInt(Math.random()*10000000)}.gif`;
+      a.download = `tectonica_${$fx.minter.slice(31)}_${seed.toString().padStart(3,"0")}_${palette_name}_${parseInt(Math.random()*100000)}.gif`;
       a.click();
       URL.revokeObjectURL(url);
       });
@@ -1593,7 +1593,7 @@ const capture = (contx) => {
     const urlBase64 = renderer.domElement.toDataURL('img/png');
     const a = document.createElement("a");
     a.href = urlBase64;
-    a.download = `tectonica_${palette_name}_${parseInt(Math.random()*10000000)}.png`;
+    a.download = `tectonica_${$fx.minter.slice(31)}_${seed.toString().padStart(3,"0")}_${palette_name}_${parseInt(Math.random()*100000)}.png`;
     a.click();
     URL.revokeObjectURL(urlBase64);
   }
