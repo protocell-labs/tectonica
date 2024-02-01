@@ -155,7 +155,6 @@ function View(viewArea) {
   
   ///SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
-  console.log("Start Set:", cam_factor_mod, viewportWidth, viewportHeight)
 
   renderer.setSize( viewportWidth*standard_quality, viewportHeight*standard_quality );
   renderer.shadowMap.enabled = true;
@@ -1415,27 +1414,6 @@ function tectonica () {
   controller = new Controller('viewport');
 }
 
-function viewportAdjustFix(vp, inner=true){
-  if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
-
-    viewportHeight = window.innerHeight; //Force Height to be inner Height
-    viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
-
-    margin_top = 0;
-    margin_left = (window.innerWidth - viewportWidth)/2;
-  } else {  //If target viewport width is larger then inner width
-
-    viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
-    viewportWidth = window.innerWidth; //Force Width  to be inner Height
-
-    margin_top = (window.innerHeight - viewportHeight)/2;
-    margin_left = 0;
-  }
-
-  viewport.style.marginTop=margin_top+'px';
-  viewport.style.marginLeft=margin_left+'px';
-}
-
 function viewportAdjust(vp, inner=true) {
   ///ADJUST SIZE AND MARGIN
   if (inner) {
@@ -1457,7 +1435,6 @@ function viewportAdjust(vp, inner=true) {
 
     ///SCALING
     cam_factor_mod = cam_factor * Math.min((viewportWidth/1000)*quality, (viewportHeight/1000)*quality);
-    console.log("if vpa:", cam_factor_mod, viewportWidth, viewportHeight)
 
   } else {
     if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
@@ -1480,7 +1457,7 @@ function viewportAdjust(vp, inner=true) {
 
     ///SCALING
     cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
-    console.log("else vpa:", cam_factor_mod, viewportWidth, viewportHeight)
+
   }
   vp.style.marginTop=margin_top+'px';
   vp.style.marginLeft=margin_left+'px';
