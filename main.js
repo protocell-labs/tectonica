@@ -125,7 +125,7 @@ renderer.toneMappingExposure = 10; // default is 1
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
-let standard_quality = 1.5;
+let standard_quality = 2.0;
 var capturer = null;
 let recording = false;
 
