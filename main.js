@@ -1334,8 +1334,20 @@ function Controller(viewArea) {
    const pointer = new THREE.Vector2();
 
     function resetClickCenter(event) {
-        pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        x = 0;
+        y = 0;
+        if(event.type == 'touchstart' || event.type == 'touchmove' || event.type == 'touchend' || event.type == 'touchcancel'){
+            console.log(event)
+            var touch = event.touches[0] || event.changedTouches[0];
+            x = touch.pageX;
+            y = touch.pageY;
+        } else if (event.type == 'mousedown' || event.type == 'mouseup' || event.type == 'mousemove' || event.type == 'mouseover'|| event.type=='mouseout' || event.type=='mouseenter' || event.type=='mouseleave') {
+            x = event.clientX;
+            y = event.clientY;
+        }
+        pointer.x = (x / window.innerWidth) * 2 - 1;
+        pointer.y = - (y / window.innerHeight) * 2 + 1;
+        console.log(x, y);
         raycaster.setFromCamera(pointer, view.camera);
         const intersects = raycaster.intersectObjects(view.scene.children, true);
 
@@ -1386,9 +1398,14 @@ function Controller(viewArea) {
     }
     }
   
-
+  function isTouchDevice() {
+      return 'ontouchstart' in window        // works on most browsers
+          || navigator.maxTouchPoints;       // works on IE10/11 and Surface
+  }
   var mouseTimer;
+  var touchTimer;
   function mouseDown(event) { 
+    if (!isTouchDevice()) {
       //mouseUp();
       //event.preventDefault();
       mouseTimer = window.setTimeout(function () {
@@ -1396,18 +1413,45 @@ function Controller(viewArea) {
         onPointerDoubleClick(event, true);
         
         },800); //set timeout to fire in 2 seconds when the user presses mouse button down
+    }
   }
 
   function mouseUp(event) { 
+    if (!isTouchDevice()) {
       if (mouseTimer) {
         window.clearTimeout(mouseTimer);  //cancel timer when mouse button is released
         console.log("SingleClick")
         onPointerClick(event);
       } 
+    }
+  }
+
+  function touchDown(event) { 
+    if (isTouchDevice()) {
+    //event.preventDefault();
+      touchTimer = window.setTimeout(function () {
+      console.log("TouchHold")
+      onPointerDoubleClick(event, true);
+      
+      },800); //set timeout to fire in 2 seconds when the user presses mouse button down
+    }
+  }
+  //function touchDownTest(event) {console.log("TDown")}
+  //function touchUpTest(event){console.log("TUp")}
+  function touchUp(event) { 
+    if (isTouchDevice()) {
+      if (touchTimer) {
+        window.clearTimeout(touchTimer);  //cancel timer when mouse button is released
+        console.log("Tap")
+        onPointerClick(event);
+      }  
+    }
   }
 
     window.addEventListener("mousedown", mouseDown);
     window.addEventListener("mouseup", mouseUp);
+    window.addEventListener("touchstart", touchDown)
+    window.addEventListener("touchend",touchUp);
 }
 
 function tectonica () {
