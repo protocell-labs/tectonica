@@ -4,7 +4,7 @@
 $fx.params([
     {
       id: "seed_id",
-      name: "Seed",
+      name: "seed",
       type: "number",
       update: "page-reload",
       default: 0,
@@ -16,7 +16,7 @@ $fx.params([
     },
     {
       id: "triptych_id",
-      name: "Triptych",
+      name: "triptych",
       type: "select",
       update: "page-reload",
       default: "middle",

@@ -53,3 +53,7 @@ Perlin noise implementation.
 Downloaded from: https://github.com/leodeslf/perlin-noise
 This code is provided under MIT License.
 Copyright (c) 2022 Leonardo de S.L.F
+
+Color palette encoding based on Mathieu 'p01' Henri's code.
+Source: https://gist.github.com/mattdesl/58b806478f4d33e8b91ed9c51c39014d
+Copyright (c) 2021 Mathieu 'p01' Henri

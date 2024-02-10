@@ -3,22 +3,22 @@
 
 // settings
 var loading_start_time = new Date().getTime();
-var min_loading_time = 5000; // this is the minimum that the loading screen will be shown, in miliseconds
+var min_loading_time = 7000; // this is the minimum that the loading screen will be shown, in miliseconds, 5000
 var debug = true;
-var cam_factor = 4; //controls the "zoom" when using orthographic camera, default was 4
+var cam_factor = 4; // controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
 var aspect_ratio = "0.5625"; //// 0.5625 - 16:9 aspect ratio, 0.75 - portrait (used in O B S C V R V M)
 var global_rot_x = -Math.PI/16; // global rotation of the model around the X axis
 var global_rot_y = Math.PI/16; // global rotation of the model around the Y axis
 
 // color change
-const flickerInterval = 100; //(ms)
-const flickerDuration = 2000; //(ms)
-const cycleDuration = 5000; //(ms)
+const flickerInterval = 100; // ms
+const flickerDuration = 2000; // ms
+const cycleDuration = 5000; // ms
 
 // background rotation
-const cycleBackground = 1000000; //Modify for spin cycle  rv: 1000000
-const cycleBackgroundUpdate = 100; //Modify for spin refresh rv: 100
+const cycleBackground = 1000000; // modify for spin cycle rv: 1000000
+const cycleBackgroundUpdate = 100; // modify for spin refresh rv: 100
 const rotThetaDelta = Math.PI*2*cycleBackgroundUpdate/cycleBackground;
 const rotVectorBackground = new THREE.Vector3(0,0,1);
 const rotMatrixStaticIncrement = new THREE.Matrix4();
@@ -126,9 +126,8 @@ var dimension_type = gene_weighted_choice(allel_dimension); // size of elements
 var attachment_type = gene_weighted_choice(allel_attachment); // gap between the vertical layers
 var explosion_power = gene_range(5, 15); // explosion strength
 
-
 // explosion parameters
 var explosion_center_a = new THREE.Vector3(gene_range(-200, 200), gene_range(-200, 200), 0);
-var explosion_strength = 150000 * explosion_power; //200k - 1M when, falls with the square of distance - 200000 * explosion_power
-var explosion_rot_range = Math.PI/2; // Math.PI/2
-var explosion_rot_factor = 20.0; // 0.1
+var explosion_strength = 150000 * explosion_power; // 200k - 1M when, falls with the square of distance - 200000 * explosion_power
+var explosion_rot_range = Math.PI/2;
+var explosion_rot_factor = 20.0;

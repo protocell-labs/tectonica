@@ -15,7 +15,7 @@ __/\\\\\\\\\\\\\\\__/\\\\\\\\\\\\\\\________/\\\\\\\\\__/\\\\\\\\\\\\\\\_______/
 */
 
 
-var dense_matter_memory = {}; //memory object that has a key timestamp and matrix value
+var dense_matter_memory = {}; // memory object that has a key timestamp and matrix value
 var dense_matter_object = {}; // grid coordinates are the key, dense matter data is the value
 var elements_per_palette_object = {}; // color is the key, nr of elements is the value
 var imesh_index_tracker = {}; // color is the key, index nr is the value
@@ -29,7 +29,7 @@ var explosion_state_t = null;
 var palette_state_t = null;
 
 
-//Animation Settings
+// animation Settings
 const nDecimal = 10;
 const animation_time = 2; // in seconds, originally 1 sec
 const animation_increment = 0.1;
@@ -38,16 +38,16 @@ var color_animation = true;
 //////FXHASH FEATURES//////
 
 $fx.features({
-  "Seed": seed,
-  "Triptych": triptych,
-  "Pigments": pigments,
-  "Palette": palette_name,
-  "Pattern": pattern,
-  "Dimension": dimension_type,
-  "Structure": noise_feature,
-  "Form": noise_form,
-  "Dissipation": noise_cull_rule,
-  "Attachment": attachment_type
+  "seed": seed,
+  "triptych": triptych,
+  "pigments": pigments,
+  "palette": palette_name,
+  "pattern": pattern,
+  "dimension": dimension_type,
+  "structure": noise_feature,
+  "form": noise_form,
+  "dissipation": noise_cull_rule,
+  "attachment": attachment_type
 });
 
 
@@ -78,16 +78,16 @@ console.log("%c    %c    %c    %c    %c    %c    %c    %c    %c    %c    ",
             `color: white; background: ${chosen_palette[9]};`); // overprinting in case there are up to 10 colors (undefined is returned in case the color doesn't exist)
 
 console.log('%c TOKEN FEATURES ', 'color: white; background: #000000;', '\n',
-            'Seed -> ' + seed,  '\n',
-            'Triptych -> ' + triptych,   '\n',
-            'Pigments -> ' + pigments, '\n',
-            'Palette -> ' + palette_name, '\n',
-            'Pattern -> ' + pattern, '\n',
-            'Dimension -> ' + dimension_type, '\n',
-            'Structure -> ' + noise_feature, '\n',
-            'Form -> ' + noise_form, '\n',
-            'Dissipation -> ' + noise_cull_rule, '\n',
-            'Attachment -> ' + attachment_type, '\n');
+            'seed -> ' + seed,  '\n',
+            'triptych -> ' + triptych,   '\n',
+            'pigments -> ' + pigments, '\n',
+            'palette -> ' + palette_name, '\n',
+            'pattern -> ' + pattern, '\n',
+            'dimension -> ' + dimension_type, '\n',
+            'structure -> ' + noise_feature, '\n',
+            'form -> ' + noise_form, '\n',
+            'dissipation -> ' + noise_cull_rule, '\n',
+            'attachment -> ' + attachment_type, '\n');
 
 console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
             'click      : explode/unexplode', '\n',
@@ -99,6 +99,14 @@ console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
             'S          : download loader', '\n',
             'G          : gif capture + explode', '\n',
             '1-5        : png capture 1-5x res', '\n');
+
+console.log('%c URL PARAMS ', 'color: white; background: #000000;', '\n',
+            'shadow -> int n^2, shadow map resolution', '\n',
+            'explosion -> float [0,1], fixes explosion state', '\n',
+            'palette -> int, fixes palette cycle', '\n',
+            'gif -> int, number of gif frames', '\n\n',
+            'example (add this to the URL):', '\n',
+            '?shadow=4096&explosion=0.5&palette=0&gif=10', '\n');
 
 //////END CONSOLE LOG//////
 
@@ -125,22 +133,22 @@ renderer.toneMappingExposure = 10; // default is 1
 const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
-let standard_quality = 2.0;
+let standard_quality = 1.0; // 2.0, 4.0
 var capturer = null;
 let recording = false;
 
 function View(viewArea) {
-  if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
+  if (window.innerWidth/aspect_ratio>window.innerHeight) { // if target viewport height is larger then inner height
 
-    viewportHeight = window.innerHeight; //Force Height to be inner Height
-    viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
+    viewportHeight = window.innerHeight; // force Height to be inner Height
+    viewportWidth = aspect_ratio*window.innerHeight;  // scale width proportionally
 
     margin_top = 0;
     margin_left = (window.innerWidth - viewportWidth)/2;
-  } else {  //If target viewport width is larger then inner width
+  } else {  // if target viewport width is larger then inner width
 
-    viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
-    viewportWidth = window.innerWidth; //Force Width  to be inner Height
+    viewportHeight = window.innerWidth/aspect_ratio; // scale viewport height proportionally
+    viewportWidth = window.innerWidth; // force Width  to be inner Height
 
     margin_top = (window.innerHeight - viewportHeight)/2;
     margin_left = 0;
@@ -153,7 +161,7 @@ function View(viewArea) {
 
 
   
-  ///SCALING
+  /// SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
 
   renderer.setSize( viewportWidth*standard_quality, viewportHeight*standard_quality );
@@ -175,16 +183,16 @@ function View(viewArea) {
 
 
   // change scene background to solid color
-  scene.background = new THREE.Color('#010102'); // slightly bluish dark sky, #080808, #020202
+  scene.background = new THREE.Color('#010102'); // slightly bluish dark sky, before #080808, #020202
 
 
   // ADD LIGHTING
   var light = new THREE.DirectionalLight(0xffffff, 1.0); // color, intensity (0.9 before)
 
-  light.position.set(2000, 2000, 750); //0, 0, 2000
+  light.position.set(2000, 2000, 750);
   light.castShadow = true;
-  light.shadow.camera.near = 1000; //500
-  light.shadow.camera.far = 3500; //3000
+  light.shadow.camera.near = 1000;
+  light.shadow.camera.far = 3500;
   light.shadow.bias = - 0.000222;
 
   light.shadow.camera.left = - 1000;
@@ -198,7 +206,7 @@ function View(viewArea) {
 
   // URL PARAMS
 
-  // Usage: add this to the url =>    ?shadow=4096&explosion=0.5&palette=3&gif=10
+  // usage: add this to the url =>    ?shadow=4096&explosion=0.5&palette=3&gif=10
   try {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
@@ -209,14 +217,14 @@ function View(viewArea) {
         explosion_state_t = Math.abs(parseFloat(explosionState));
       }
     } 
-    catch (error) {"Error in explosion state URL Param. State should be a float number between 0 and 1."}
+    catch (error) {"error in explosion state URL param\nstate should be a float number between 0 and 1"}
     try {
       const paletteState = urlParams.get('palette');
       if (paletteState!=null) {
         palette_state_t = Math.abs(parseInt(paletteState));
       }
     } 
-    catch (error) {"Error in palette state URL Param. Pallette needs to be an Int number"}
+    catch (error) {"error in palette state URL param\npallette needs to be an integer"}
     try {
       const gifFrames = urlParams.get('gif');
       if (gifFrames!=null) {
@@ -233,7 +241,7 @@ function View(viewArea) {
   }
 
   if (Number.isInteger(shadow) & paramsAssigned) { // if values are overiden by urlParams, for a minimum overide add: & shadow > 2048
-    console.log("Using custom url parmater for shadow map size: " + shadow.toString())
+    console.log("using custom url parameter for shadow map size: " + shadow.toString())
     light.shadow.mapSize.width = shadow;
     light.shadow.mapSize.height = shadow;
   } else if (Number.isInteger(shadow) & iOS()) { // default on iOS
@@ -293,10 +301,6 @@ function View(viewArea) {
   effectFXAA.uniforms['resolution'].value.x = 1 / (viewportWidth * standard_quality * window.devicePixelRatio);
   effectFXAA.uniforms['resolution'].value.y = 1 / (viewportHeight * standard_quality * window.devicePixelRatio);
   this.composer.addPass(effectFXAA);
-
-  //fit it.
-  //viewportAdjust(document.getElementById('viewport'), false)
-  //fitCameraToViewport(this, viewportWidth*standard_quality, viewportHeight*standard_quality, true); //Projection Matrix Updated here
 
 }
 
@@ -709,7 +713,7 @@ View.prototype.addDenseMatter = function  () {
     var geometry = new THREE.CylinderGeometry( cylinder_params[c_type][0], cylinder_params[c_type][1], cylinder_params[c_type][2], cylinder_params[c_type][3], cylinder_params[c_type][4], false );
     var material = new THREE.MeshPhongMaterial( {flatShading: true} ); //THREE.MeshBasicMaterial( {color: 0xff0000} ); THREE.MeshNormalMaterial();
     
-    //KEDIT
+    // KEDIT
     var colorParsChunk = [
       'attribute vec3 instanceColor;',
       'varying vec3 vInstanceColor;',
@@ -744,7 +748,7 @@ View.prototype.addDenseMatter = function  () {
     
     var imesh = new THREE.InstancedMesh(geometry, material, elements_per_palette);
 
-    //KEDIT
+    // KEDIT
     var instanceColors = [];
     for(var i = 0; i < imesh.count; i++){
       instanceColors.push(geometry_color.r);
@@ -754,7 +758,7 @@ View.prototype.addDenseMatter = function  () {
     var instanceColorsBase = new Float32Array(instanceColors.length);
     instanceColorsBase.set(instanceColors);
     geometry.setAttribute( 'instanceColor', new THREE.InstancedBufferAttribute( new Float32Array( instanceColors ), 3 ) );
-    geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute(new Float32Array( instanceColorsBase ), 3 ) );
+    geometry.setAttribute( 'instanceColorBase', new THREE.BufferAttribute( new Float32Array( instanceColorsBase ), 3 ) );
 
     imeshes_object[element_color] = imesh;
     total_elements_existing += elements_per_palette;
@@ -773,7 +777,6 @@ View.prototype.addDenseMatter = function  () {
   for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
     if (dense_matter_element['exists'] == false) {continue;} // early exit - if the element doesn't exist, don't add it to the imesh
 
-    //console.log(key, dense_matter_element);
     var dummy = new THREE.Object3D();
     var imesh = imeshes_object[dense_matter_element['color']];
 
@@ -786,7 +789,6 @@ View.prototype.addDenseMatter = function  () {
     dummy.position.set(element_position.x, element_position.y, element_position.z);
 
     if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.50 * jitter_reduction, 0.15 * jitter_reduction];} // rotation jitter will be applied - before we had [0.25 * jitter_reduction, 0.15 * jitter_reduction]
-    //if (dense_matter_element['smooth'] == false) {var rot_jitter_factors = [0.12, 0.07];} // rotation jitter will be applied
     else {var rot_jitter_factors = [0, 0];} // rotation jitter will NOT be applied - we will get a smooth and shiny surface
 
     dummy.rotateY(Math.PI * 0.28 + (gene() - 0.5) * rot_jitter_factors[0]); // rotate member around its axis to align with the grid, plus a random jitter (Math.PI * 0.28 + (gene() - 0.5) * 0.25)
@@ -799,37 +801,9 @@ View.prototype.addDenseMatter = function  () {
     // add one to the index tracker for the imesh of that color
     imesh_index_tracker[dense_matter_element['color']] += 1;
 
-    //// EXPLODING ELEMENTS LEGACY////
-    
-    /*
-    if (exploded) {
-
-      // calculate explosion parameters for each element
-      var strength_perturbance = gene_range(0.5, 1.0); // explosion strength will be randomly modified by this factor
-      var direction_perturbance = new THREE.Vector3(gene_range(-1, 1), gene_range(-1, 1), gene_range(-1, 1)).multiplyScalar(0.2); // explosion direction will be randomly modified by this vector
-      var explosion_axis = new THREE.Vector3().subVectors(element_position, explosion_center_a).normalize().add(direction_perturbance);
-      
-      var dist_to_cent_a = element_position.distanceTo(explosion_center_a);
-
-      // apply explosion offset and random rotation for exploded elements
-      dummy.translateOnAxis(explosion_axis, strength_perturbance * explosion_strength / Math.pow(dist_to_cent_a, 2));
-      dummy.rotateX(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
-      dummy.rotateY(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
-      dummy.rotateZ(explosion_strength * explosion_rot_factor * (gene() * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
-
-      dummy.updateMatrix();
-      imesh.setMatrixAt(imesh_index_tracker[dense_matter_element['color']], dummy.matrix); //Update position 
-    
-    }
-    */
-    //// END EXPLOSION PART ////
-
-
-
   }
 
-  //console.log(explosion_center_a);
-  View.prototype.DenseMatterCreateExplosionVectors(explosion_center_a); //always create
+  View.prototype.DenseMatterCreateExplosionVectors(explosion_center_a); // always create
 
   // add instance meshes to the scene
   var sceneMeshes = []
@@ -839,7 +813,7 @@ View.prototype.addDenseMatter = function  () {
       imesh.rotateY(global_rot_y);
 
       imesh.instanceMatrix.needsUpdate = true;
-      //imesh.instanceColor.needsUpdate = true;
+      // imesh.instanceColor.needsUpdate = true;
       imesh.castShadow = true;
       imesh.receiveShadow = true;
       imesh.name = element_color;
@@ -847,12 +821,11 @@ View.prototype.addDenseMatter = function  () {
       sceneMeshes.push(imesh);
   }
 
-  //KEDIT
+  // KEDIT
   var chosen_palette_array = [];
 
   for(i=0; i<chosen_palette.length; i++){
     var col = new THREE.Color(chosen_palette[i]);
-    //col.setHex(chosen_palette[i]);
     chosen_palette_array.push(col)
   }
   var copyPalette = shiftArrayCopy(chosen_palette_array);
@@ -864,37 +837,36 @@ View.prototype.addDenseMatter = function  () {
       setInterval(function () {
 
           if (color_animation) {
-              if (cycleTime <= flickerDuration) { //During State Change
+              if (cycleTime <= flickerDuration) { // during state change
                   var k = 0;
 
                   for (const [element_color, imeshx] of Object.entries(imeshes_object)) {
                       var selectedColor;
                       for (let i = 0; i < imeshx.count; i++) {
                           let matrix = new THREE.Matrix4()
-                          sceneMeshes[k].getMatrixAt(i, matrix)  //X is index 12,
-                          var prop = matrix.elements[12] / total_width; //Normalizing the x/width this leads to -0.5 to 0.5
-                          var xMod = prop + 0.5 //XMod is now running from  0=>1
+                          sceneMeshes[k].getMatrixAt(i, matrix)  // x is index 12,
+                          var prop = matrix.elements[12] / total_width; // normalizing the x/width this leads to -0.5 to 0.5
+                          var xMod = prop + 0.5 // xMod is now running from  0=>1
                           var sigmoidValue = 1 - 1.1 * sigmoid((xMod - 3.0 * (cycleTime / cycleDuration) * 1.4 + 0.2), 0.05);
-                          if (sigmoidValue > gene()) {   //stateChangeProb-xMod
-                              selectedColor = copyPalette[k]; //Update State with shifted palette
+                          if (sigmoidValue > gene()) {   // stateChangeProb-xMod
+                              selectedColor = copyPalette[k]; // update state with shifted palette
                           } else {
-                              selectedColor = chosen_palette_array[k]; //Recede State
+                              selectedColor = chosen_palette_array[k]; // recede State
                           }
                           sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
                       };
 
                       sceneMeshes[k].geometry.attributes.instanceColor.needsUpdate = true;
-                      //imeshes_object[element_color].material.color = elements_per_palette_object; //Change all item colours
+                      //imeshes_object[element_color].material.color = elements_per_palette_object; // change all item colours
                       k++;
                   }
-              }//Else: State Stable
+              }// else: state stable
 
               cycleTime += flickerInterval;
 
               if (cycleTime >= cycleDuration) {
                   chosen_palette_array = [...copyPalette];
                   copyPalette = shiftArrayCopy(chosen_palette_array);
-                  //console.log(chosen_palette_array,copyPalette)
                   cycleTime = 0;
               }
           }
@@ -914,7 +886,7 @@ View.prototype.addDenseMatter = function  () {
           
           let matrix = new THREE.Matrix4()
           sceneMeshes[k].getMatrixAt(i, matrix)  
-          selectedColor = chosen_palette_array[k]; //Recede State
+          selectedColor = chosen_palette_array[k]; // recede state
           sceneMeshes[k].geometry.attributes.instanceColor.setXYZ(i, selectedColor.r, selectedColor.g, selectedColor.b);
         };
 
@@ -937,34 +909,28 @@ View.prototype.DenseMatterCreateExplosionVectors = function (cntr_pt) {
     // calculate explosion parameters for each element
     dense_matter_element['dist_to_ctr'] = element_position.distanceTo(cntr_pt);
     dense_matter_element['str_perturbance'] = gene_range(0.95, 1.0); // explosion strength will be randomly modified by this factor - gene_range(0.5, 1.0)
-    var explosion_axis = new THREE.Vector3().subVectors(element_position, cntr_pt).normalize(); //vectors should be computed once per animation, refreshed only when user changes center
+    var explosion_axis = new THREE.Vector3().subVectors(element_position, cntr_pt).normalize(); // vectors should be computed once per animation, refreshed only when user changes center
     dense_matter_element['exp_vector'] = explosion_axis; 
   }
 }
 
 View.prototype.DenseMatterUpdateT = function (t) {
-  dense_matter_memory[t] = {}; //holder for element wise objects
+  dense_matter_memory[t] = {}; // holder for element wise objects
   var t_sqrt = Math.sqrt(t); // non-linear movement, explosion slowing down with time (sqrt - square root)
   // apply explosion offset and random rotation for exploded elements
   for (const [key, dense_matter_element] of Object.entries(dense_matter_object)) {
     if (dense_matter_element['exists'] == false) {continue;}
     var dummy = new THREE.Object3D();
-    //dummy.matrix = dense_matter_element['base_matrix']; //start relative from base position 
     var explosion_axis = dense_matter_element['exp_vector'];
-    var dist_to_cent_a = dense_matter_element['dist_to_ctr']; //OPT: Does not need to be calculated every time
-    //var imesh_idx = dense_matter_element['imesh_idx'];
-    //var imesh = imeshes_object[dense_matter_element['color']]
-    //imesh.setMatrixAt(imesh_idx, dense_matter_element['base_matrix'])
-    //imesh.getMatrixAt(imesh_idx, dummy.matrix);
+    var dist_to_cent_a = dense_matter_element['dist_to_ctr']; // optimization: does not need to be calculated every time
     dummy.applyMatrix4(dense_matter_element['base_matrix']);
     var strength_perturbance = dense_matter_element['str_perturbance'];
     var rot_perturbance = explosion_rot_factor / dist_to_cent_a; // elements closer to the explosion will rotate more (and end up flying further away)
-    dummy.translateOnAxis(explosion_axis, strength_perturbance * t_sqrt * explosion_strength / Math.pow(dist_to_cent_a, 2)); //Change this to fixed positions + explosion translations
+    dummy.translateOnAxis(explosion_axis, strength_perturbance * t_sqrt * explosion_strength / Math.pow(dist_to_cent_a, 2)); // change this to fixed positions + explosion translations
     dummy.rotateX(t_sqrt * explosion_strength * rot_perturbance * (dense_matter_element['rotation_gene'].x * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
     dummy.rotateY(t_sqrt * explosion_strength * rot_perturbance * (dense_matter_element['rotation_gene'].y * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
     dummy.rotateZ(t_sqrt * explosion_strength * rot_perturbance * (dense_matter_element['rotation_gene'].z * explosion_rot_range * 2 - explosion_rot_range) / Math.pow(dist_to_cent_a, 3));
     dummy.updateMatrix();
-    //imesh.setMatrixAt(imesh_idx, dummy.matrix); //Update position 
     dense_matter_memory[t][key] = dummy.matrix;
   }
 }
@@ -979,10 +945,10 @@ View.prototype.DenseMatterUpdateFromMemory = function (t) {
     if (dense_matter_memory[t] == undefined) {
       console.log(dense_matter_memory, t);
     }
-    imesh.setMatrixAt(imesh_idx, dense_matter_memory[t][key]); //Update position 
+    imesh.setMatrixAt(imesh_idx, dense_matter_memory[t][key]); // update position 
   }
 
-  //Update imeshes
+  // update imeshes
   for (const [key, imesh] of Object.entries(imeshes_object)) {
     imesh.instanceMatrix.needsUpdate = true;
   }
@@ -1034,24 +1000,6 @@ View.prototype.addStarsRandom = function (bounds, qty)
 
   imesh.instanceMatrix.needsUpdate = true
 
-  //const axesHelper = new THREE.AxesHelper( 200 );
-  //this.scene.add( axesHelper );
-
-  //const cycle = 100000000;
-  //const cycleUpdate = 1000;
-  //const rotThetaDelta = Math.PI*2*cycleUpdate/cycle;
-  //const cameraVector = this.camera.getWorldDirection();
-  //const vector = new THREE.Vector3(0,0,1);
-  //const rotMatrixStaticIncrement = new THREE.Matrix4();
-  //rotMatrixStaticIncrement.makeRotationAxis(vector, rotThetaDelta)
-  /*
-  setInterval(function () {
-    //imesh.applyMatrix4(rotMatrixStaticIncrement);
-    imesh.rotateZ(rotThetaDelta);
-    imesh.instanceMatrix.needsUpdate = true;
-  }, cycleBackgroundUpdate)*/
-  //imesh.castShadow = true; // remove for performance
-  //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
 
 }
@@ -1121,16 +1069,6 @@ View.prototype.addStarDust = function ()
 
   imesh.instanceMatrix.needsUpdate = true
 
-
-  /*
-  setInterval(function () {
-    //console.log("r_star dust");
-    //imesh.applyMatrix4(rotMatrixStaticIncrement);
-    imesh.rotateZ(rotThetaDelta)
-    imesh.instanceMatrix.needsUpdate = true;
-  }, cycleBackgroundUpdate)*/
-  //imesh.castShadow = true; // remove for performance
-  //imesh.receiveShadow = true; // stars recieve no shadow
   this.scene.add(imesh);
 
 }
@@ -1214,10 +1152,10 @@ View.prototype.calculateFrames = function () {
 }
 
 View.prototype.preRender = function () {
-  //Empty cache
+  // empty cache
   dense_matter_memory = {};
 
-  //Cycle frames and pre-calc matrices
+  // cycle frames and pre-calc matrices
   View.prototype.calculateFrames();
 }
 
@@ -1225,10 +1163,9 @@ View.prototype.render = function () {
     animation_frametime = Math.round(animation_frametime * Math.pow(10, nDecimal)) / Math.pow(10, nDecimal);
 
     if (explosion_state_t != null) {
-      animation_frametime = explosion_state_t; //Fix explosion t to URL param
+      animation_frametime = explosion_state_t; // fix explosion t to URL param
     }
 
-    //console.log(animation_frametime)
     if (animation_frametime < animation_time) {
       
       View.prototype.DenseMatterUpdateFromMemory(animation_frametime);
@@ -1239,13 +1176,11 @@ View.prototype.render = function () {
     }
 
     this.composer.render();
-    //this.renderer.clear();  //
+    //this.renderer.clear();
 
     requestAnimationFrame(this.render.bind(this));
     //this.controls.update();
 
-
-    //console.log(animation_frametime);
     if (animation_initiated) {
       if (animation_direction){
         if (animation_frametime < animation_time){
@@ -1260,11 +1195,10 @@ View.prototype.render = function () {
     }
 
 
+    // add an on click event to update vectors
+    // reset animation t and update vectors using DenseMatterCreateExplosionVectors(cntr_pt)
 
-    //Add an on click event to update vectors
-    //Reset animation t and update vectors using DenseMatterCreateExplosionVectors(cntr_pt)
-
-    //this.renderer.clear();  //
+    // this.renderer.clear();
 
 
     if (debug){
@@ -1272,21 +1206,20 @@ View.prototype.render = function () {
       composer_pass = end_timer - start_timer
     }
     if(snap) {
-      //console.log(controller)
       capture(controller);
       snap = false;
     }
     if(recording & capturer!=null) {
       capturer.capture( renderer.domElement );
     }
-    //this.renderer.render(this.scene, this.camera); // When no layers are used
+    //this.renderer.render(this.scene, this.camera); // when no layers are used
 
 };
 
 function Controller(viewArea) {
   var view = new View(viewArea);
-  view.cam_distance = 700 //1000 for ortho
-  this.view = view; //referenced outside
+  view.cam_distance = 700 // 1000 for ortho
+  this.view = view; // referenced outside
   
   view.addDenseMatter(); // dense grid of colored elements
   view.addStarsRandom(1000, 15000); // random stars - parameters > (bounds, quantity)
@@ -1322,9 +1255,7 @@ function Controller(viewArea) {
   setTimeout(function () {$fx.preview();}, min_loading_time+3000)
 
   function onWindowResize() {
-    //console.log("resize")
     viewportAdjust(document.getElementById('viewport'), false);
-    //viewportAdjust(document.getElementById('viewport'), false);
     fitCameraToViewport(view, viewportWidth, viewportHeight);
     }
 
@@ -1347,7 +1278,7 @@ function Controller(viewArea) {
         }
         pointer.x = (x / window.innerWidth) * 2 - 1;
         pointer.y = - (y / window.innerHeight) * 2 + 1;
-        console.log(x, y);
+        console.log("coordinates", "x =", x, "y =", y);
         raycaster.setFromCamera(pointer, view.camera);
         const intersects = raycaster.intersectObjects(view.scene.children, true);
 
@@ -1355,22 +1286,20 @@ function Controller(viewArea) {
         explosion_power = gene_range(5, 15); // explosion strength
         explosion_strength = 200000 * explosion_power;
 
-        //console.log(intersects)
         for (let i = 0; i < intersects.length; i++) {
-            intersects[i].point.z = 0; //find the middle plane
-            //console.log(intersects[ i ].point);
+            intersects[i].point.z = 0; // find the middle plane
             View.prototype.DenseMatterCreateExplosionVectors(intersects[i].point)
             break;
         }
 
-        View.prototype.preRender(); //clear and recalculate frames
+        View.prototype.preRender(); // clear and recalculate frames
     }
 
     function onPointerDoubleClick(event, trigger_after=false) {
         resetClickCenter(event);
         if (trigger_after) {
           //onPointerClick(event);
-          console.log("Exploding new node...")
+          console.log("new explosion center set")
           animation_initiated = true;
         }
     }
@@ -1381,10 +1310,10 @@ function Controller(viewArea) {
 
       animation_direction = !animation_direction;
       
-      //animation_frametime = 0; //Reset animation
+      //animation_frametime = 0; // reset animation
       
     } else {
-      animation_initiated = true; //This is to start animation the first time, second time it's already set to true. 
+      animation_initiated = true; // this is to start animation the first time, second time it's already set to true
     }
   
     // calculate pointer position in normalized device coordinates
@@ -1393,7 +1322,7 @@ function Controller(viewArea) {
 
       resetClickCenter(event);
 
-      animation_center_comm = false; //wait for p to be pressed again
+      animation_center_comm = false; // wait for p to be pressed again
       
     }
     }
@@ -1409,18 +1338,18 @@ function Controller(viewArea) {
       //mouseUp();
       //event.preventDefault();
       mouseTimer = window.setTimeout(function () {
-        console.log("HoldClick")
+        console.log("click hold")
         onPointerDoubleClick(event, true);
         
-        },800); //set timeout to fire in 2 seconds when the user presses mouse button down
+        },800); // set timeout to fire in 2 seconds when the user presses mouse button down
     }
   }
 
   function mouseUp(event) { 
     if (!isTouchDevice()) {
       if (mouseTimer) {
-        window.clearTimeout(mouseTimer);  //cancel timer when mouse button is released
-        console.log("SingleClick")
+        window.clearTimeout(mouseTimer);  // cancel timer when mouse button is released
+        console.log("click")
         onPointerClick(event);
       } 
     }
@@ -1430,10 +1359,10 @@ function Controller(viewArea) {
     if (isTouchDevice()) {
     //event.preventDefault();
       touchTimer = window.setTimeout(function () {
-      console.log("TouchHold")
+      console.log("tap hold")
       onPointerDoubleClick(event, true);
       
-      },800); //set timeout to fire in 2 seconds when the user presses mouse button down
+      },800); // set timeout to fire in 2 seconds when the user presses mouse button down
     }
   }
   //function touchDownTest(event) {console.log("TDown")}
@@ -1441,8 +1370,8 @@ function Controller(viewArea) {
   function touchUp(event) { 
     if (isTouchDevice()) {
       if (touchTimer) {
-        window.clearTimeout(touchTimer);  //cancel timer when mouse button is released
-        console.log("Tap")
+        window.clearTimeout(touchTimer);  // cancel timer when mouse button is released
+        console.log("tap")
         onPointerClick(event);
       }  
     }
@@ -1459,47 +1388,47 @@ function tectonica () {
 }
 
 function viewportAdjust(vp, inner=true) {
-  ///ADJUST SIZE AND MARGIN
+  /// ADJUST SIZE AND MARGIN
   if (inner) {
-    if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
+    if (window.innerWidth/aspect_ratio>window.innerHeight) { // if target viewport height is larger then inner height
 
-      viewportHeight = window.innerHeight; //Force Height to be inner Height
-      viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
+      viewportHeight = window.innerHeight; // force Height to be inner Height
+      viewportWidth = aspect_ratio*window.innerHeight;  // scale width proportionally
 
       margin_top = 0;
       margin_left = (window.innerWidth - viewportWidth)/2;
-    } else {  //If target viewport width is larger then inner width
+    } else {  // if target viewport width is larger then inner width
 
-      viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
-      viewportWidth = window.innerWidth; //Force Width  to be inner Height
+      viewportHeight = window.innerWidth/aspect_ratio; // scale viewport height proportionally
+      viewportWidth = window.innerWidth; // force Width  to be inner Height
 
       margin_top = (window.innerHeight - viewportHeight)/2;
       margin_left = 0;
     }
 
-    ///SCALING
+    /// SCALING
     cam_factor_mod = cam_factor * Math.min((viewportWidth/1000)*quality, (viewportHeight/1000)*quality);
 
   } else {
-    if (window.innerWidth/aspect_ratio>window.innerHeight) { //If target viewport height is larger then inner height
+    if (window.innerWidth/aspect_ratio>window.innerHeight) { // if target viewport height is larger then inner height
 
       //document.documentElement.scrollWidth/scrollHeight
-      viewportHeight = window.innerHeight; //Force Height to be inner Height
-      viewportWidth = aspect_ratio*window.innerHeight;  //Scale width proportionally
+      viewportHeight = window.innerHeight; // force Height to be inner Height
+      viewportWidth = aspect_ratio*window.innerHeight;  // scale width proportionally
 
       margin_top = 0;
       margin_left = (window.innerWidth - viewportWidth)/2;
-    } else {  //If target viewport width is larger then inner width
+    } else {  // if target viewport width is larger then inner width
 
-      viewportHeight = window.innerWidth/aspect_ratio; //Scale viewport height proportionally
-      viewportWidth = window.innerWidth; //Force Width  to be inner Height
+      viewportHeight = window.innerWidth/aspect_ratio; // scale viewport height proportionally
+      viewportWidth = window.innerWidth; // force Width  to be inner Height
 
       margin_top = (window.innerHeight - viewportHeight)/2;
       margin_left = 0;
 
     }
 
-    ///SCALING
+    /// SCALING
     cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
 
   }
@@ -1526,7 +1455,7 @@ function fitCameraToViewport(view_instance, w,h, adjust=true) {
 
 
 function capturer_custom_save() {
-  console.log("Saving");
+  console.log("saving gif");
   setTimeout(() => {
     capturer.save(function( blob ) {
       const url = URL.createObjectURL(blob);
@@ -1537,7 +1466,7 @@ function capturer_custom_save() {
       URL.revokeObjectURL(url);
       });
       setTimeout(() => {
-        capturer = null; //Set capturer back to null after download
+        capturer = null; // set capturer back to null after download
       }, 250);
     }, 0);
 }
@@ -1548,7 +1477,7 @@ function check_drawing_buffer(q) {
   var taget_size = q*Math.max(viewportWidth, viewportHeight);
   if (taget_size > max_side) {
     var reduced_quality = q*max_side/taget_size;
-    console.log("Browser drawing buffer exceed. Reverting to the following quality multiplier: " + reduced_quality.toFixed(2).toString());
+    console.log("browser drawing buffer exceed, reverting to the following quality multiplier: " + reduced_quality.toFixed(2).toString());
     return reduced_quality;
   } else {
     return q
@@ -1557,7 +1486,7 @@ function check_drawing_buffer(q) {
 
 // define a handler
 function doc_keyUp(e) {
-  // Example double key use: e.ctrlKey && e.key === 'ArrowDown'
+  // example double key use: e.ctrlKey && e.key === 'ArrowDown'
   // this would test for whichever key is 40 (down arrow) and the ctrl key at the same time
   if (e.keyCode === 49 || e.keyCode === 97) { // 1 or NumPad 1
     snap = true;
@@ -1579,7 +1508,7 @@ function doc_keyUp(e) {
     
     if(recording){
       
-      //new capturer instance
+      // new capturer instance
       capturer = new CCapture( {
         verbose: false,
         display: false,
@@ -1602,27 +1531,27 @@ function doc_keyUp(e) {
         }
       },5000)
     }
-    else if (capturer != null) { //If capturer in ongoing and button press the "g" button again
+    else if (capturer != null) { // if capturer in ongoing and button press the "g" button again
       capturer.stop();
       capturer_custom_save();
     }
-  } else if (e.keyCode === 66 ) {  //"b" = flip background from black to white
+  } else if (e.keyCode === 66 ) {  // "b" = flip background from black to white
     background_toggle = !background_toggle;
       if (background_toggle) {
           document.body.style.backgroundColor = "white";
-          console.log("Background: white")
+          console.log("background: white")
 
       } else {
           document.body.style.backgroundColor = "black";
-          console.log("Background: black")
+          console.log("background: black")
 
     }
   }
-  else if (e.keyCode === 69) { //"e" = reset explosion center
+  else if (e.keyCode === 69) { // "e" = reset explosion center
       console.log("pick point for explosion")
       animation_center_comm = true;
   }
-  else if (e.keyCode === 80) { //"p" = pause/unpause color
+  else if (e.keyCode === 80) { // "p" = pause/unpause color
       color_animation = !color_animation;
   }
 }
@@ -1634,12 +1563,12 @@ const handler = (e) => {
 
 
 const capture = (contx) => {
-  ///DOCSIZE
+  /// DOCSIZE
   document.documentElement.scrollWidth = viewportWidth*quality;
   document.documentElement.scrollHeight = viewportHeight*quality;
-  ///SCALING
+  /// SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth*quality/1000, viewportHeight*quality/1000);
-  ///SetMargin to 0
+  /// set margin to 0
   document.getElementById('viewport').style.marginTop=0 +'px';
   document.getElementById('viewport').style.marginLeft=0 +'px';
   fitCameraToViewport(contx.view, viewportWidth*quality, viewportHeight*quality, true); //Projection Matrix Updated here
@@ -1655,10 +1584,10 @@ const capture = (contx) => {
     URL.revokeObjectURL(urlBase64);
   }
   catch(e) {
-    console.log("Browser does not support taking screenshot of 3d context");
+    console.log("browser does not support taking screenshot of a 3D context");
     return;
   }
-  // Set to standard quality
+  // set to standard quality
   quality = standard_quality;
   //viewportAdjust(document.getElementById('viewport'), false)
   cam_factor_mod = cam_factor * Math.min(viewportWidth*quality/1000, viewportHeight*quality/1000);
