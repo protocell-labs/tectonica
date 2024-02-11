@@ -94,7 +94,7 @@ console.log('%c CONTROLS ', 'color: white; background: #000000;', '\n',
             'click hold',   '\n',
             '   or      : new explosion center  ', '\n',
             'E + click   ', '\n',
-            'P          : pause/unpause color cycle', '\n',
+            'P          : pause/unpause palette cycle', '\n',
             'B          : white/black background', '\n',
             'S          : download loader', '\n',
             'G          : gif capture + explode', '\n',
@@ -134,8 +134,8 @@ const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
 let standard_quality = 1.0; // 2.0, 4.0
-quality = standard_quality; //set the current quality to standard
-let shadermult = 2.0;
+quality = standard_quality; // set the current quality to standard
+let shadermult = 1.0; // 1.0 looks the best, better bluring of lines
 var capturer = null;
 let recording = false;
 
@@ -161,9 +161,6 @@ function View(viewArea) {
   viewport.style.marginLeft=margin_left+'px';
 
   
-
-  /// Improve quality by zooming
-  //document.body.style.zoom = "50%"; this only scales document not browser
   
   /// SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
@@ -281,7 +278,6 @@ function View(viewArea) {
 
 
 
-
   // original order - renderPass, effectFXAA, bloomPass
   // changed the order after we introduced OutputPass
 
@@ -291,9 +287,9 @@ function View(viewArea) {
 
   // bloom
   const bloomPass = new THREE.UnrealBloomPass();
-  bloomPass.strength = 0.10; // 0.30
-  bloomPass.radius = 0.0; // 0.0
-  bloomPass.threshold = 0.05; // 0.0
+  bloomPass.strength = 0.10;
+  bloomPass.radius = 0.0;
+  bloomPass.threshold = 0.05;
   this.composer.addPass(bloomPass)
 
   // output pass
@@ -1180,10 +1176,8 @@ View.prototype.render = function () {
     }
 
     this.composer.render();
-    //this.renderer.clear();
 
     requestAnimationFrame(this.render.bind(this));
-    //this.controls.update();
 
     if (animation_initiated) {
       if (animation_direction){
@@ -1199,12 +1193,6 @@ View.prototype.render = function () {
     }
 
 
-    // add an on click event to update vectors
-    // reset animation t and update vectors using DenseMatterCreateExplosionVectors(cntr_pt)
-
-    // this.renderer.clear();
-
-
     if (debug){
       var end_timer = new Date().getTime();
       composer_pass = end_timer - start_timer
@@ -1216,7 +1204,6 @@ View.prototype.render = function () {
     if(recording & capturer!=null) {
       capturer.capture( renderer.domElement );
     }
-    //this.renderer.render(this.scene, this.camera); // when no layers are used
 
 };
 
@@ -1236,7 +1223,6 @@ function Controller(viewArea) {
   onWindowResize();
   view.preRender();
  
-
 
   // remove loading screen once the app is loaded to this point and min_loading_time has elapsed
   var loading_end_time = new Date().getTime();
@@ -1259,7 +1245,6 @@ function Controller(viewArea) {
   setTimeout(function () {$fx.preview();}, min_loading_time+3000)
 
   function onWindowResize() {
-    console.log("resize");
     viewportAdjust(document.getElementById('viewport'), false);
     fitCameraToViewport(view, viewportWidth, viewportHeight);
     }
@@ -1405,7 +1390,7 @@ function viewportAdjust(vp, inner=true) {
     } else {  // if target viewport width is larger then inner width
 
       viewportHeight = window.innerWidth/aspect_ratio; // scale viewport height proportionally
-      viewportWidth = window.innerWidth; // force Width  to be inner Height
+      viewportWidth = window.innerWidth; // force Width to be inner Height
 
       margin_top = (window.innerHeight - viewportHeight)/2;
       margin_left = 0;
@@ -1417,7 +1402,6 @@ function viewportAdjust(vp, inner=true) {
   } else {
     if (window.innerWidth/aspect_ratio>window.innerHeight) { // if target viewport height is larger then inner height
 
-      //document.documentElement.scrollWidth/scrollHeight
       viewportHeight = window.innerHeight; // force Height to be inner Height
       viewportWidth = aspect_ratio*window.innerHeight;  // scale width proportionally
 
@@ -1447,7 +1431,7 @@ function fitCameraToViewport(view_instance, w,h, adjust=true) {
   view_instance.composer.setSize( w, h);
   effectFXAA.uniforms['resolution'].value.x = 1 / (w* window.devicePixelRatio*shadermult);
   effectFXAA.uniforms['resolution'].value.y = 1 / (h* window.devicePixelRatio*shadermult);
-  //view_instance.camera.aspect = w / h;
+
   if (adjust) {
     view_instance.camera.left = -w / cam_factor_mod;
     view_instance.camera.right = w / cam_factor_mod;
@@ -1508,7 +1492,7 @@ function doc_keyUp(e) {
   } else if (e.keyCode === 53 || e.keyCode === 101) { // 5 or NumPad 5
     snap = true;
     quality = check_drawing_buffer(5);
-  } else if (e.keyCode === 71 ) {  //"g" = Gif
+  } else if (e.keyCode === 71 ) {  // "g" = Gif
     recording = !recording;
     
     if(recording){
@@ -1556,7 +1540,7 @@ function doc_keyUp(e) {
       console.log("pick point for explosion")
       animation_center_comm = true;
   }
-  else if (e.keyCode === 80) { // "p" = pause/unpause color
+  else if (e.keyCode === 80) { // "p" = pause/unpause palette cycle
       color_animation = !color_animation;
   }
 }
@@ -1576,7 +1560,7 @@ const capture = (contx) => {
   /// set margin to 0
   document.getElementById('viewport').style.marginTop=0 +'px';
   document.getElementById('viewport').style.marginLeft=0 +'px';
-  fitCameraToViewport(contx.view, viewportWidth*quality, viewportHeight*quality, true); //Projection Matrix Updated here
+  fitCameraToViewport(contx.view, viewportWidth*quality, viewportHeight*quality, true); // projection matrix updated here
 
   composer.render();
 
@@ -1594,10 +1578,7 @@ const capture = (contx) => {
   }
   // set to standard quality
   quality = standard_quality;
-  //viewportAdjust(document.getElementById('viewport'), false)
   cam_factor_mod = cam_factor * Math.min(viewportWidth*quality/1000, viewportHeight*quality/1000);
-  //fitCameraToViewport(contx.view, viewportWidth, viewportHeight); //Projection Matrix Updated
-  
   composer.render();
 
   viewportAdjust(document.getElementById('viewport'), false);
@@ -1607,8 +1588,6 @@ const capture = (contx) => {
 
 // register the capture key handler
 document.addEventListener('keyup', doc_keyUp, false);
-
-//document.addEventListener('mousemove', onMouseMove, false);
 
 document.addEventListener('DOMContentLoaded', () => {
   handler();
