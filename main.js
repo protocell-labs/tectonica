@@ -134,10 +134,13 @@ const composer = new THREE.EffectComposer(renderer);
 let snap = false;
 let quality = 0;
 let standard_quality = 1.0; // 2.0, 4.0
+quality = standard_quality; //set the current quality to standard
+let shadermult = 2.0;
 var capturer = null;
 let recording = false;
 
 function View(viewArea) {
+
   if (window.innerWidth/aspect_ratio>window.innerHeight) { // if target viewport height is larger then inner height
 
     viewportHeight = window.innerHeight; // force Height to be inner Height
@@ -159,7 +162,8 @@ function View(viewArea) {
 
   
 
-
+  /// Improve quality by zooming
+  //document.body.style.zoom = "50%"; this only scales document not browser
   
   /// SCALING
   cam_factor_mod = cam_factor * Math.min(viewportWidth/1000, viewportHeight/1000);
@@ -298,8 +302,8 @@ function View(viewArea) {
 
   // FXAA antialiasing
   effectFXAA = new THREE.ShaderPass(THREE.FXAAShader);
-  effectFXAA.uniforms['resolution'].value.x = 1 / (viewportWidth * standard_quality * window.devicePixelRatio);
-  effectFXAA.uniforms['resolution'].value.y = 1 / (viewportHeight * standard_quality * window.devicePixelRatio);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (viewportWidth * standard_quality * window.devicePixelRatio*shadermult);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (viewportHeight * standard_quality * window.devicePixelRatio*shadermult);
   this.composer.addPass(effectFXAA);
 
 }
@@ -1255,6 +1259,7 @@ function Controller(viewArea) {
   setTimeout(function () {$fx.preview();}, min_loading_time+3000)
 
   function onWindowResize() {
+    console.log("resize");
     viewportAdjust(document.getElementById('viewport'), false);
     fitCameraToViewport(view, viewportWidth, viewportHeight);
     }
@@ -1440,8 +1445,8 @@ function viewportAdjust(vp, inner=true) {
 function fitCameraToViewport(view_instance, w,h, adjust=true) {
   view_instance.renderer.setSize( w, h);
   view_instance.composer.setSize( w, h);
-  effectFXAA.uniforms['resolution'].value.x = 1 / (w);
-  effectFXAA.uniforms['resolution'].value.y = 1 / (h);
+  effectFXAA.uniforms['resolution'].value.x = 1 / (w* window.devicePixelRatio*shadermult);
+  effectFXAA.uniforms['resolution'].value.y = 1 / (h* window.devicePixelRatio*shadermult);
   //view_instance.camera.aspect = w / h;
   if (adjust) {
     view_instance.camera.left = -w / cam_factor_mod;
