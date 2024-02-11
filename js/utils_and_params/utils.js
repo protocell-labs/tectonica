@@ -13,7 +13,7 @@ function iOS() {
   || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
 }
 
-// rand functions for random generator. Assumes generator producing float point between 0 and 1
+// various random functions, assumes generator producing float point between 0 and 1
 
 function gene_rand_int_proto(gene){
   function gene_rand_int(min,max){
@@ -92,7 +92,6 @@ return shuffleArray;
 
 
 // random functions for specific implementation
-//var gene = $fx.rand; // fxhash version of Math.random(), uses the unique hash injected into the code as a seed
 let seed = $fx.getParam("seed_id");
 let artwork_seed = $fx.minter + "_seed_" + seed.toString(); // artwork seed is composed of minter wallet address and chosen effect number
 const gene = new Math.seedrandom(artwork_seed); // seeded PRNG for general use

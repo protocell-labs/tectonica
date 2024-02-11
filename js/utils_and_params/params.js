@@ -7,7 +7,7 @@ var min_loading_time = 7000; // this is the minimum that the loading screen will
 var debug = true;
 var cam_factor = 4; // controls the "zoom" when using orthographic camera, default was 4
 var cam_factor_mod;
-var aspect_ratio = "0.5625"; //// 0.5625 - 16:9 aspect ratio, 0.75 - portrait (used in O B S C V R V M)
+var aspect_ratio = "0.5625"; // 0.5625 - 16:9 aspect ratio, 0.75 - portrait (used in O B S C V R V M)
 var global_rot_x = -Math.PI/16; // global rotation of the model around the X axis
 var global_rot_y = Math.PI/16; // global rotation of the model around the Y axis
 
@@ -38,8 +38,9 @@ rotMatrixStaticIncrement.makeRotationAxis(rotVectorBackground, rotThetaDelta)
 // "murex, rhodochrosite, marshmallow": Marvin Minsky, Allen Newell, Herbert A. Simon, John McCarthy, Ray Solomonoff, Claude Shannon, John von Neumann, Alan Turing
 // "furnace, ruby, soot": Anish Kapoor, Kjetil Golid, Kwame Bruce Busia, Donald Judd, Kazimir Malevich
 
-// palette encoding based on "Code-golfing color palettes in JavaScript"
+// palette encoding based on Mathieu 'p01' Henri's code from "Code-golfing color palettes in JavaScript"
 // from: https://gist.github.com/mattdesl/58b806478f4d33e8b91ed9c51c39014d
+// the reason why we went for encoded palettes is to reduce the size of the code for on-chain storage (which we didn't use in the end)
 
 const pigment_codes = {
   "horizon, sunshine, grapefruit":      ["૟࿾྅࿥:ుඡɘ໭:࿽ณɺྱ:ο࿭ླ༤:๒າқ࿽ߌ:ศຳ͚໭:ະแɩ໌໮:ย࿂ƛྫ࿭", ["Otti", "Stölzl", "Albers", "Brandt", "Koch-Otte", "Arndt", "Siedhoff-Buscher", "Heymann"]],
